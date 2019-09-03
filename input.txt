@@ -1,0 +1,30 @@
+[Global Tesseroid Model]
+LON_MIN = -180
+LON_MAX = 180
+LAT_MIN = -90
+LAT_MAX = 90
+WIDTH = 2
+
+TOP_SURFACE = data/crust1_moho.csv
+BOT_SURFACE = data/crust1_top.csv
+
+IGRF_DAY = 1
+IGRF_MONTH = 1
+IGRF_YEAR = 2014
+IGRF_COEFF_FILENAME = IGRF12.COF
+
+
+[Global Grid]
+GRID_LON_MIN = -180
+GRID_LON_MAX = 180
+GRID_LAT_MIN = -90
+GRID_LAT_MAX = 90
+
+GRID_ALT = 400000
+GRID_STEP = 2.0
+
+[Spherical Harmonics]
+N_MIN_CUTOFF = 16
+
+[Inversion]
+OBSERVED_DATA = hemant_vis_global_crust1.0/result.magtess_Bz.txt
