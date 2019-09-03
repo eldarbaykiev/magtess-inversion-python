@@ -75,6 +75,30 @@ import scipy.optimize
 
 #SOLVING
 
+def Projected_Gradient(A, d, x_0):
+	print "Projected Gradient inversion"
+	import time
+	start = time.time()
+
+	A_T = np.transpose(A)
+
+	n_bodies = len(A_T[:, 0])
+	print "  Number of bodies: " + str(n_bodies)
+	n_points = len(A_T[0, :])
+	print "  Number of datapoints: " + str(n_points)
+
+	import nimfa
+
+	h=nimfa.Lsnmf(V=A, W=d, H=np.ones(n_bodies)*x_0, max_iter=1000, min_residuals=1e-6)
+	print h()
+
+	exit()
+	end = time.time()
+	print "  Time spent: " + str(end - start) + " sec"
+	print h
+	return h
+
+
 #Generalized Tikhonov
 def Generalized_Tikhonov(A, d, sigma_d, sigma_x, x_0):
 	print "Generalized Tikhonov inversion"
@@ -82,8 +106,6 @@ def Generalized_Tikhonov(A, d, sigma_d, sigma_x, x_0):
 	start = time.time()
 
 	A_T = np.transpose(A)
-
-
 
 	n_bodies = len(A_T[:, 0])
 	print "  Number of bodies: " + str(n_bodies)
@@ -120,10 +142,6 @@ def Generalized_Tikhonov(A, d, sigma_d, sigma_x, x_0):
 	print h
 	return h
 
-def Projected_Gradient(A, d):
-	x = 0
-	return 0
-
 #L2 minimization
 def L2_minimization(A, d, alpha):
 	print "L2 minimization"
@@ -141,26 +159,32 @@ def L2_minimization(A, d, alpha):
 	print h
 	return h
 
-h_sh = Generalized_Tikhonov(A_sh, d_sh, 0.001, 0.01, 0.02)
+
+
+#h_sh = Generalized_Tikhonov(A_sh, d_sh, 0.001, 0.01, 0.02)
 #h_sh = L2_minimization(A_sh, d_sh, 0.25)
 #h_sh = scipy.sparse.linalg.lsqr(A_sh, d_sh)
 #h_sh = scipy.optimize.lsq_linear(A_sh, d_sh, bounds=(0, 0.06))
+#h_sh = scipy.optimize.nnls(A_sh, d_sh)
+h_sh = Projected_Gradient(A_sh, d_sh, 0.02)
 
 
 h_grd = Generalized_Tikhonov(A_grd, d_grd, 0.5, 0.01, 0.02)
 #h_grd = L2_minimization(A_grd, d_grd, 0.25)
 #h_grd = scipy.sparse.linalg.lsqr(A_grd, d_grd)
 #h_grd = scipy.optimize.lsq_linear(A_grd, d_grd, bounds=(0, 0.06))
+#h_grd = scipy.optimize.nnls(A_grd, d_grd)
+#h_grd = Projected_Gradient(A_grd, d_grd, 0.02)
 
 ######################
 
 #output grid
-min_lon = -180
-max_lon = 180
-min_lat = -90
-max_lat = 90
-step = 3.0
-
+min_lon = gmi_config.LON_MIN
+max_lon = gmi_config.LON_MAX
+min_lat = gmi_config.LAT_MIN
+max_lat = gmi_config.LAT_MAX
+step = gmi_config.WIDTH
+print step
 
 #NUMBER OF TESSEROIDS
 n_lon = int(abs(max_lon - step/2.0 - (min_lon + step/2.0)) / step + 1)

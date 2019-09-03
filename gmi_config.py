@@ -29,7 +29,7 @@ N_MIN_CUTOFF = 0
 OBSERVED_DATA = ""
 
 def read_config():
-	print "Reading config file..."
+	#print "Reading config file..."
 	import sys
 	this = sys.modules[__name__]
 
@@ -46,8 +46,8 @@ def read_config():
 		this.LAT_MAX = float(config.get('Global Tesseroid Model', 'LAT_MAX'))
 		this.WIDTH = float(config.get('Global Tesseroid Model', 'WIDTH'))
 
-		this.TOP_SURFACE = config.get('Global Tesseroid Model', 'TOP_SURFACE') 
-		this.BOT_SURFACE = config.get('Global Tesseroid Model', 'BOT_SURFACE') 
+		this.TOP_SURFACE = config.get('Global Tesseroid Model', 'TOP_SURFACE')
+		this.BOT_SURFACE = config.get('Global Tesseroid Model', 'BOT_SURFACE')
 
 		this.IGRF_DAY = int(config.get('Global Tesseroid Model', 'IGRF_DAY'))
 		this.IGRF_MONTH = int(config.get('Global Tesseroid Model', 'IGRF_MONTH'))
@@ -68,7 +68,7 @@ def read_config():
 
 		#Inversion
 		this.OBSERVED_DATA = config.get('Inversion', 'OBSERVED_DATA')
-		
+
 	except ValueError as err:
 		print ("MISTAKE IN THE INPUT FILE: {0}".format(err))
 		exit(-1)
@@ -76,4 +76,4 @@ def read_config():
 		print ("CAN NOT OPEN INPUT FILE")
 		exit(-1)
 
-	print "                     ...done"
+	#print "                     ...done"
