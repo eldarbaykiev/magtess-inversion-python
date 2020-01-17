@@ -1,11 +1,11 @@
 def print_header():
-	print "**********************************"
-	print "*   GLOBAL MAGNETIC INVERSION    *"
-	print "*     Eldar Baykiev, 2019        *"
-	print "*                                *"
-	print "**********************************"
-	print ""
-	print ""
+	print ("**********************************")
+	print ("*   GLOBAL MAGNETIC INVERSION    *")
+	print ("*      Eldar Baykiev, 2019       *")
+	print ("*         Python  3.8.1          *")
+	print ("**********************************")
+	print ("")
+	print ("")
 
 
 def read_tess_output_global_grid_from_file(filename):
@@ -20,6 +20,9 @@ def read_tess_output_global_grid_from_file(filename):
 	LAT = data[:, 1]
 	ALT = data[:, 2]
 	VAL = data[:, 3]
+
+	if ALT[0] != gmi_config.GRID_ALT:
+		print ("GRID " +str(filename) + " HAS WRONG ALTITUDE (" + str(ALT[0]) + "m instead of " + str(gmi_config.GRID_ALT) + "m)")
 
 	step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
 
@@ -39,26 +42,129 @@ def read_tess_output_global_grid_from_file(filename):
 	lats = np.linspace(max_lat, min_lat, n_lat)
 	lons = np.linspace(min_lon, max_lon, n_lon)
 
-	X,Y = np.meshgrid(lons, lats) 
+	X,Y = np.meshgrid(lons, lats)
 
 	#in SHTOOLS format
 	raw_grid = griddata((LON, LAT), -VAL, (X,Y), method='nearest')
 
 	return raw_grid
 
+def subtract_tess_output_global_grids(filename1, filename2, output_filename):
+	#NOT TESTED
+	import numpy as np
+	from scipy.interpolate import griddata
+
+	import gmi_config
+	gmi_config.read_config()
+
+	data1 = np.loadtxt(filename1, delimiter=" ")
+	LON = data1[:, 0]
+	LAT = data1[:, 1]
+	ALT = data1[:, 2]
+	VAL1 = data1[:, 3]
+
+	data2 = np.loadtxt(filename2, delimiter=" ")
+	VAL2 = data2[:, 3]
+
+	VAL = VAL1 - VAL2
+
+	with open(output_filename, 'w') as ofile:
+		for i in range(len(LON)):
+			ofile.write(str(LON[i]) + ' ' + str(LAT[i]) + ' ' + str(ALT[i]) + ' ' + str(VAL[i]) + '\n')
+
+	return
+
+
+def read_global_grid_from_xyz_file(filename):
+	import numpy as np
+	from scipy.interpolate import griddata
+
+	import gmi_config
+	gmi_config.read_config()
+
+	data = np.loadtxt(filename, delimiter=" ")
+
+	LON = data[:, 0]
+	LAT = data[:, 1]
+	VAL = data[:, 2]
+
+	step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
+
+	#flip coord system to fit SHTOOLS convention
+	for i in range(1, len(LON), 1):
+		if LON[i]<0:
+			LON[i] = 360+LON[i]
+
+	min_lon = 0
+	max_lon = 360
+	min_lat = -90
+	max_lat = 90
+
+	n_lat = len(np.arange(min_lat, max_lat, step))
+	n_lon = len(np.arange(min_lon, max_lon, step))
+
+	lats = np.linspace(max_lat, min_lat, n_lat)
+	lons = np.linspace(min_lon, max_lon, n_lon)
+
+	X,Y = np.meshgrid(lons, lats)
+
+	#in SHTOOLS format
+	raw_grid = griddata((LON, LAT), VAL, (X,Y), method='nearest')
+
+	return raw_grid
+
+def read_suscept_global_grid_from_file(filename):
+	import numpy as np
+	from scipy.interpolate import griddata
+
+	import gmi_config
+	gmi_config.read_config()
+
+	data = np.loadtxt(filename, delimiter="\t")
+	LON = data[:, 0]
+	LAT = data[:, 1]
+	VAL = data[:, 2]
+
+	min_lon = gmi_config.LON_MIN
+	max_lon = gmi_config.LON_MAX
+	min_lat = gmi_config.LAT_MIN
+	max_lat = gmi_config.LAT_MAX
+	step = gmi_config.WIDTH
+
+	#NUMBER OF TESSEROIDS
+	n_lon = int(abs(max_lon - step/2.0 - (min_lon + step/2.0)) / step + 1)
+	n_lat = int(abs(max_lat - step/2.0 - (min_lat + step/2.0)) / step + 1)
+
+	lons = np.linspace(min_lon+ step/2.0, max_lon-step/2.0, n_lon)
+	lats = np.linspace(min_lat+ step/2.0, max_lat-step/2.0, n_lat)
+
+	X,Y = np.meshgrid(lons, lats)
+
+	#in SHTOOLS format
+	sus_grid = griddata((LON, LAT), VAL, (X,Y), method='nearest')
+
+	x_0 = np.zeros(n_lon*n_lat)
+	ind = 0
+	for i in range(n_lat-1, -1, -1):
+		for j in range(n_lon):
+			x_0[ind] = sus_grid[i, j]
+			ind = ind+1
+
+	return x_0
+
 
 def remove_lw_sh_coeff(sh_coff, n_cutoff):
 	import pyshtools
 	shtools_zero_coeff = pyshtools.SHCoeffs.from_zeros(len(sh_coff.degrees())-1)
 	shtools_zero_coeff = shtools_zero_coeff.convert('schmidt')
-	shtools_zero_coeff.coeffs[:, n_cutoff:, :] = sh_coff.coeffs[:, n_cutoff:, :] 
+	shtools_zero_coeff.coeffs[:, n_cutoff:, :] = sh_coff.coeffs[:, n_cutoff:, :]
 	return shtools_zero_coeff
 
 
 def read_coeffs_from_text_file(shc_filename, n_cutoff):
 	import numpy as np
 	data = np.loadtxt(shc_filename, delimiter=",")
-	
+
 	#print data[:, 0]
 	ind = np.where(data[:, 0] < n_cutoff)
 	data[ind, 2] = np.zeros(len(ind))
@@ -66,4 +172,24 @@ def read_coeffs_from_text_file(shc_filename, n_cutoff):
 
 	out = np.concatenate((data[:, 2], data[:, 3]))
 	return out
-	
+
+def convert_result_into_shtools_format(vect, fname):
+	import numpy as np
+
+	try:
+		shdata = np.loadtxt('model/tess_n0.coeff', delimiter=",")
+	except:
+		print ("CAN NOT OPEN model/tess_n0.coeff")
+		exit(-1)
+
+	half = len(shdata[:, 2])
+	shdata[:, 2] = vect[0:half]
+	shdata[:, 3] = vect[half:]
+
+	with open(fname, 'w') as fresult:
+		for i in range(half):
+			fresult.write(str(int(shdata[i, 0])) + ', ' + str(int(shdata[i, 1])) + ', ' + str(float(shdata[i, 2])) + ', ' + str(float(shdata[i, 3])) + '\n')
+
+	import pyshtools
+	shtools_result_coeff = pyshtools.SHCoeffs.from_file(fname, normalization='schmidt')
+	return shtools_result_coeff

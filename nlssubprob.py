@@ -24,11 +24,19 @@ def nlssubprob(V, W, Hinit, tol, maxiter):
     alpha=1
     beta=0.1
 
+    print('tol: ' + str(tol))
+    print('Maximum iterations: ' + str(maxiter))
+    #from tqdm import tqdm
+	
+    logfile = open('nlssubprob.dat', 'w')
     for iter in range(maxiter):
         grad = np.dot(WtW,H) - WtV
         #show_matrix_corners(grad)
 
         projgrad=np.linalg.norm(grad[((grad < 0) | (H > 0))])
+        print ("Iteration " + str(iter) + " projgrad: " + str(projgrad))
+        logfile.write(str(iter) + ' ' + str(projgrad) + '\n')
+		
         if projgrad < tol:
             break
         for inner_iter in range(20):
@@ -56,7 +64,8 @@ def nlssubprob(V, W, Hinit, tol, maxiter):
                 else:
                     alpha = alpha/beta
                     Hp = Hn
-        if iter==maxiter-1:
-            print "Max iter in nlssubprob"
+        #if iter==maxiter-1:
+            #print("Max iter in nlssubprob")
 
+    logfile.close()
     return H

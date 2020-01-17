@@ -1,3 +1,7 @@
+[Name]
+PROJECT_NAME = 2degx2deg_100000_apriori_wolfgang_ocean_cont_CRUST
+
+
 [Global Tesseroid Model]
 LON_MIN = -180
 LON_MAX = 180
@@ -5,8 +9,8 @@ LAT_MIN = -90
 LAT_MAX = 90
 WIDTH = 2
 
-TOP_SURFACE = data/crust1_moho.csv
-BOT_SURFACE = data/crust1_top.csv
+TOP_SURFACE = data/crust1_top.csv
+BOT_SURFACE = global_moho_wolfgang/wolfgang_moho.csv
 
 IGRF_DAY = 1
 IGRF_MONTH = 1
@@ -21,10 +25,20 @@ GRID_LAT_MIN = -90
 GRID_LAT_MAX = 90
 
 GRID_ALT = 400000
-GRID_STEP = 2.0
+GRID_STEP = 1.0
 
 [Spherical Harmonics]
 N_MIN_CUTOFF = 16
 
 [Inversion]
-OBSERVED_DATA = hemant_vis_global_crust1.0/result.magtess_Bz.txt
+OBSERVED_DATA = apriori_VIM/1degx1deg_apriori_hemant_crust1.0_wolfgang.x0.x0_Bz.txt
+SUBTRACT_DATA =
+INIT_SOLUTION = averaged_cont_CRUST_ocean.x0
+MAX_ITER = 100000
+
+[Tiles]
+T_TESSWIDTH = 0.5
+T_LON_SIZE = 20
+T_LAT_SIZE = 20
+T_EDGE = 4
+T_GRID_STEP = 0.5

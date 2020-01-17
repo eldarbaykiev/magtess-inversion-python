@@ -1,7 +1,7 @@
 import gmi_misc
 
 gmi_misc.print_header()
-print "Script no. 2: Calculation of the magnetic field of each tesseroid in the model"
+print ("Script no. 2: Calculation of the magnetic field of each tesseroid in the model")
 
 #read parameters from file
 
@@ -33,7 +33,7 @@ except IOError as err:
 	exit(-1)
 #print mag_tesseroids
 n_tess = len(mag_tesseroids)
-print 'Number of tesseroids in the model: ' + str(n_tess)
+print ('Number of tesseroids in the model: ' + str(n_tess))
 
 
 
@@ -45,24 +45,36 @@ from tqdm import tqdm
 import pyshtools
 coeff_info = pyshtools.SHCoeffs.from_zeros(1)
 
+
 import os
 try:
 	os.mkdir('model')
 except:
-	print "model folder already exists!"
+	print ("model folder already exists!")
 
-if os.path.isfile('tessbz') == False:
-	print ("CAN NOT FIND tessbz IN THE CURRENT DIRECTORY")
+
+import platform
+oper_system = platform.system()
+
+tessbz_filename = 'tessbz'
+if oper_system == 'Linux':
+	tessbz_filename = 'tessbz_linux'
+
+
+
+
+if os.path.isfile(tessbz_filename) == False:
+	print ("CAN NOT FIND " + tessbz_filename + " IN THE CURRENT DIRECTORY")
 	exit(-1)
 
-print 'Calculating effects of each tesseroid...'
+print ('Calculating effects of each tesseroid...')
 for i in tqdm(range(n_tess)):
 	tessfile = open('dummy.magtess', 'w')
-	string = str(mag_tesseroids[i, 0]) + ' ' + str(mag_tesseroids[i, 1]) + ' ' + str(mag_tesseroids[i, 2]) + ' ' + str(mag_tesseroids[i, 3]) + ' ' + str(mag_tesseroids[i, 4]) + ' ' + str(mag_tesseroids[i, 5]) + ' ' + str(mag_tesseroids[i, 6]) + ' ' + str(mag_tesseroids[i, 7]) + ' ' + str(mag_tesseroids[i, 8]) + ' ' + str(mag_tesseroids[i, 9]) + ' ' + str(mag_tesseroids[i, 10]) 
+	string = str(mag_tesseroids[i, 0]) + ' ' + str(mag_tesseroids[i, 1]) + ' ' + str(mag_tesseroids[i, 2]) + ' ' + str(mag_tesseroids[i, 3]) + ' ' + str(mag_tesseroids[i, 4]) + ' ' + str(mag_tesseroids[i, 5]) + ' ' + str(mag_tesseroids[i, 6]) + ' ' + str(mag_tesseroids[i, 7]) + ' ' + str(mag_tesseroids[i, 8]) + ' ' + str(mag_tesseroids[i, 9]) + ' ' + str(mag_tesseroids[i, 10])
 	tessfile.write(string + '\n')
 	tessfile.close()
-	
-	command_bz = "./tessbz dummy.magtess < grid.txt > " + "out_Bz.txt"
+
+	command_bz = "./" + tessbz_filename + " dummy.magtess < grid.txt > " + "out_Bz.txt"
 	command = command_bz + '\n'
 	os.system(command)
 
@@ -78,12 +90,12 @@ for i in tqdm(range(n_tess)):
 	os.remove("out_Bz.txt")
 	os.remove("dummy.magtess")
 
-	
-print '...done'
 
-print 'Properties of SHCoeffs:'
-print coeff_info.info()
-print "Max degree: " + str(coeff_info.lmax)
+print ('...done')
+
+print ('Properties of SHCoeffs:')
+print (coeff_info.info())
+print ("Max degree: " + str(coeff_info.lmax))
 
 
 #os.chdir('model')
