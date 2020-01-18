@@ -14,13 +14,8 @@ print("Script no. 4: Inversion")
 USE_GRD = False
 
 #read parameters from file
-
-
-
 import gmi_config
 gmi_config.read_config()
-
-
 
 import matplotlib.pyplot as plt
 import pyshtools
