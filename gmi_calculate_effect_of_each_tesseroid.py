@@ -9,6 +9,33 @@ import gmi_config
 gmi_config.read_config()
 
 import numpy as np
+
+
+#check if previous stages were launched
+try:
+	read_dictionary = np.load('checksums.npy',allow_pickle='TRUE').item()
+except:
+	print("RUN Script no. 1 first! ABORTING...")
+	exit(-1)
+
+if len(read_dictionary['stage1']) == 0:
+	print("RUN Script no. 1 first! ABORTING...")
+	exit(-1)
+
+import hashlib
+file_name = 'model.magtess'
+with open(file_name, 'r') as file_to_check:
+    # read contents of the file
+    data = file_to_check.read()
+    # pipe contents of the file through
+    md5_stage1 = hashlib.md5(data.encode('utf-8')).hexdigest()
+
+if md5_stage1 != read_dictionary['stage1']:
+	print(file_name + ' was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+	exit(-1)
+else:
+	pass
+
 from scipy.interpolate import griddata
 
 grid_n_lon = int(abs(gmi_config.GRID_LON_MAX - (gmi_config.GRID_LON_MIN)) / gmi_config.GRID_STEP + 1)
@@ -61,6 +88,7 @@ if oper_system == 'Linux':
 	tessbz_filename = 'tessbz_linux'
 
 
+print("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
 
 
 if os.path.isfile(tessbz_filename) == False:
@@ -99,3 +127,11 @@ print ("Max degree: " + str(coeff_info.lmax))
 
 
 #os.chdir('model')
+
+
+def calculate_checksum(filenames):
+    hash = hashlib.md5()
+    for fn in filenames:
+        if os.path.isfile(fn):
+            hash.update(open(fn, "rb").read())
+    return hash.digest()

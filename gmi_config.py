@@ -1,3 +1,5 @@
+import gmi_misc
+
 #
 PROJECT_NAME = ''
 
@@ -33,6 +35,7 @@ OBSERVED_DATA = ""
 SUBTRACT_DATA = ""
 INIT_SOLUTION = ""
 MAX_ITER = 100000
+MULTIPLICATOR = 100000.0
 
 #Tiles
 T_TESSWIDTH = 0
@@ -41,9 +44,14 @@ T_LAT_SIZE = 0
 T_EDGE = 0
 T_GRID_STEP = 0
 
+#
+TESSUTIL_MAGNETIZE_MODEL_FILENAME  = 'tessutil_magnetize_model'
 
 def read_config():
-	#print "Reading config file..."
+
+	import os
+	print ('Reading config file ' + os.path.abspath("mydir/myfile.txt"))
+	
 	import sys
 	this = sys.modules[__name__]
 
@@ -87,6 +95,7 @@ def read_config():
 		this.SUBTRACT_DATA = config.get('Inversion', 'SUBTRACT_DATA')
 		this.INIT_SOLUTION = config.get('Inversion', 'INIT_SOLUTION')
 		this.MAX_ITER = int(config.get('Inversion', 'MAX_ITER'))
+		this.MULTIPLICATOR = float(config.get('Inversion', 'MULTIPLICATOR'))
 
 		#Tiles
 		this.T_TESSWIDTH = float(config.get('Tiles', 'T_TESSWIDTH'))
@@ -96,10 +105,23 @@ def read_config():
 		this.T_GRID_STEP = float(config.get('Tiles', 'T_GRID_STEP'))
 
 	except ValueError as err:
-		print ("MISTAKE IN THE INPUT FILE: {0}".format(err))
+		gmi_misc.error("MISTAKE IN THE INPUT FILE: {0}".format(err))
 		exit(-1)
 	except IOError:
-		print ("CAN NOT OPEN INPUT FILE")
+		gmi_misc.error("CAN NOT OPEN INPUT FILE")
+		exit(-1)
+		
+		
+	import platform
+	oper_system = platform.system()
+
+	this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model'
+	if oper_system == 'Linux':
+		this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model_linux'
+		
+	import os
+	if os.path.isfile(this.TESSUTIL_MAGNETIZE_MODEL_FILENAME) == False:
+		gmi_misc.error("CAN NOT FIND " + this.TESSUTIL_MAGNETIZE_MODEL_FILENAME)
 		exit(-1)
 
 	#print "                     ...done"

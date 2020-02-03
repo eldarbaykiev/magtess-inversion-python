@@ -1,11 +1,55 @@
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+CEND = '\033[0m'
+
 def print_header():
-	print ("**********************************")
-	print ("*   GLOBAL MAGNETIC INVERSION    *")
-	print ("*      Eldar Baykiev, 2019       *")
-	print ("*         Python  3.8.1          *")
-	print ("**********************************")
+	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
+	print (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
+	print (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
+	print (bcolors.HEADER + "*         Python  3.8.1          *" + bcolors.ENDC)
+	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
 	print ("")
 	print ("")
+
+def create_tess_cpoint_grid():
+	import numpy as np
+
+	import gmi_config
+	gmi_config.read_config()
+
+	n_lon = int(abs(gmi_config.LON_MAX - gmi_config.WIDTH/2.0 - (gmi_config.LON_MIN + gmi_config.WIDTH/2.0)) / gmi_config.WIDTH + 1)
+	n_lat = int(abs(gmi_config.LAT_MAX - gmi_config.WIDTH/2.0 - (gmi_config.LAT_MIN + gmi_config.WIDTH/2.0)) / gmi_config.WIDTH + 1)
+
+	lons = np.linspace(gmi_config.LON_MIN+ gmi_config.WIDTH/2.0, gmi_config.LON_MAX-gmi_config.WIDTH/2.0, n_lon)
+	lats = np.linspace(gmi_config.LAT_MIN+ gmi_config.WIDTH/2.0, gmi_config.LAT_MAX-gmi_config.WIDTH/2.0, n_lat)
+
+	X,Y = np.meshgrid(lons, lats)
+
+	return n_lon, n_lat, X, Y
+	
+def warning(str):
+	print (bcolors.WARNING + str + bcolors.ENDC)
+
+def error(str):
+	print (bcolors.FAIL + str + bcolors.ENDC)
+	
+def info(str):
+	print (bcolors.OKBLUE + str + bcolors.ENDC)
+	
+	
+def pause():
+    programPause = input("Press the <ENTER> key to continue...")
+	
+def ok(str):
+    print (bcolors.OKGREEN + str + bcolors.ENDC)
 
 
 def read_tess_output_global_grid_from_file(filename):
@@ -119,26 +163,25 @@ def read_suscept_global_grid_from_file(filename):
 
 	import gmi_config
 	gmi_config.read_config()
-
-	data = np.loadtxt(filename, delimiter="\t")
+	
+	try:
+		data = np.loadtxt(filename, delimiter="\t")
+	except ValueError:
+		print('WARNING! ' + str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
+		
+		try: 
+			data = np.loadtxt(filename, delimiter=" ")
+		
+		except:
+			print('CON NOT READ ' + str(filename) + ' with space delimiter, abort!')
+			exit(-1)
+		
+		
 	LON = data[:, 0]
 	LAT = data[:, 1]
 	VAL = data[:, 2]
 
-	min_lon = gmi_config.LON_MIN
-	max_lon = gmi_config.LON_MAX
-	min_lat = gmi_config.LAT_MIN
-	max_lat = gmi_config.LAT_MAX
-	step = gmi_config.WIDTH
-
-	#NUMBER OF TESSEROIDS
-	n_lon = int(abs(max_lon - step/2.0 - (min_lon + step/2.0)) / step + 1)
-	n_lat = int(abs(max_lat - step/2.0 - (min_lat + step/2.0)) / step + 1)
-
-	lons = np.linspace(min_lon+ step/2.0, max_lon-step/2.0, n_lon)
-	lats = np.linspace(min_lat+ step/2.0, max_lat-step/2.0, n_lat)
-
-	X,Y = np.meshgrid(lons, lats)
+	n_lon, n_lat, X, Y = create_tess_cpoint_grid()
 
 	#in SHTOOLS format
 	sus_grid = griddata((LON, LAT), VAL, (X,Y), method='nearest')
@@ -193,3 +236,12 @@ def convert_result_into_shtools_format(vect, fname):
 	import pyshtools
 	shtools_result_coeff = pyshtools.SHCoeffs.from_file(fname, normalization='schmidt')
 	return shtools_result_coeff
+
+
+def write_sus_grid_to_file(sus, fname):
+	import numpy as np
+
+	import gmi_config
+	gmi_config.read_config()
+
+	n_lon, n_lat, X, Y = create_tess_cpoint_grid()

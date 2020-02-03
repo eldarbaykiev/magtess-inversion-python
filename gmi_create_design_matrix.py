@@ -28,6 +28,8 @@ if n_tess == 0:
 	exit(-1)
 
 
+print("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
+
 import pyshtools
 import numpy as np
 

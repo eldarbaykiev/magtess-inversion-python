@@ -18,6 +18,7 @@ def nlssubprob(V, W, Hinit, tol, maxiter):
     import numpy as np
 
     H = Hinit
+
     WtV=np.dot(np.transpose(W),V)
     WtW=np.dot(np.transpose(W),W)
 
@@ -27,7 +28,7 @@ def nlssubprob(V, W, Hinit, tol, maxiter):
     print('tol: ' + str(tol))
     print('Maximum iterations: ' + str(maxiter))
     #from tqdm import tqdm
-	
+
     logfile = open('nlssubprob.dat', 'w')
     for iter in range(maxiter):
         grad = np.dot(WtW,H) - WtV
@@ -36,7 +37,7 @@ def nlssubprob(V, W, Hinit, tol, maxiter):
         projgrad=np.linalg.norm(grad[((grad < 0) | (H > 0))])
         print ("Iteration " + str(iter) + " projgrad: " + str(projgrad))
         logfile.write(str(iter) + ' ' + str(projgrad) + '\n')
-		
+
         if projgrad < tol:
             break
         for inner_iter in range(20):

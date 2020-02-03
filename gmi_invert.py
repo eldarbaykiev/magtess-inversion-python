@@ -4,8 +4,6 @@ CYELLOW = '\33[33m'
 
 CEND = '\033[0m'
 
-
-
 import gmi_misc
 
 gmi_misc.print_header()
@@ -14,8 +12,12 @@ print("Script no. 4: Inversion")
 USE_GRD = False
 
 #read parameters from file
+
+
 import gmi_config
 gmi_config.read_config()
+
+
 
 import matplotlib.pyplot as plt
 import pyshtools
@@ -23,16 +25,55 @@ import pyshtools
 import numpy as np
 from scipy.interpolate import griddata
 
+
+print("NOTE: INPUT GRID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
+
+print("NOTE: RESULTS ARE DIVIDED BY ", str(gmi_config.MULTIPLICATOR))
+
 try:
-	raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
-	#raw_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.OBSERVED_DATA)
+	A_sh = np.load('design_matrix_shcoeff.npy')
+	A_ufilt_sh = np.load('design_matrix_ufilt_shcoeff.npy')
+except:
+	print("CAN NOT OPEN SH COEFF DESIGN MATRIX")
+	exit(-1)
+	
+import scipy.io
+#scipy.io.savemat("design_matrix_shcoeff.mat", {'A_sh_fromfile': A_sh, 'd_sh': d_sh})
+A_sh = np.transpose(A_sh)
+A_ufilt_sh = np.transpose(A_ufilt_sh)
+
+
+#########################
+try:
+	x0 = np.loadtxt(gmi_config.INIT_SOLUTION)
+except IOError as err:
+	print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
+	exit()
+	
+A_sh_mul_x0 = np.matmul(A_sh, x0)
+A_sh_mul_x0_sh_tools = gmi_misc.convert_result_into_shtools_format(A_sh_mul_x0, 'A_sh_mul_x0.coeff')
+
+
+import gmi_gmt
+
+gmi_gmt.plot_global_grid([1, 2], [1, 2], [1, 2], 0, 3, "polar")
+sdgfsdfg
+
+try:
+	#raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
+	raw_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.OBSERVED_DATA)
+	raw_grid = raw_grid * gmi_config.MULTIPLICATOR #CHECK THIS!!!!
 except IOError as err:
 	print("CAN NOT OPEN OBSERVED DATAFILE: {0}".format(err))
 	exit(-1)
+	
+print(raw_grid)
+
 
 try:
 	#raw_subtract_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.SUBTRACT_DATA)
 	raw_subtract_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.SUBTRACT_DATA)
+	raw_subtract_grid = raw_subtract_grid * gmi_config.MULTIPLICATOR
 except IOError as err:
 	print("WARNING: CAN NOT OPEN SUBTRACTEBLE DATAFILE: {0}".format(err))
 	raw_subtract_grid = raw_grid*0.0
@@ -40,6 +81,19 @@ except IOError as err:
 raw_grid = raw_grid - raw_subtract_grid
 
 shtools_inp_grid = pyshtools.SHGrid.from_array(raw_grid)
+print(shtools_inp_grid)
+A_sh_mul_x0_sh_tools
+print(A_sh_mul_x0_sh_tools)
+
+sh_result_coeffs = np.matmul(A_sh, h_sh)
+sh_result_coeffs_shtools = gmi_misc.convert_result_into_shtools_format(sh_result_coeffs, 'result.coeff')
+#sh_result_coeffs_shtools = pyshtools.SHCoeffs.from_file('result.coeff', normalization='schmidt')
+sh_result_grid = sh_result_coeffs_shtools.expand(grid='DH2')
+
+
+
+
+
 
 #get SH coefficients
 shtools_coeff = shtools_inp_grid.expand(normalization='schmidt')
@@ -49,17 +103,13 @@ shtools_coeff_filt.to_file("observed_filt.coeff")
 d_sh = gmi_misc.read_coeffs_from_text_file("observed_filt.coeff", gmi_config.N_MIN_CUTOFF)
 n_coeff = len(d_sh)
 
-try:
-	A_sh = np.load('design_matrix_shcoeff.npy')
-	A_ufilt_sh = np.load('design_matrix_ufilt_shcoeff.npy')
-except:
-	print("CAN NOT OPEN SH COEFF DESIGN MATRIX")
-	exit(-1)
 
-import scipy.io
-#scipy.io.savemat("design_matrix_shcoeff.mat", {'A_sh_fromfile': A_sh, 'd_sh': d_sh})
-A_sh = np.transpose(A_sh)
-A_ufilt_sh = np.transpose(A_ufilt_sh)
+	
+	
+
+
+
+
 
 
 shtools_grd_filt  = shtools_coeff_filt.expand(grid='DH2')
@@ -182,29 +232,14 @@ if USE_GRD:
 
 ######################
 
-#output grid
-min_lon = gmi_config.LON_MIN
-max_lon = gmi_config.LON_MAX
-min_lat = gmi_config.LAT_MIN
-max_lat = gmi_config.LAT_MAX
-step = gmi_config.WIDTH
-
-#NUMBER OF TESSEROIDS
-n_lon = int(abs(max_lon - step/2.0 - (min_lon + step/2.0)) / step + 1)
-n_lat = int(abs(max_lat - step/2.0 - (min_lat + step/2.0)) / step + 1)
-
-lons = np.linspace(min_lon+ step/2.0, max_lon-step/2.0, n_lon)
-lats = np.linspace(min_lat+ step/2.0, max_lat-step/2.0, n_lat)
-
-X,Y = np.meshgrid(lons, lats)
-
+n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
 
 ind = 0
 with open('model_reslt_sh.xyz', 'w') as tessfile:
 	for i in range(n_lat-1, -1, -1):
 		for j in range(n_lon):
 			k = h_sh
-			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(k[ind])
+			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(k[ind]/gmi_config.MULTIPLICATOR)
 			#print string
 			tessfile.write(string + '\n')
 			ind = ind+1
@@ -216,7 +251,7 @@ with open('x0_apriori.xyz', 'w') as apriorifile:
 	for i in range(n_lat-1, -1, -1):
 		for j in range(n_lon):
 			k = h_sh
-			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(x0[ind])
+			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(x0[ind]/gmi_config.MULTIPLICATOR)
 			#print string
 			apriorifile.write(string + '\n')
 			ind = ind+1
