@@ -1,22 +1,78 @@
-CRED = '\033[91m'
-CGREEN  = '\33[32m'
-CYELLOW = '\33[33m'
-
-CEND = '\033[0m'
-
 import gmi_misc
-
+#**************** PRINT HEADER ***************************#
 gmi_misc.print_header()
 print("Script no. 4: Inversion")
-
-USE_GRD = False
-
-#read parameters from file
+#**************** ------------ ***************************#
 
 
+#**************** GET WORKING DIRECTORY ******************#
+import os
+old_cwd = os.getcwd()
+gmi_misc.info('Current directory: '+ old_cwd)
+
+WORKING_DIR = ''
+import sys
+if len(sys.argv) == 1:
+	WORKING_DIR = ''
+	
+WORKING_DIR = sys.argv[1]
+
+try:
+	os.chdir(WORKING_DIR)
+except:
+	gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ WORKING_DIR + ', ABORTING...')
+
+gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
+#**************** --------------------- ******************#
+
+
+
+
+#**************** read parameters from file **************#
 import gmi_config
 gmi_config.read_config()
+#**************** ------------------------- **************#
 
+
+
+#************ check if previous stages were launched *****#
+import gmi_hash
+stages = [0,0,0]
+stages, dictionary = gmi_hash.read_dict('checksums.npy')
+
+
+err = 0
+if stages[0] == -1:
+	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+	err += 1
+elif stages[0] == 0:
+	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+	err += 1
+else:
+	pass
+	
+if stages[1] == -1:
+	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+	err += 1
+elif stages[1] == 0:
+	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+	err += 1
+else:
+	pass
+	
+if stages[2] == -1:
+	gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
+	err += 1
+elif stages[2] == 0:
+	gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
+	err += 1
+else:
+	pass
+	
+if err > 0:
+	gmi_misc.error('CHECKSUM FAILED, ABORTING!')
+	
+#**************** --------------------- ******************#
 
 
 import matplotlib.pyplot as plt
@@ -339,3 +395,9 @@ ax.grid()
 
 fig.savefig(foldername+ '/' + "nlssubprob.png")
 plt.show()
+
+
+
+#**************** RETURN BACK TO INITIAL PATH ***#
+os.chdir(old_cwd)
+#**************** --------------------------- ***#

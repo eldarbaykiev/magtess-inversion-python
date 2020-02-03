@@ -108,7 +108,10 @@ dictionary = {'stage1':md5_returned,
 	'stage4':'',
 }
 np.save('checksums.npy', dictionary)
+#**************** ---------------- **************#
 
 
 #**************** RETURN BACK TO INITIAL PATH ***#
 os.chdir(old_cwd)
+
+#**************** --------------------------- ***#

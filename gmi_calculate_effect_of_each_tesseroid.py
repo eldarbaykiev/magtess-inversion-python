@@ -35,28 +35,20 @@ gmi_config.read_config()
 
 
 #************ check if previous stages were launched *****#
-import numpy as np
+import gmi_hash
+stages = [0,0,0]
+stages, dictionary = gmi_hash.read_dict('checksums.npy')
 
-try:
-	read_dictionary = np.load('checksums.npy',allow_pickle='TRUE').item()
-except:
-	gmi_misc.error("RUN Script no. 1 first! ABORTING...")
-
-if len(read_dictionary['stage1']) == 0:
-	gmi_misc.error("RUN Script no. 1 first! ABORTING...")
-
-import hashlib
-file_name = 'model.magtess'
-with open(file_name, 'r') as file_to_check:
-    # read contents of the file
-    data = file_to_check.read()
-    # pipe contents of the file through
-    md5_stage1 = hashlib.md5(data.encode('utf-8')).hexdigest()
-
-if md5_stage1 != read_dictionary['stage1']:
-	gmi_misc.error(file_name + ' was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+err = 0
+if stages[0] == -1:
+	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+elif stages[0] == 0:
+	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
 else:
 	pass
+	
+if err > 0:
+	gmi_misc.error('CHECKSUM FAILED, ABORTING!')
 	
 #**************** --------------------- ******************#
 
@@ -175,12 +167,14 @@ gmi_misc.info(str(coeff_info.info()))
 gmi_misc.info("Max degree: " + str(coeff_info.lmax))
 
 
-#os.chdir('model')
+#**************** WRITE MD5 PARAMS **************#
+dictionary['stage2'] = gmi_hash._gethashofdirs('model', verbose=1)
+dictionary['stage3'] = ''
+dictionary['stage4'] = ''
+np.save('checksums.npy', dictionary)
+#**************** ---------------- **************#
 
 
-def calculate_checksum(filenames):
-    hash = hashlib.md5()
-    for fn in filenames:
-        if os.path.isfile(fn):
-            hash.update(open(fn, "rb").read())
-    return hash.digest()
+#**************** RETURN BACK TO INITIAL PATH ***#
+os.chdir(old_cwd)
+#**************** --------------------------- ***#

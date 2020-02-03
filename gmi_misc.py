@@ -11,10 +11,15 @@ class bcolors:
 	CEND = '\033[0m'
 
 def print_header():
+	from datetime import date
+	today = date.today()
+	
 	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
 	print (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
 	print (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
 	print (bcolors.HEADER + "*         Python  3.8.1          *" + bcolors.ENDC)
+	print (bcolors.HEADER + "*                                *" + bcolors.ENDC)
+	print (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + "           *" + bcolors.ENDC)
 	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
 	print ("")
 	print ("")
