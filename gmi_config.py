@@ -46,11 +46,13 @@ T_GRID_STEP = 0
 
 #
 TESSUTIL_MAGNETIZE_MODEL_FILENAME  = 'tessutil_magnetize_model'
+TESSBZ_FILENAME = 'tessbz'
 
 def read_config():
 
 	import os
-	print ('Reading config file ' + os.path.abspath("mydir/myfile.txt"))
+	import gmi_misc
+	#gmi_misc.debug('Reading config file ' + os.path.abspath("mydir/myfile.txt"))
 	
 	import sys
 	this = sys.modules[__name__]
@@ -103,6 +105,8 @@ def read_config():
 		this.T_LAT_SIZE = int(config.get('Tiles', 'T_LAT_SIZE'))
 		this.T_EDGE = int(config.get('Tiles', 'T_EDGE'))
 		this.T_GRID_STEP = float(config.get('Tiles', 'T_GRID_STEP'))
+		
+	
 
 	except ValueError as err:
 		gmi_misc.error("MISTAKE IN THE INPUT FILE: {0}".format(err))
@@ -113,15 +117,21 @@ def read_config():
 		
 		
 	import platform
+	import os
 	oper_system = platform.system()
 
 	this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model'
 	if oper_system == 'Linux':
 		this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model_linux'
 		
-	import os
 	if os.path.isfile(this.TESSUTIL_MAGNETIZE_MODEL_FILENAME) == False:
 		gmi_misc.error("CAN NOT FIND " + this.TESSUTIL_MAGNETIZE_MODEL_FILENAME)
-		exit(-1)
+		
+	this.TESSBZ_FILENAME = './tessbz'
+	if oper_system == 'Linux':
+		this.TESSBZ_FILENAME = './tessbz_linux'
+		
+	if os.path.isfile(this.TESSBZ_FILENAME) == False:
+		gmi_misc.error("CAN NOT FIND " + this.TESSBZ_FILENAME)
 
 	#print "                     ...done"

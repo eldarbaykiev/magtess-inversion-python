@@ -3,7 +3,16 @@ CREATE_VIM_MODEL = True
 #**************** ---------------------------------*******#
 
 
+
+
+
+
+
 import gmi_misc
+#**************** PRINT HEADER ***************************#
+gmi_misc.print_header()
+print ("Script no. 1: Creation of global tesseroid model")
+#**************** ------------ ***************************#
 
 #**************** GET WORKING DIRECTORY ******************#
 import os
@@ -12,19 +21,19 @@ gmi_misc.info('Current directory: '+ old_cwd)
 
 WORKING_DIR = ''
 import sys
-if len(len(sys.argv)) == 1:
+if len(sys.argv) == 1:
 	WORKING_DIR = ''
 	
 WORKING_DIR = sys.argv[1]
-os.chdir(WORKING_DIR)
+
+try:
+	os.chdir(WORKING_DIR)
+except:
+	gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ WORKING_DIR + ', ABORTING...')
+
+gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
 #**************** --------------------- ******************#
 
-
-
-#**************** PRINT HEADER ***************************#
-gmi_misc.print_header()
-print ("Script no. 1: Creation of global tesseroid model")
-#**************** ------------ ***************************#
 
 
 #**************** read parameters from file **************#
@@ -42,7 +51,7 @@ n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
 def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 	nlat, nlon = x_grid.shape
 	
-	with open(fname, 'w') as tessfile:
+	with open(fname + '.tess', 'w') as tessfile:
 		k = 0
 		for i in range(nlat-1, -1, -1):
 			for j in range(nlon):
@@ -57,7 +66,7 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 				tessfile.write(string + '\n')
 				k = k + 1
 				
-	os.system(gmi_misc.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
+	os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
 			
 try:
 	grid_bot = np.loadtxt(gmi_config.BOT_SURFACE, delimiter=" ")
@@ -68,7 +77,7 @@ except IOError as err:
 Z_bot = griddata((grid_bot[:,0], grid_bot[:,1]), grid_bot[:,2], (X,Y), method='nearest')
 Z_top = griddata((grid_top[:,0], grid_top[:,1]), grid_top[:,2], (X,Y), method='nearest')
 
-gmi_misc.info("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
+gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
 _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
 

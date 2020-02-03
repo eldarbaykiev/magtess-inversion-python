@@ -1,26 +1,49 @@
 import gmi_misc
-
+#**************** PRINT HEADER ***************************#
 gmi_misc.print_header()
 print ("Script no. 2: Calculation of the magnetic field of each tesseroid in the model")
+#**************** ------------ ***************************#
 
-#read parameters from file
 
+#**************** GET WORKING DIRECTORY ******************#
+import os
+old_cwd = os.getcwd()
+gmi_misc.info('Current directory: '+ old_cwd)
+
+WORKING_DIR = ''
+import sys
+if len(sys.argv) == 1:
+	WORKING_DIR = ''
+	
+WORKING_DIR = sys.argv[1]
+
+try:
+	os.chdir(WORKING_DIR)
+except:
+	gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ WORKING_DIR + ', ABORTING...')
+
+gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
+#**************** --------------------- ******************#
+
+
+
+
+#**************** read parameters from file **************#
 import gmi_config
 gmi_config.read_config()
+#**************** ------------------------- **************#
 
+
+#************ check if previous stages were launched *****#
 import numpy as np
 
-
-#check if previous stages were launched
 try:
 	read_dictionary = np.load('checksums.npy',allow_pickle='TRUE').item()
 except:
-	print("RUN Script no. 1 first! ABORTING...")
-	exit(-1)
+	gmi_misc.error("RUN Script no. 1 first! ABORTING...")
 
 if len(read_dictionary['stage1']) == 0:
-	print("RUN Script no. 1 first! ABORTING...")
-	exit(-1)
+	gmi_misc.error("RUN Script no. 1 first! ABORTING...")
 
 import hashlib
 file_name = 'model.magtess'
@@ -31,11 +54,14 @@ with open(file_name, 'r') as file_to_check:
     md5_stage1 = hashlib.md5(data.encode('utf-8')).hexdigest()
 
 if md5_stage1 != read_dictionary['stage1']:
-	print(file_name + ' was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
-	exit(-1)
+	gmi_misc.error(file_name + ' was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
 else:
 	pass
+	
+#**************** --------------------- ******************#
 
+
+#**************** CREATE CALCULATION GRID ****************#
 from scipy.interpolate import griddata
 
 grid_n_lon = int(abs(gmi_config.GRID_LON_MAX - (gmi_config.GRID_LON_MIN)) / gmi_config.GRID_STEP + 1)
@@ -52,19 +78,20 @@ with open('grid.txt', 'w') as tessfile:
 			string = str(grid_X[i, j]) + ' ' + str(grid_Y[i, j]) + ' ' + str(gmi_config.GRID_ALT) + ' '
 			#print string
 			tessfile.write(string + '\n')
+			
+#**************** --------------------- ******************#
 
+
+#**************** OPEN TESSEROID MODEL *******************#
 try:
 	mag_tesseroids = np.loadtxt('model.magtess', delimiter=" ")
 except IOError as err:
-	print ("CAN NOT OPEN TESSEROID MODEL: {0}".format(err))
+	gmi_misc.error("CAN NOT OPEN TESSEROID MODEL: {0}".format(err))
 	exit(-1)
 #print mag_tesseroids
 n_tess = len(mag_tesseroids)
 print ('Number of tesseroids in the model: ' + str(n_tess))
-
-
-
-import gmi_misc
+#**************** --------------------- ******************#
 
 
 from tqdm import tqdm
@@ -72,58 +99,80 @@ from tqdm import tqdm
 import pyshtools
 coeff_info = pyshtools.SHCoeffs.from_zeros(1)
 
-
 import os
-try:
+
+
+if os.path.exists('model'):
+	if len(os.listdir('model') ) > 0: 
+		gmi_misc.warning("MODEL FOLDER ALREADY EXIST! DO YOU WANT TO RECALCULATE?")
+		if gmi_misc.ask() == True:
+			pass
+		else:
+			gmi_misc.error("MODEL FOLDER WAS NOT OVERWRITEN, ABORTING!")
+		
+else:
 	os.mkdir('model')
-except:
-	print ("model folder already exists!")
+	
+	
+gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY " + str(gmi_config.MULTIPLICATOR))
+
+n_cpu = 7 #os.cpu_count()
+gmi_misc.info('Number of processors: '+ str(n_cpu))
 
 
-import platform
-oper_system = platform.system()
-
-tessbz_filename = 'tessbz'
-if oper_system == 'Linux':
-	tessbz_filename = 'tessbz_linux'
+gmi_misc.info('Calculating effects of each tesseroid...')
 
 
-print("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
+bar = tqdm(range(n_tess))
+i = 0
+while i < n_tess:
+
+	curr_max_j = 0
+	for j in range(0, n_cpu, 1):
+		if (i+j) < n_tess:
+			with open('dummy_' + str(j) + '.magtess', 'w') as tessfile:
+				string = str(mag_tesseroids[i+j, 0]) + ' ' + str(mag_tesseroids[i+j, 1]) + ' ' + str(mag_tesseroids[i+j, 2]) + ' ' + str(mag_tesseroids[i+j, 3]) + ' ' + str(mag_tesseroids[i+j, 4]) + ' ' + str(mag_tesseroids[i+j, 5]) + ' ' + str(mag_tesseroids[i+j, 6]) + ' ' + str(mag_tesseroids[i+j, 7]) + ' ' + str(mag_tesseroids[i+j, 8]) + ' ' + str(mag_tesseroids[i+j, 9]) + ' ' + str(mag_tesseroids[i+j, 10])
+				tessfile.write(string + '\n')
+			curr_max_j = curr_max_j + 1
 
 
-if os.path.isfile(tessbz_filename) == False:
-	print ("CAN NOT FIND " + tessbz_filename + " IN THE CURRENT DIRECTORY")
-	exit(-1)
+	command_bz = "" + gmi_config.TESSBZ_FILENAME + " dummy_" + str(0) + ".magtess < grid.txt > " + "out_" + str(0) + "_Bz.txt"
+	for j in range(1, n_cpu, 1):
+		if (i+j) < n_tess:
+			command_bz = command_bz + ' | '
+			command_bz = command_bz + "" + gmi_config.TESSBZ_FILENAME + " dummy_" + str(j) + ".magtess < grid.txt > " + "out_" + str(j) + "_Bz.txt"
+	
 
-print ('Calculating effects of each tesseroid...')
-for i in tqdm(range(n_tess)):
-	tessfile = open('dummy.magtess', 'w')
-	string = str(mag_tesseroids[i, 0]) + ' ' + str(mag_tesseroids[i, 1]) + ' ' + str(mag_tesseroids[i, 2]) + ' ' + str(mag_tesseroids[i, 3]) + ' ' + str(mag_tesseroids[i, 4]) + ' ' + str(mag_tesseroids[i, 5]) + ' ' + str(mag_tesseroids[i, 6]) + ' ' + str(mag_tesseroids[i, 7]) + ' ' + str(mag_tesseroids[i, 8]) + ' ' + str(mag_tesseroids[i, 9]) + ' ' + str(mag_tesseroids[i, 10])
-	tessfile.write(string + '\n')
-	tessfile.close()
-
-	command_bz = "./" + tessbz_filename + " dummy.magtess < grid.txt > " + "out_Bz.txt"
 	command = command_bz + '\n'
 	os.system(command)
+	
+	for j in range(0, n_cpu, 1):
+		if (i+j) < n_tess:
 
-	raw_grid = gmi_misc.read_tess_output_global_grid_from_file("out_Bz.txt")
-	shtools_inp_grid = pyshtools.SHGrid.from_array(raw_grid)
+			raw_grid = gmi_misc.read_tess_output_global_grid_from_file("out_" + str(j) + "_Bz.txt")
+			shtools_inp_grid = pyshtools.SHGrid.from_array(raw_grid)
 
-	#get SH coefficients
-	shtools_coeff = shtools_inp_grid.expand(normalization='schmidt')
-	coeff_info = shtools_coeff
+			#get SH coefficients
+			shtools_coeff = shtools_inp_grid.expand(normalization='schmidt')
+			coeff_info = shtools_coeff
 
-	shtools_coeff.to_file('model/tess_n' + str(i) + '.coeff')
+			shtools_coeff.to_file('model/tess_n' + str(i) + '.coeff')
 
-	os.remove("out_Bz.txt")
-	os.remove("dummy.magtess")
+			os.remove("out_" + str(j) + "_Bz.txt")
+			os.remove('dummy_' + str(j) + '.magtess')
+			
+			i = i + 1
+		
+	bar.update(curr_max_j)
 
 
-print ('...done')
 
-print ('Properties of SHCoeffs:')
-print (coeff_info.info())
-print ("Max degree: " + str(coeff_info.lmax))
+
+gmi_misc.ok('...done')
+
+gmi_misc.info('Properties of SHCoeffs:')
+gmi_misc.info(str(coeff_info.info()))
+gmi_misc.info("Max degree: " + str(coeff_info.lmax))
 
 
 #os.chdir('model')
