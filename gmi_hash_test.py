@@ -1,52 +1,49 @@
-import gmi_misc
-#**************** PRINT HEADER ***************************#
-print ("HASH TEST")
-#**************** ------------ ***************************#
 
-
-
-
-#**************** GET WORKING DIRECTORY ******************#
-import os
-old_cwd = os.getcwd()
-gmi_misc.info('Current directory: '+ old_cwd)
-
-WORKING_DIR = ''
-import sys
-if len(sys.argv) == 1:
-	WORKING_DIR = ''
+def main(dr):
+	import gmi_misc
 	
-WORKING_DIR = sys.argv[1]
+	import os
+	old_cwd = os.getcwd()
+	gmi_misc.info('Current directory: '+ old_cwd)
 
-try:
-	os.chdir(WORKING_DIR)
-except:
-	gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ WORKING_DIR + ', ABORTING...')
+	try:
+		os.chdir(dr)
+	except:
+		gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
 
-gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
-#**************** --------------------- ******************#
-
-
-
-#**************** read parameters from file **************#
-import gmi_config
-gmi_config.read_config()
-#**************** ------------------------- **************#
+	gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
 
 
 
+	print ("HASH TEST")
+
+	import gmi_config
+	gmi_config.read_config()
 
 
-#**************** HASH TESTS    **************************#
-import gmi_hash
+	#**************** HASH TESTS    **************************#
+	import gmi_hash
 
-gmi_hash.read_dict('checksums.npy')
-#**************** ----------    **************************#
+	stages = [0, 0, 0]
+	stages, dict = gmi_hash.read_dict('checksums.npy')
+	#**************** ----------    **************************#
+
+
+	os.chdir(old_cwd)
+	return stages, dict
 
 
 
 
-#**************** RETURN BACK TO INITIAL PATH ***#
-os.chdir(old_cwd)
+if __name__ == '__main__':
+	#**************** GET WORKING DIRECTORY ******************#
 
-#**************** --------------------------- ***#
+	WORKING_DIR = ''
+	import sys
+	if len(sys.argv) == 1:
+		WORKING_DIR = ''
+
+	WORKING_DIR = sys.argv[1]
+
+	#**************** --------------------- ******************#
+	main(WORKING_DIR)
