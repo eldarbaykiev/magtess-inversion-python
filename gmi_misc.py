@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.interpolate import griddata
+
 class bcolors:
 	HEADER = '\033[95m'
 	OKBLUE = '\033[94m'
@@ -13,7 +16,7 @@ class bcolors:
 def print_header():
 	from datetime import date
 	today = date.today()
-	
+
 	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
 	print (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
 	print (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
@@ -39,27 +42,38 @@ def create_tess_cpoint_grid():
 	X,Y = np.meshgrid(lons, lats)
 
 	return n_lon, n_lat, X, Y
-	
+
+def read_surf_grid(fname):
+
+	n_lon, n_lat, X, Y = create_tess_cpoint_grid()
+	try:
+		grid_surf = np.loadtxt(fname, delimiter=" ")
+	except IOError as err:
+		error("ERROR: CAN NOT OPEN SURFACE FILE: {0}".format(err))
+
+	grid = griddata((grid_surf[:,0], grid_surf[:,1]), grid_surf[:,2], (X,Y), method='nearest')
+	return grid
+
 def warning(str):
 	print (bcolors.WARNING + str + bcolors.ENDC)
 
 def error(str):
 	print (bcolors.FAIL + str + bcolors.ENDC)
 	exit(-1)
-	
+
 def debug(str):
 	print (bcolors.CBEIGE + str + bcolors.ENDC)
-	
+
 def info(str):
 	print (bcolors.OKBLUE + str + bcolors.ENDC)
-	
-	
+
+
 def pause():
     programPause = input("Press the <ENTER> key to continue...")
-	
+
 def ok(str):
     print (bcolors.OKGREEN + str + bcolors.ENDC)
-	
+
 def ask():
 	ans = input('(Y/N) << ').lower()
 	if ans in ['yes', 'y']:
@@ -67,22 +81,35 @@ def ask():
 	if ans in ['no', 'n']:
 		return False
 
-
-def read_tess_output_global_grid_from_file(filename):
+def read_data_grid(filename):
 	import numpy as np
 	from scipy.interpolate import griddata
 
 	import gmi_config
 	gmi_config.read_config()
 
-	data = np.loadtxt(filename, delimiter=" ")
-	LON = data[:, 0]
-	LAT = data[:, 1]
-	ALT = data[:, 2]
-	VAL = data[:, 3]
+	try:
+		data = np.loadtxt(filename, delimiter=" ")
 
-	if ALT[0] != gmi_config.GRID_ALT:
-		print ("GRID " +str(filename) + " HAS WRONG ALTITUDE (" + str(ALT[0]) + "m instead of " + str(gmi_config.GRID_ALT) + "m)")
+		LON = data[:, 0]
+		LAT = data[:, 1]
+		ALT = data[:, 2]
+		VAL = data[:, 3] * -1.0
+
+		warning('magtess grid')
+	except:
+		try:
+			data = np.loadtxt(filename, delimiter=" ")
+			LON = data[:, 0]
+			LAT = data[:, 1]
+			VAL = data[:, 2]
+
+			warning('XYZ grid')
+		except:
+			error("CAN NOT READ " + filename)
+			exit(-1)
+
+
 
 	step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
 
@@ -105,9 +132,10 @@ def read_tess_output_global_grid_from_file(filename):
 	X,Y = np.meshgrid(lons, lats)
 
 	#in SHTOOLS format
-	raw_grid = griddata((LON, LAT), -VAL, (X,Y), method='nearest')
+	raw_grid = griddata((LON, LAT), VAL, (X,Y), method='nearest')
 
 	return raw_grid
+
 
 def subtract_tess_output_global_grids(filename1, filename2, output_filename):
 	#NOT TESTED
@@ -135,43 +163,7 @@ def subtract_tess_output_global_grids(filename1, filename2, output_filename):
 	return
 
 
-def read_global_grid_from_xyz_file(filename):
-	import numpy as np
-	from scipy.interpolate import griddata
 
-	import gmi_config
-	gmi_config.read_config()
-
-	data = np.loadtxt(filename, delimiter=" ")
-
-	LON = data[:, 0]
-	LAT = data[:, 1]
-	VAL = data[:, 2]
-
-	step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
-
-	#flip coord system to fit SHTOOLS convention
-	for i in range(1, len(LON), 1):
-		if LON[i]<0:
-			LON[i] = 360+LON[i]
-
-	min_lon = 0
-	max_lon = 360
-	min_lat = -90
-	max_lat = 90
-
-	n_lat = len(np.arange(min_lat, max_lat, step))
-	n_lon = len(np.arange(min_lon, max_lon, step))
-
-	lats = np.linspace(max_lat, min_lat, n_lat)
-	lons = np.linspace(min_lon, max_lon, n_lon)
-
-	X,Y = np.meshgrid(lons, lats)
-
-	#in SHTOOLS format
-	raw_grid = griddata((LON, LAT), VAL, (X,Y), method='nearest')
-
-	return raw_grid
 
 def read_suscept_global_grid_from_file(filename):
 	import numpy as np
@@ -179,20 +171,20 @@ def read_suscept_global_grid_from_file(filename):
 
 	import gmi_config
 	gmi_config.read_config()
-	
+
 	try:
 		data = np.loadtxt(filename, delimiter="\t")
 	except ValueError:
 		print('WARNING! ' + str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
-		
-		try: 
+
+		try:
 			data = np.loadtxt(filename, delimiter=" ")
-		
+
 		except:
 			print('CON NOT READ ' + str(filename) + ' with space delimiter, abort!')
 			exit(-1)
-		
-		
+
+
 	LON = data[:, 0]
 	LAT = data[:, 1]
 	VAL = data[:, 2]

@@ -14,7 +14,7 @@ WORKING_DIR = ''
 import sys
 if len(sys.argv) == 1:
 	WORKING_DIR = ''
-	
+
 WORKING_DIR = sys.argv[1]
 
 try:
@@ -50,7 +50,7 @@ elif stages[0] == 0:
 	err += 1
 else:
 	pass
-	
+
 if stages[1] == -1:
 	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
 	err += 1
@@ -59,7 +59,7 @@ elif stages[1] == 0:
 	err += 1
 else:
 	pass
-	
+
 if stages[2] == -1:
 	gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
 	err += 1
@@ -68,10 +68,10 @@ elif stages[2] == 0:
 	err += 1
 else:
 	pass
-	
+
 if err > 0:
 	gmi_misc.error('CHECKSUM FAILED, ABORTING!')
-	
+
 #**************** --------------------- ******************#
 
 
@@ -92,7 +92,7 @@ try:
 except:
 	print("CAN NOT OPEN SH COEFF DESIGN MATRIX")
 	exit(-1)
-	
+
 import scipy.io
 #scipy.io.savemat("design_matrix_shcoeff.mat", {'A_sh_fromfile': A_sh, 'd_sh': d_sh})
 A_sh = np.transpose(A_sh)
@@ -105,7 +105,7 @@ try:
 except IOError as err:
 	print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
 	exit()
-	
+
 A_sh_mul_x0 = np.matmul(A_sh, x0)
 A_sh_mul_x0_sh_tools = gmi_misc.convert_result_into_shtools_format(A_sh_mul_x0, 'A_sh_mul_x0.coeff')
 
@@ -117,18 +117,18 @@ sdgfsdfg
 
 try:
 	#raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
-	raw_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.OBSERVED_DATA)
+	raw_grid = gmi_misc.read_data_grid(gmi_config.OBSERVED_DATA)
 	raw_grid = raw_grid * gmi_config.MULTIPLICATOR #CHECK THIS!!!!
 except IOError as err:
 	print("CAN NOT OPEN OBSERVED DATAFILE: {0}".format(err))
 	exit(-1)
-	
+
 print(raw_grid)
 
 
 try:
 	#raw_subtract_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.SUBTRACT_DATA)
-	raw_subtract_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.SUBTRACT_DATA)
+	raw_subtract_grid = gmi_misc.read_data_grid(gmi_config.SUBTRACT_DATA)
 	raw_subtract_grid = raw_subtract_grid * gmi_config.MULTIPLICATOR
 except IOError as err:
 	print("WARNING: CAN NOT OPEN SUBTRACTEBLE DATAFILE: {0}".format(err))
@@ -160,8 +160,8 @@ d_sh = gmi_misc.read_coeffs_from_text_file("observed_filt.coeff", gmi_config.N_M
 n_coeff = len(d_sh)
 
 
-	
-	
+
+
 
 
 

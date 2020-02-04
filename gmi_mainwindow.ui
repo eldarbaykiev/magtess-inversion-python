@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>439</height>
+    <width>616</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,13 +17,207 @@
    <double>1.000000000000000</double>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>581</width>
+      <height>331</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tab_config">
+     <attribute name="title">
+      <string>Config</string>
+     </attribute>
+     <widget class="QPushButton" name="button_save">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>270</y>
+        <width>111</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-save-48.png</normaloff>icons/icons8-save-48.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="config_editor">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>571</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_plots">
+     <attribute name="title">
+      <string>Plots</string>
+     </attribute>
+     <widget class="QGraphicsView" name="plot_view">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>571</width>
+        <height>251</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button_plot">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>270</y>
+        <width>111</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Plot</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-world-map-40.png</normaloff>icons/icons8-world-map-40.png</iconset>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="combobox_plot">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>270</y>
+        <width>241</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="currentText">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button_spectrum">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>270</y>
+        <width>111</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Spectrum</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-line-chart-64.png</normaloff>icons/icons8-line-chart-64.png</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button_saveplot">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>270</y>
+        <width>111</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-save-48.png</normaloff>icons/icons8-save-48.png</iconset>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_stages">
+     <attribute name="title">
+      <string>Stages</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>191</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Calculate</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>191</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Design matrix</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>191</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Create Tesseroid Model</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_inversion">
+     <attribute name="title">
+      <string>Inversion</string>
+     </attribute>
+    </widget>
+   </widget>
    <widget class="QPushButton" name="button_close">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>484</x>
       <y>350</y>
       <width>111</width>
-      <height>51</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -38,145 +232,41 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>32</width>
-      <height>32</height>
+      <width>16</width>
+      <height>16</height>
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="button_observed">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>305</y>
-      <width>191</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Create Tesseroid Model</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>310</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>none</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>335</y>
-      <width>191</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Calculate</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>365</y>
-      <width>191</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Design matrix</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_5">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>351</y>
-      <width>112</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Invert</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>340</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>none</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>370</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>none</string>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="config_editor">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>561</width>
-      <height>241</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="button_save">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>260</y>
+      <x>374</x>
+      <y>350</y>
       <width>111</width>
-      <height>51</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>Save</string>
+     <string>test</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>icons/icons8-save-48.png</normaloff>icons/icons8-save-48.png</iconset>
+      <normaloff>icons/icons8-satellite-in-orbit-48.png</normaloff>icons/icons8-satellite-in-orbit-48.png</iconset>
     </property>
     <property name="iconSize">
      <size>
-      <width>32</width>
-      <height>32</height>
+      <width>16</width>
+      <height>18</height>
      </size>
     </property>
    </widget>
    <widget class="QPushButton" name="button_checksum">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>260</y>
+      <x>264</x>
+      <y>350</y>
       <width>111</width>
-      <height>51</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
@@ -188,35 +278,15 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>32</width>
-      <height>32</height>
+      <width>16</width>
+      <height>16</height>
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="button_observed">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>260</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Observed
-Data</string>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>icons/icons8-satellite-in-orbit-48.png</normaloff>icons/icons8-satellite-in-orbit-48.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>32</width>
-      <height>32</height>
-     </size>
-    </property>
-   </widget>
+   <zorder>button_close</zorder>
+   <zorder>button_observed</zorder>
+   <zorder>button_checksum</zorder>
+   <zorder>tabWidget</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionClose">

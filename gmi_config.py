@@ -65,7 +65,7 @@ def read_config():
 
 		this.PROJECT_NAME = str(config.get('Name', 'PROJECT_NAME'))
 
-		
+
 
 		#Global Tesseroid Model
 		this.LON_MIN = float(config.get('Global Tesseroid Model', 'LON_MIN'))
@@ -137,5 +137,7 @@ def read_config():
 
 	if os.path.isfile(this.TESSBZ_FILENAME) == False:
 		gmi_misc.error("CAN NOT FIND " + this.TESSBZ_FILENAME)
+
+	return config
 
 	#print "                     ...done"

@@ -19,7 +19,8 @@ def _ident_pont_pos(fl):
 	else:
 		return -int(math.log10(round(fl)))+1
 
-def plot_global_grid(grid_array, name, minv, maxv, cs, text_val, text_unit):
+
+def plot_global_grid(grid_array, surf, name, minv, maxv, cs, text_val, text_unit):
 	import gmi_config
 	gmi_config.read_config()
 
@@ -35,10 +36,14 @@ def plot_global_grid(grid_array, name, minv, maxv, cs, text_val, text_unit):
 
 	tempfname = 'temp.xyz'
 
+
 	with open(tempfname, 'w') as tempf:
 		for i in range(0, lon_N):
 			for j in range(0, lat_N):
-				tempf.write(str(0.0+i*360.0/float(lon_N)) + ' ' +  str(90.0-j*180.0/float(lat_N)) + ' ' + str(grid_array[j, i]) + '\n')
+				if surf == False:
+					tempf.write(str(-180.0+i*360.0/float(lon_N)) + ' ' +  str(-90.0+j*180.0/float(lat_N)) + ' ' + str(grid_array[j, i]) + '\n')
+				else:
+					tempf.write(str(-180.0+i*360.0/float(lon_N)) + ' ' +  str(-90.0+j*180.0/float(lat_N)) + ' ' + str(grid_array[j, i]) + '\n')
 
 	lon_step = 360.0 / float(lon_N)
 	lat_step = 180.0 / float(lat_N)
@@ -106,8 +111,12 @@ def plot_global_grid(grid_array, name, minv, maxv, cs, text_val, text_unit):
 	gmt('psscale -Dx1i/-0.4i+w2.0i/0.5c{}  -C{}.cpt -I0 -B{}:"{}":/:"{}": -X-2.3i -Y0.5i -O >> {}.ps'.format(fb_add, _trunc_fn(tempfname), tstep, text_val, text_unit, (_trunc_fn(tempfname))))
 	gmt('ps2raster -A+r -Tg {}.ps'.format(_trunc_fn(tempfname)))
 
-	import matplotlib.image as mpimg
-	img=mpimg.imread(_trunc_fn(tempfname) + '.png')
-	imgplot = plt.imshow(img)
-	plt.title(name)
-	plt.show()
+	show = False
+
+	if(show == True):
+
+		import matplotlib.image as mpimg
+		img=mpimg.imread(_trunc_fn(tempfname) + '.png')
+		imgplot = plt.imshow(img)
+		plt.title(name)
+		plt.show()
