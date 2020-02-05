@@ -74,136 +74,148 @@ def _gethashofdirs(directory, verbose=0):
 
   return SHAhash.hexdigest()
 
+def read_dict(dictname, runcheck=True):
 
 
-def read_dict(dictname):
+    import gmi_misc
+    import gmi_config
+
+    gmi_config.read_config()
+
+    import numpy as np
+
+    stages = [0, 0, 0]
+    try:
+        read_dictionary = np.load(dictname,allow_pickle='TRUE').item()
+    except:
+        gmi_misc.warning("NO SCRIPTS WERE EXECUTED!")
+        return stages, None
+
+    import hashlib
+
+    gmi_misc.info("Reading checksum file: "+ dictname)
 
 
-	import gmi_misc
-	import gmi_config
+    #STAGE 1 CHECKSUMS **************************************
+    if runcheck:
+        print(u'1. [ ] Tesseroid model', end='\r', flush=True)
+    if (len(read_dictionary['stage1']) != 0):
+        if runcheck:
+            md5_stage = _gethashoffile('model.magtess')
+            if md5_stage != read_dictionary['stage1']:
+                print(u'1. [' + URING + u'] Tesseroid model: checksum in dictionary does not match the one of ' + CBLUE + 'model.magtess' + CEND)
+                stages[0] = -1
+            else:
+                print(u'1. [' + UCHECK + u'] Tesseroid model: correct checksum')
+                stages[0] = 1
+        else:
+            stages[0] = 1
+    else:
+        if runcheck:
+            print(u'1. [' + UCROSS + u'] Tesseroid model: no checksum ')
+        stages[0] = 0
 
-	gmi_config.read_config()
+    #STAGE 2 CHECKSUMS **************************************
+    if runcheck:
+        print(u'2. [ ] Effect of each tesseroid', end='\r', flush=True)
+    if (len(read_dictionary['stage2']) != 0):
+        if runcheck:
+            md5_stage = _gethashofdirs('model', verbose=0)
+            if md5_stage != read_dictionary['stage2']:
+                print(u'2. [' + URING + u'] Effect of each tesseroid: checksum in dictionary does not match the one of the folder ' + CBLUE + 'model' + CEND)
+                stages[1] = -1
+            else:
+                print(u'2. [' + UCHECK + u'] Effect of each tesseroid: correct checksum')
+                stages[1] = 1
+        else:
+            stages[1] = 1
 
-	import numpy as np
+    else:
+        if runcheck:
+            print(u'2. [' + UCROSS + u'] Effect of each tesseroid: no checksum ')
+        stages[1] = 0
 
-	stages = [0, 0, 0]
-	try:
-		read_dictionary = np.load(dictname,allow_pickle='TRUE').item()
-	except:
-		gmi_misc.warning("NO SCRIPTS WERE EXECUTED!")
-		return stages, None
+    if runcheck:
+        print(u'3. [ ] Design matrix', end='\r', flush=True)
+    if (len(read_dictionary['stage3']) != 0):
+        if runcheck:
+            SHAhash = hashlib.md5()
 
-	import hashlib
+            try:
+                f1 = open('design_matrix_shcoeff.npy', 'rb')
 
-	gmi_misc.info("Reading checksum file: "+ dictname)
+                i = 0
+                i_step = 6500
+                while 1:
+                    if i == 0:
+                            print(u'3. [\] Design matrix', end='\r', flush=True)
+                    elif i == i_step:
+                            print(u'3. [|] Design matrix', end='\r', flush=True)
+                    elif i == i_step*2:
+                            print(u'3. [/] Design matrix', end='\r', flush=True)
+                    elif i == i_step*3:
+                            print(u'3. [-] Design matrix', end='\r', flush=True)
+                    elif i == i_step*4:
+                            print(u'3. [\] Design matrix', end='\r', flush=True)
+                            i = -1
+                    else:
+                            pass
 
+                    buf = f1.read(4096)
+                    if not buf : break
+                    SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
 
-	#STAGE 1 CHECKSUMS **************************************
+                    i += 1
 
-	print(u'1. [ ] Tesseroid model', end='\r', flush=True)
-	if (len(read_dictionary['stage1']) != 0):
+                f1.close()
 
-		md5_stage = _gethashoffile('model.magtess')
-		if md5_stage != read_dictionary['stage1']:
-			print(u'1. [' + URING + u'] Tesseroid model: checksum in dictionary does not match the one of ' + CBLUE + 'model.magtess' + CEND)
-			stages[0] = -1
-		else:
-			print(u'1. [' + UCHECK + u'] Tesseroid model: correct checksum')
-			stages[0] = 1
-	else:
-		print(u'1. [' + UCROSS + u'] Tesseroid model: no checksum ')
-		stages[0] = 0
+                i = 0
+                f2 = open('design_matrix_ufilt_shcoeff.npy', 'rb')
+                while 1:
+                    if i == 0:
+                            print(u'3. [\] Design matrix', end='\r', flush=True)
+                    elif i == i_step:
+                            print(u'3. [|] Design matrix', end='\r', flush=True)
+                    elif i == i_step*2:
+                            print(u'3. [/] Design matrix', end='\r', flush=True)
+                    elif i == i_step*3:
+                            print(u'3. [-] Design matrix', end='\r', flush=True)
+                    elif i == i_step*4:
+                            print(u'3. [\] Design matrix', end='\r', flush=True)
+                            i = -1
+                    else:
+                            pass
 
-	#STAGE 2 CHECKSUMS **************************************
-	print(u'2. [ ] Effect of each tesseroid', end='\r', flush=True)
-	if (len(read_dictionary['stage2']) != 0):
-		md5_stage = _gethashofdirs('model', verbose=0)
-		if md5_stage != read_dictionary['stage2']:
-			print(u'2. [' + URING + u'] Effect of each tesseroid: checksum in dictionary does not match the one of the folder ' + CBLUE + 'model' + CEND)
-			stages[1] = -1
-		else:
-			print(u'2. [' + UCHECK + u'] Effect of each tesseroid: correct checksum')
-			stages[1] = 1
+                    buf = f2.read(4096)
+                    if not buf : break
+                    SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
 
-	else:
-		print(u'2. [' + UCROSS + u'] Effect of each tesseroid: no checksum ')
-		stages[1] = 0
-
-	print(u'3. [ ] Design matrix', end='\r', flush=True)
-	if (len(read_dictionary['stage3']) != 0):
-		SHAhash = hashlib.md5()
-
-		try:
-			f1 = open('design_matrix_shcoeff.npy', 'rb')
-
-			i = 0
-			i_step = 6500
-			while 1:
-				if i == 0:
-					print(u'3. [\] Design matrix', end='\r', flush=True)
-				elif i == i_step:
-					print(u'3. [|] Design matrix', end='\r', flush=True)
-				elif i == i_step*2:
-					print(u'3. [/] Design matrix', end='\r', flush=True)
-				elif i == i_step*3:
-					print(u'3. [-] Design matrix', end='\r', flush=True)
-				elif i == i_step*4:
-					print(u'3. [\] Design matrix', end='\r', flush=True)
-					i = -1
-				else:
-					pass
-
-				buf = f1.read(4096)
-				if not buf : break
-				SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
-
-				i += 1
-
-			f1.close()
-
-			i = 0
-			f2 = open('design_matrix_ufilt_shcoeff.npy', 'rb')
-			while 1:
-				if i == 0:
-					print(u'3. [\] Design matrix', end='\r', flush=True)
-				elif i == i_step:
-					print(u'3. [|] Design matrix', end='\r', flush=True)
-				elif i == i_step*2:
-					print(u'3. [/] Design matrix', end='\r', flush=True)
-				elif i == i_step*3:
-					print(u'3. [-] Design matrix', end='\r', flush=True)
-				elif i == i_step*4:
-					print(u'3. [\] Design matrix', end='\r', flush=True)
-					i = -1
-				else:
-					pass
-
-				buf = f2.read(4096)
-				if not buf : break
-				SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
-
-				i += 1
+                    i += 1
 
 
-			f2.close()
+                f2.close()
 
-			md5_stage = SHAhash.hexdigest()
+                md5_stage = SHAhash.hexdigest()
 
-		except:
-			md5_stage = 'abc'
+            except:
+                md5_stage = 'abc'
 
 
-		if md5_stage != read_dictionary['stage3']:
-			print(u'3. [' + URING + u'] Design matrix: checksum in dictionary does not match the one of the folder ' + CBLUE + 'model' + CEND)
-			stages[2] = -1
-		else:
-			print(u'3. [' + UCHECK + u'] Design matrix: correct checksum ')
-			stages[2] = 1
-	else:
-		print(u'3. [' + UCROSS + u'] Design matrix: no checksum ')
-		stages[2] = 0
+            if md5_stage != read_dictionary['stage3']:
+                print(u'3. [' + URING + u'] Design matrix: checksum in dictionary does not match the one of the folder ' + CBLUE + 'model' + CEND)
+                stages[2] = -1
+            else:
+                print(u'3. [' + UCHECK + u'] Design matrix: correct checksum ')
+                stages[2] = 1
 
-	return stages, read_dictionary
+        else:
+            stages[2] = 1
+    else:
+        if runcheck:
+            print(u'3. [' + UCROSS + u'] Design matrix: no checksum ')
+        stages[2] = 0
+
+    return stages, read_dictionary
 
 
 def write_stage1():

@@ -171,7 +171,7 @@
      <widget class="QPushButton" name="button_stage2">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>0</x>
         <y>70</y>
         <width>211</width>
         <height>51</height>
@@ -200,7 +200,7 @@
      <widget class="QPushButton" name="button_stage3">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>0</x>
         <y>130</y>
         <width>211</width>
         <height>51</height>
@@ -229,7 +229,7 @@
      <widget class="QPushButton" name="button_stage1">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>0</x>
         <y>10</y>
         <width>211</width>
         <height>51</height>
@@ -255,72 +255,123 @@
        </size>
       </property>
      </widget>
-     <widget class="QLabel" name="indicator_stage1">
+     <widget class="QCheckBox" name="checkbox_checksums">
       <property name="geometry">
        <rect>
-        <x>330</x>
-        <y>3</y>
-        <width>64</width>
-        <height>64</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>icons/icons8-unchecked-checkbox-40.png</pixmap>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="indicator_stage2">
-      <property name="geometry">
-       <rect>
-        <x>330</x>
-        <y>63</y>
-        <width>64</width>
-        <height>64</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>icons/icons8-unchecked-checkbox-40.png</pixmap>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="indicator_stage3">
-      <property name="geometry">
-       <rect>
-        <x>330</x>
-        <y>123</y>
-        <width>64</width>
-        <height>64</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>icons/icons8-unchecked-checkbox-40.png</pixmap>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QTextBrowser" name="console">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
+        <x>30</x>
         <y>190</y>
-        <width>551</width>
-        <height>71</height>
+        <width>171</width>
+        <height>20</height>
        </rect>
       </property>
+      <property name="text">
+       <string>Monitor checksums</string>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="indicator_stage1">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_3">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>70</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="indicator_stage2">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_4">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>130</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="indicator_stage3">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_inversion">

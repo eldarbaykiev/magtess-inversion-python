@@ -17,12 +17,12 @@ def _retrieve_name(var):
 gmi_misc.info(gmi_config.OBSERVED_DATA)
 	
 try:
-	raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
-	#raw_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.OBSERVED_DATA)
-	raw_grid = raw_grid
+    raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
+    #raw_grid = gmi_misc.read_global_grid_from_xyz_file(gmi_config.OBSERVED_DATA)
+    raw_grid = raw_grid
 except IOError as err:
-	print("CAN NOT OPEN OBSERVED DATAFILE: {0}".format(err))
-	exit(-1)
+    print("CAN NOT OPEN OBSERVED DATAFILE: {0}".format(err))
+    exit(-1)
 	
 
 gmi_gmt.plot_global_grid(raw_grid, 'test', -12, 12, 'polar', 'Magnetic field', 'nT')

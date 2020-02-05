@@ -36,6 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi("gmi_mainwindow.ui", self)
 
         #opened path
+
         self.working_directory_opened = False
         self.GMI_PATH = ''
 
@@ -71,6 +72,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.combobox_plot.currentIndexChanged.connect(self.activate_plot_button)
 
         #stages
+        self.checksums = False
+        self.checkbox_checksums = self.findChild(QtWidgets.QCheckBox, 'checkbox_checksums')
+        if self.checksums:
+            self.checkbox_checksums.setCheckState(QtCore.Qt.Checked)
+        else:
+            self.checkbox_checksums.setCheckState(QtCore.Qt.Unchecked)
+        self.checkbox_checksums.stateChanged.connect(self.set_checksums)
+
         self.stages_updated = False
         self.tabs = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
         self.tabs.currentChanged.connect(self.update_stages)
@@ -87,15 +96,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_stage3.clicked.connect(self.run_stage3)
         self.indicator_stage3 = self.findChild(QtWidgets.QLabel, 'indicator_stage3')
 
-        self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
+        #self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
 
         if not self.working_directory_opened:
             self.open_working_directory()
 
+    def set_checksums(self):
+
+        if self.checkbox_checksums.isChecked():
+            self.checksums = True
+
+            self.stages_updated = False
+            self.update_stages()
+            print('checksums True')
+        else:
+            self.checksums = False
+
+            self.stages_updated = False
+            self.update_stages()
+            print('checksums False')
 
 
     def update_stages(self):
+
         if self.tabs.currentWidget().objectName() == 'tab_stages' and self.stages_updated == False:
+
             pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
             #self.indicator_stage1.setPixmap(pixmap)
             #self.indicator_stage1.show()
@@ -106,17 +131,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
             import gmi_hash_test
             stages = [0, 0, 0]
-            stages, dict = gmi_hash_test.main(self.GMI_PATH)
+            stages, dict = gmi_hash_test.main(self.GMI_PATH, tc=self.checksums)
 
-            pixmap_checked =  QtGui.QPixmap('icons/icons8-checked-checkbox-40.png')
-            pixmap_unchecked =  QtGui.QPixmap('icons/icons8-unchecked-checkbox-40.png')
+            pixmap_checked =  QtGui.QPixmap('icons/icons8-checkmark-48.png')
+            pixmap_doublechecked =  QtGui.QPixmap('icons/icons8-double-tick-48.png')
+            pixmap_unchecked =  QtGui.QPixmap('icons/icons8-delete-48.png')
 
             self.button_stage1.setEnabled(True)
             self.button_stage2.setEnabled(False)
             self.button_stage3.setEnabled(False)
 
             if stages[0] > 0:
-                self.indicator_stage1.setPixmap(pixmap_checked)
+                if self.checksums:
+                    self.indicator_stage1.setPixmap(pixmap_doublechecked)
+                else:
+                    self.indicator_stage1.setPixmap(pixmap_checked)
                 self.button_stage2.setEnabled(True)
                 #self.button_stage3.setEnabled(False)
                 #self.label_stage1.setText('correct checksum')
@@ -131,7 +160,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.indicator_stage1.show()
 
             if stages[1] > 0:
-                self.indicator_stage2.setPixmap(pixmap_checked)
+                if self.checksums:
+                    self.indicator_stage2.setPixmap(pixmap_doublechecked)
+                else:
+                    self.indicator_stage2.setPixmap(pixmap_checked)
                 self.button_stage3.setEnabled(True)
                 #self.label_stage2.setText('correct checksum')
             elif stages[0] == 0:
@@ -145,7 +177,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.indicator_stage2.show()
 
             if stages[2] > 0:
-                self.indicator_stage3.setPixmap(pixmap_checked)
+                if self.checksums:
+                    self.indicator_stage3.setPixmap(pixmap_doublechecked)
+                else:
+                    self.indicator_stage3.setPixmap(pixmap_checked)
                 #self.label_stage3.setText('correct checksum')
             elif stages[0] == 0:
                 self.indicator_stage3.setPixmap(pixmap_unchecked)
@@ -154,6 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.indicator_stage3.setPixmap(pixmap_unchecked)
                 #self.label_stage3.setText('checksum in dictionary\ndoes not match')
             self.indicator_stage3.show()
+
 
             self.stages_updated = True
 
@@ -259,6 +295,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.read_working_directory()
         self.plot_scene.clear()
+
+        self.stages_updated = False
+        self.update_stages()
+
 
         self.working_directory_opened = True
 
