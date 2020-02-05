@@ -3,30 +3,50 @@ from PyQt5 import uic
 
 import gmi_pathdialog, gmi_hashdialog, gmi_helpwindow
 import gmi_misc
+import configparser
+import os
+import shutil
+import stat
+
 
 class PathDialog(QtWidgets.QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("gmi_pathdialog.ui", self)
 
+        if not os.path.isfile(".config.ini"):
+            self.cfg = configparser.ConfigParser()
+            self.cfg['PATH'] = {'GMI_PATH' : '',
+                              'GMI_MAGNETIZER' : '',
+                              'GMI_TESSBX' : '',
+                              'GMI_TESSBY' : '',
+                              'GMI_TESSBZ' : ''}
+            with open('.config.ini', 'w') as configfile:
+                self.cfg.write(configfile)
+
+
+        self.cfg = configparser.ConfigParser()
+        #with open('.config.ini', 'r') as configfile:
+        self.cfg.read('.config.ini')
+
+
+        print(self.cfg)
+
+
         self.mainlabel = self.findChild(QtWidgets.QLabel, 'mainlabel')
         import datetime
         now = datetime.datetime.now()
 
-        self.mainlabel.setText("Magtess inversion with tesseroids v" + str(0.1) + "\nEldar Baykiev, " + str(now.year))
+        self.mainlabel.setText("Magtess inversion with tesseroids v" + str(gmi_misc.version()) + "\nEldar Baykiev, " + str(now.year))
 
-        self.GMI_PATH = '/Volumes/Seagate Backup Plus Drive 1/python3_inv_mutiplicator'
         self.gmi_path = self.findChild(QtWidgets.QLineEdit, 'gmi_path')
-        self.gmi_path.setText(self.GMI_PATH)
+        self.gmi_path.setText(self.cfg.get('PATH', 'GMI_PATH'))
 
-        self.GMI_MAGNETIZER = '/Volumes/Seagate Backup Plus Drive 1/python3_inv_mutiplicator/tessutil_magnetize_model'
         self.gmi_tessutil_filename = self.findChild(QtWidgets.QLineEdit, 'gmi_tessutil_filename')
-        self.gmi_tessutil_filename.setText(self.GMI_MAGNETIZER)
+        self.gmi_tessutil_filename.setText(self.cfg.get('PATH', 'GMI_MAGNETIZER'))
 
-        self.GMI_TESSBZ = '/Volumes/Seagate Backup Plus Drive 1/python3_inv_mutiplicator/tessbz'
         self.gmi_tessbz_filename = self.findChild(QtWidgets.QLineEdit, 'gmi_tessbz_filename')
-        self.gmi_tessbz_filename.setText(self.GMI_TESSBZ)
-
+        self.gmi_tessbz_filename.setText(self.cfg.get('PATH', 'GMI_TESSBZ'))
 
         self.path_browse = self.findChild(QtWidgets.QPushButton, 'path_browse')
         self.path_browse.clicked.connect(self.get_path)
@@ -56,21 +76,50 @@ class PathDialog(QtWidgets.QDialog):
         pname = fdialog.directory().absolutePath()
         print(pname)
         self.gmi_path.setText(pname)
-        self.GMI_PATH = str(pname)
+        self.cfg['PATH']['GMI_PATH'] = str(pname)
+        with open('.config.ini', 'w') as configfile:
+            self.cfg.write(configfile)
 
 
     def get_tessutil(self):
         fname, typ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', "Executable (*)")
         self.gmi_tessutil_filename.setText(fname)
-        self.GMI_MAGNETIZER = fname
+        self.cfg['PATH']['GMI_MAGNETIZER'] = fname
+        with open('.config.ini', 'w') as configfile:
+            self.cfg.write(configfile)
 
     def get_tessbz(self):
         fname, typ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', "Executable (*)")
         self.gmi_tessbz_filename.setText(fname)
-        self.GMI_TESSBZ = fname
+        self.cfg['PATH']['GMI_TESSBZ'] = fname
+        with open('.config.ini', 'w') as configfile:
+            self.cfg.write(configfile)
 
     def start_main(self):
-        #gmi_misc.info(self.GMI_PATH)
-        #gmi_misc.info(self.GMI_MAGNETIZER)
-        #gmi_misc.info(self.GMI_TESSBZ)
+
+
+        if not os.path.exists(self.cfg.get('PATH', 'GMI_PATH')):
+            gmi_misc.warning('Select new working folder path')
+            return
+
+        if not os.path.exists(self.cfg.get('PATH', 'GMI_MAGNETIZER')):
+            gmi_misc.warning('Select new path to tessutil_magnetize_model')
+            return
+
+        if not os.path.exists(self.cfg.get('PATH', 'GMI_TESSBZ')):
+            gmi_misc.warning('Select new path to tessbz')
+            return
+
+
+        try:
+            shutil.copyfile(self.cfg.get('PATH', 'GMI_MAGNETIZER'), self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model')
+            os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model', st.st_mode | stat.S_IEXEC)
+
+            shutil.copyfile(self.cfg.get('PATH', 'GMI_TESSBZ'), self.cfg.get('PATH', 'GMI_PATH') + '/tessbz')
+            os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessbz', st.st_mode | stat.S_IEXEC)
+        except:
+            gmi_misc.warning('Could not copy executables to the working folder')
+
+        with open('.config.ini', 'w') as configfile:
+            self.cfg.write(configfile)
         self.accept()

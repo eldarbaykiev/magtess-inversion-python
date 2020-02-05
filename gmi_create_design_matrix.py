@@ -20,7 +20,7 @@ WORKING_DIR = ''
 import sys
 if len(sys.argv) == 1:
 	WORKING_DIR = ''
-	
+
 WORKING_DIR = sys.argv[1]
 
 try:
@@ -45,29 +45,29 @@ import gmi_hash
 stages = [0,0,0]
 stages, dictionary = gmi_hash.read_dict('checksums.npy')
 
+if __name__ == '__main__':
+	err = 0
+	if stages[0] == -1:
+		err += 1
+		gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+	elif stages[0] == 0:
+		err += 1
+		gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+	else:
+		pass
 
-err = 0
-if stages[0] == -1:
-	err += 1
-	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
-elif stages[0] == 0:
-	err += 1
-	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
-else:
-	pass
-	
-if stages[1] == -1:
-	err += 1
-	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
-elif stages[1] == 0:
-	err += 1
-	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
-else:
-	pass
-	
-if err > 0:
-	gmi_misc.error('CHECKSUM FAILED, ABORTING!')
-	
+	if stages[1] == -1:
+		err += 1
+		gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+	elif stages[1] == 0:
+		err += 1
+		gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+	else:
+		pass
+
+	if err > 0:
+		gmi_misc.error('CHECKSUM FAILED, ABORTING!')
+
 #**************** --------------------- ******************#
 
 
@@ -119,14 +119,14 @@ np.save('design_matrix_shcoeff', A)
 np.save('design_matrix_ufilt_shcoeff', A_ufilt)
 
 #**************** ------------- *****************#
-	
+
 '''
-	
+
 #**************** WRITE MD5 PARAMS **************#
 import hashlib
 SHAhash = hashlib.md5()
- 
-''' 
+
+'''
 f1 = open('design_matrix_shcoeff.npy', 'rb')
 buf = f1.read()
 md5_1 = hashlib.md5(buf).hexdigest()
@@ -156,7 +156,7 @@ while 1:
 	if not buf : break
 	SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
 f2.close()
-			
+
 dictionary['stage3'] = SHAhash.hexdigest()
 dictionary['stage4'] = ''
 np.save('checksums.npy', dictionary)
@@ -169,4 +169,3 @@ np.save('checksums.npy', dictionary)
 os.chdir(old_cwd)
 
 #**************** --------------------------- ***#
-

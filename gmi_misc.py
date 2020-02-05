@@ -13,17 +13,20 @@ class bcolors:
 	UNDERLINE = '\033[4m'
 	CEND = '\033[0m'
 
+def version():
+	return "0.1.0"
+
 def print_header():
 	from datetime import date
 	today = date.today()
 
-	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
+	print (bcolors.HEADER + "*"*34 + bcolors.ENDC)
 	print (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
 	print (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
-	print (bcolors.HEADER + "*         Python  3.8.1          *" + bcolors.ENDC)
+	print (bcolors.HEADER + "*        v" + version() + " "*(22-len(version()))+ "*" + bcolors.ENDC)
 	print (bcolors.HEADER + "*                                *" + bcolors.ENDC)
-	print (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + "           *" + bcolors.ENDC)
-	print (bcolors.HEADER + "**********************************" + bcolors.ENDC)
+	print (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + " "*11 + "*" + bcolors.ENDC)
+	print (bcolors.HEADER + "*"*34 + bcolors.ENDC)
 	print ("")
 	print ("")
 
@@ -67,7 +70,6 @@ def debug(str):
 def info(str):
 	print (bcolors.OKBLUE + str + bcolors.ENDC)
 
-
 def pause():
     programPause = input("Press the <ENTER> key to continue...")
 
@@ -81,6 +83,31 @@ def ask():
 	if ans in ['no', 'n']:
 		return False
 
+def create_calc_grid(filename):
+	import gmi_config
+	gmi_config.read_config()
+
+	from scipy.interpolate import griddata
+	import numpy as np
+
+	grid_n_lon = int(abs(gmi_config.GRID_LON_MAX - (gmi_config.GRID_LON_MIN)) / gmi_config.GRID_STEP + 1)
+	grid_n_lat = int(abs(gmi_config.GRID_LAT_MAX - (gmi_config.GRID_LAT_MIN)) / gmi_config.GRID_STEP + 1)
+
+	grid_lons = np.linspace(gmi_config.GRID_LON_MIN, gmi_config.GRID_LON_MAX, grid_n_lon)
+	grid_lats = np.linspace(gmi_config.GRID_LAT_MIN, gmi_config.GRID_LAT_MAX, grid_n_lat)
+
+	grid_X, grid_Y = np.meshgrid(grid_lons, grid_lats)
+
+	with open('grid.txt', 'w') as tessfile:
+		for i in range(grid_n_lat):
+			for j in range(grid_n_lon):
+				string = str(grid_X[i, j]) + ' ' + str(grid_Y[i, j]) + ' ' + str(gmi_config.GRID_ALT) + ' '
+				#print string
+				tessfile.write(string + '\n')
+
+	return
+
+
 def read_data_grid(filename):
 	import numpy as np
 	from scipy.interpolate import griddata
@@ -90,26 +117,24 @@ def read_data_grid(filename):
 
 	try:
 		data = np.loadtxt(filename, delimiter=" ")
-
-		LON = data[:, 0]
-		LAT = data[:, 1]
-		ALT = data[:, 2]
-		VAL = data[:, 3] * -1.0
-
-		warning('magtess grid')
 	except:
-		try:
-			data = np.loadtxt(filename, delimiter=" ")
-			LON = data[:, 0]
-			LAT = data[:, 1]
-			VAL = data[:, 2]
+		error("CAN NOT READ " + filename)
 
-			warning('XYZ grid')
-		except:
-			error("CAN NOT READ " + filename)
-			exit(-1)
+	factor = 1.0
+	val_col = 2
+	n_col = len(data[0, :])
+	if n_col == 3:
+		pass
+	elif n_col == 4:
+		factor = -1.0
+		val_col = 3
+	else:
+		error("WRONG NUMBER OF COLUMNS (" + str(n_col) + ") IN " + filename + ", ABORTING")
 
 
+	LON = data[:, 0]
+	LAT = data[:, 1]
+	VAL = data[:, val_col] * -1.0
 
 	step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
 

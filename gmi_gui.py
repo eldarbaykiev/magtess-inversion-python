@@ -38,11 +38,6 @@ def switch_path_back(pth):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-
-    GMI_PATH = ''
-    GMI_MAGNETIZER = ''
-    GMI_TESSBZ = ''
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("gmi_mainwindow.ui", self)
@@ -70,6 +65,95 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.combobox_plot = self.findChild(QtWidgets.QComboBox, 'combobox_plot')
         self.combobox_plot.currentIndexChanged.connect(self.activate_plot_button)
+
+        #stages
+        self.tabs = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
+        self.tabs.currentChanged.connect(self.update_stages)
+
+        self.button_stage1 = self.findChild(QtWidgets.QPushButton, 'button_stage1')
+        self.button_stage1.clicked.connect(self.run_stage1)
+        self.indicator_stage1 = self.findChild(QtWidgets.QLabel, 'indicator_stage1')
+
+        self.button_stage2 = self.findChild(QtWidgets.QPushButton, 'button_stage2')
+        self.button_stage2.clicked.connect(self.run_stage2)
+        self.indicator_stage2 = self.findChild(QtWidgets.QLabel, 'indicator_stage2')
+
+        self.button_stage3 = self.findChild(QtWidgets.QPushButton, 'button_stage3')
+        self.button_stage3.clicked.connect(self.run_stage3)
+        self.indicator_stage3 = self.findChild(QtWidgets.QLabel, 'indicator_stage3')
+
+        self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
+
+
+        # Replace stdout if needed
+        #
+
+
+    def run_stage1(self):
+        import sys
+
+        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+        self.indicator_stage1.setPixmap(pixmap)
+        self.indicator_stage1.show()
+        self.show()
+
+        import gmi_create_tesseroid_model
+        old_cwd = switch_path(self.GMI_PATH)
+
+        '''
+        self.oldstdout = sys.stdout
+
+        from io import StringIO
+        sys.stdout = StringIO()
+        # Do processing stages
+        # And later
+        '''
+
+        print('stage1')
+        gmi_create_tesseroid_model.main(self.GMI_PATH)
+        '''
+        self.console.setText( sys.stdout.getvalue() )
+        sys.stdout = self.oldstdout
+        '''
+        switch_path_back(old_cwd)
+
+        self.update_stages()
+
+
+
+    def run_stage2(self):
+        import sys
+
+        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+        self.indicator_stage2.setPixmap(pixmap)
+        self.indicator_stage2.show()
+        self.show()
+
+        import gmi_calculate_effect_of_each_tesseroid
+        old_cwd = switch_path(self.GMI_PATH)
+
+        '''
+        self.oldstdout = sys.stdout
+        from io import StringIO
+        sys.stdout = StringIO()
+        # Do processing stages
+        # And later
+        '''
+
+        print('stage2')
+        gmi_calculate_effect_of_each_tesseroid.main(self.GMI_PATH)
+        '''
+        self.console.setText( sys.stdout.getvalue() )
+        sys.stdout = self.oldstdout
+        '''
+        switch_path_back(old_cwd)
+
+        self.update_stages()
+        pass
+
+    def run_stage3(self):
+        print('stage3')
+        pass
 
 
     def set_path(self, wpath):
@@ -140,6 +224,68 @@ class MainWindow(QtWidgets.QMainWindow):
                     break
 
         switch_path_back(old_cwd)
+
+    def update_stages(self):
+
+        if self.tabs.currentWidget().objectName() == 'tab_stages':
+            pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+            #self.indicator_stage1.setPixmap(pixmap)
+            #self.indicator_stage1.show()
+            #self.indicator_stage2.setPixmap(pixmap)
+            #self.indicator_stage2.show()
+            #self.indicator_stage3.setPixmap(pixmap)
+            #self.indicator_stage3.show()
+
+            import gmi_hash_test
+            stages = [0, 0, 0]
+            stages, dict = gmi_hash_test.main(self.GMI_PATH)
+
+            pixmap_checked =  QtGui.QPixmap('icons/icons8-checked-checkbox-40.png')
+            pixmap_unchecked =  QtGui.QPixmap('icons/icons8-unchecked-checkbox-40.png')
+
+            self.button_stage1.setEnabled(True)
+            self.button_stage2.setEnabled(False)
+            self.button_stage3.setEnabled(False)
+
+            if stages[0] > 0:
+                self.indicator_stage1.setPixmap(pixmap_checked)
+                self.button_stage2.setEnabled(True)
+                #self.button_stage3.setEnabled(False)
+                #self.label_stage1.setText('correct checksum')
+            elif stages[0] == 0:
+                self.indicator_stage1.setPixmap(pixmap_unchecked)
+                self.button_stage2.setEnabled(False)
+                #self.label_stage1.setText('no checksum')
+            else:
+                self.indicator_stage1.setPixmap(pixmap_unchecked)
+                self.button_stage2.setEnabled(False)
+                #self.label_stage1.setText('checksum in dictionary\ndoes not match')
+            self.indicator_stage1.show()
+
+            if stages[1] > 0:
+                self.indicator_stage2.setPixmap(pixmap_checked)
+                self.button_stage3.setEnabled(True)
+                #self.label_stage2.setText('correct checksum')
+            elif stages[0] == 0:
+                self.indicator_stage2.setPixmap(pixmap_unchecked)
+                self.button_stage3.setEnabled(False)
+                #self.label_stage2.setText('no checksum')
+            else:
+                self.indicator_stage2.setPixmap(pixmap_unchecked)
+                self.button_stage3.setEnabled(False)
+                #self.label_stage2.setText('checksum in dictionary\ndoes not match')
+            self.indicator_stage2.show()
+
+            if stages[2] > 0:
+                self.indicator_stage3.setPixmap(pixmap_checked)
+                #self.label_stage3.setText('correct checksum')
+            elif stages[0] == 0:
+                self.indicator_stage3.setPixmap(pixmap_unchecked)
+                #self.label_stage3.setText('no checksum')
+            else:
+                self.indicator_stage3.setPixmap(pixmap_unchecked)
+                #self.label_stage3.setText('checksum in dictionary\ndoes not match')
+            self.indicator_stage3.show()
 
 
     def plot(self):
@@ -266,7 +412,7 @@ def main():
 
     window = MainWindow()
 
-    window.set_path(preselection.GMI_PATH)
+    window.set_path(preselection.cfg.get('PATH', 'GMI_PATH'))
     window.read_config()
 
     window.show()

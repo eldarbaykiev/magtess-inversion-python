@@ -21,7 +21,7 @@ def _gethashoffile(file_name):
 			md5_stage = hashlib.md5(data.encode('utf-8')).hexdigest()
 	except:
 		return -2
-		
+
 	return md5_stage
 
 
@@ -49,7 +49,7 @@ def _gethashofdirs(directory, verbose=0):
           i = -1
         else:
           pass
-		  
+
         if verbose == 1:
           print ('Hashing' + names)
         filepath = os.path.join(root,names)
@@ -73,34 +73,36 @@ def _gethashofdirs(directory, verbose=0):
     return -2
 
   return SHAhash.hexdigest()
-  
-  
+
+
 
 def read_dict(dictname):
 
 
 	import gmi_misc
 	import gmi_config
-	
+
 	gmi_config.read_config()
 
 	import numpy as np
 
+	stages = [0, 0, 0]
 	try:
 		read_dictionary = np.load(dictname,allow_pickle='TRUE').item()
 	except:
-		gmi_misc.error("NO SCRIPTS WERE EXECUTED!")
-		
+		gmi_misc.warning("NO SCRIPTS WERE EXECUTED!")
+		return stages, None
+
 	import hashlib
-		
+
 	gmi_misc.info("Reading checksum file: "+ dictname)
-	
-	stages = [0, 0, 0]
+
+
 	#STAGE 1 CHECKSUMS **************************************
-	
+
 	print(u'1. [ ] Tesseroid model', end='\r', flush=True)
 	if (len(read_dictionary['stage1']) != 0):
-		
+
 		md5_stage = _gethashoffile('model.magtess')
 		if md5_stage != read_dictionary['stage1']:
 			print(u'1. [' + URING + u'] Tesseroid model: checksum in dictionary does not match the one of ' + CBLUE + 'model.magtess' + CEND)
@@ -111,7 +113,7 @@ def read_dict(dictname):
 	else:
 		print(u'1. [' + UCROSS + u'] Tesseroid model: no checksum ')
 		stages[0] = 0
-		
+
 	#STAGE 2 CHECKSUMS **************************************
 	print(u'2. [ ] Effect of each tesseroid', end='\r', flush=True)
 	if (len(read_dictionary['stage2']) != 0):
@@ -122,15 +124,15 @@ def read_dict(dictname):
 		else:
 			print(u'2. [' + UCHECK + u'] Effect of each tesseroid: correct checksum')
 			stages[1] = 1
-		
+
 	else:
 		print(u'2. [' + UCROSS + u'] Effect of each tesseroid: no checksum ')
 		stages[1] = 0
-		
+
 	print(u'3. [ ] Design matrix', end='\r', flush=True)
 	if (len(read_dictionary['stage3']) != 0):
 		SHAhash = hashlib.md5()
-  
+
 		try:
 			f1 = open('design_matrix_shcoeff.npy', 'rb')
 
@@ -150,11 +152,11 @@ def read_dict(dictname):
 					i = -1
 				else:
 					pass
-		  
+
 				buf = f1.read(4096)
 				if not buf : break
 				SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
-				
+
 				i += 1
 
 			f1.close()
@@ -175,13 +177,13 @@ def read_dict(dictname):
 					i = -1
 				else:
 					pass
-					
+
 				buf = f2.read(4096)
 				if not buf : break
 				SHAhash.update(hashlib.md5(buf).hexdigest().encode('utf-8'))
-				
+
 				i += 1
-				
+
 
 			f2.close()
 
@@ -189,8 +191,8 @@ def read_dict(dictname):
 
 		except:
 			md5_stage = 'abc'
-			
-		
+
+
 		if md5_stage != read_dictionary['stage3']:
 			print(u'3. [' + URING + u'] Design matrix: checksum in dictionary does not match the one of the folder ' + CBLUE + 'model' + CEND)
 			stages[2] = -1
@@ -200,7 +202,7 @@ def read_dict(dictname):
 	else:
 		print(u'3. [' + UCROSS + u'] Design matrix: no checksum ')
 		stages[2] = 0
-		
+
 	return stages, read_dictionary
 
 

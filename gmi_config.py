@@ -125,16 +125,10 @@ def read_config():
 	oper_system = platform.system()
 
 	this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model'
-	if oper_system == 'Linux':
-		this.TESSUTIL_MAGNETIZE_MODEL_FILENAME = './tessutil_magnetize_model_linux'
-
 	if os.path.isfile(this.TESSUTIL_MAGNETIZE_MODEL_FILENAME) == False:
 		gmi_misc.error("CAN NOT FIND " + this.TESSUTIL_MAGNETIZE_MODEL_FILENAME)
 
 	this.TESSBZ_FILENAME = './tessbz'
-	if oper_system == 'Linux':
-		this.TESSBZ_FILENAME = './tessbz_linux'
-
 	if os.path.isfile(this.TESSBZ_FILENAME) == False:
 		gmi_misc.error("CAN NOT FIND " + this.TESSBZ_FILENAME)
 

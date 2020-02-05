@@ -1,7 +1,7 @@
 
 def main(dr):
 	import gmi_misc
-	
+
 	import os
 	old_cwd = os.getcwd()
 	gmi_misc.info('Current directory: '+ old_cwd)
