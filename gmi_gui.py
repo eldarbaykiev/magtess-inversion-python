@@ -225,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.indicator_stage2.show()
         self.show()
 
-        import gmi_invert
+        import gmi_create_design_matrix
         old_cwd = switch_path(self.GMI_PATH)
 
         print('stage3')

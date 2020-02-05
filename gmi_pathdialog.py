@@ -31,10 +31,6 @@ class PathDialog(QtWidgets.QDialog):
         #with open('.config.ini', 'r') as configfile:
         self.cfg.read('.config.ini')
 
-
-        print(self.cfg)
-
-
         self.mainlabel = self.findChild(QtWidgets.QLabel, 'mainlabel')
         import datetime
         now = datetime.datetime.now()
@@ -66,7 +62,7 @@ class PathDialog(QtWidgets.QDialog):
         self.tessbz_browse.clicked.connect(self.get_tessbz)
 
         self.buttonBox = self.findChild(QtWidgets.QDialogButtonBox, 'buttonBox')
-        print(self.buttonBox)
+
         self.buttonBox.accepted.connect(self.start_main)
         self.buttonBox.rejected.connect(self.reject)
 
