@@ -14,6 +14,8 @@ class PathDialog(QtWidgets.QDialog):
         super().__init__(*args, **kwargs)
         uic.loadUi("gmi_pathdialog.ui", self)
 
+        self.setModal(True)
+
         if not os.path.isfile(".config.ini"):
             self.cfg = configparser.ConfigParser()
             self.cfg['PATH'] = {'GMI_PATH' : '',
@@ -41,12 +43,15 @@ class PathDialog(QtWidgets.QDialog):
 
         self.gmi_path = self.findChild(QtWidgets.QLineEdit, 'gmi_path')
         self.gmi_path.setText(self.cfg.get('PATH', 'GMI_PATH'))
+        self.gmi_path.textChanged.connect(self.set_path)
 
         self.gmi_tessutil_filename = self.findChild(QtWidgets.QLineEdit, 'gmi_tessutil_filename')
         self.gmi_tessutil_filename.setText(self.cfg.get('PATH', 'GMI_MAGNETIZER'))
+        self.gmi_tessutil_filename.textChanged.connect(self.set_tessutil_filename)
 
         self.gmi_tessbz_filename = self.findChild(QtWidgets.QLineEdit, 'gmi_tessbz_filename')
         self.gmi_tessbz_filename.setText(self.cfg.get('PATH', 'GMI_TESSBZ'))
+        self.gmi_tessbz_filename.textChanged.connect(self.set_tessbz_filename)
 
         self.path_browse = self.findChild(QtWidgets.QPushButton, 'path_browse')
         self.path_browse.clicked.connect(self.get_path)
@@ -64,6 +69,15 @@ class PathDialog(QtWidgets.QDialog):
         print(self.buttonBox)
         self.buttonBox.accepted.connect(self.start_main)
         self.buttonBox.rejected.connect(self.reject)
+
+    def set_path(self):
+        self.cfg['PATH']['GMI_PATH'] = self.gmi_path.text()
+
+    def set_tessutil_filename(self):
+        self.cfg['PATH']['GMI_MAGNETIZER'] = self.gmi_tessutil_filename.text()
+
+    def set_tessbz_filename(self):
+        self.cfg['PATH']['GMI_TESSBZ'] = self.gmi_tessbz_filename.text()
 
     def help_path(self):
         gmi_helpwindow.show_help('Here you should enter path to your working folder, as well as path to necessary executables from magnetic tesseroids (https://github.com/eldarbaykiev/magnetic-tesseroids).')
@@ -114,11 +128,15 @@ class PathDialog(QtWidgets.QDialog):
         try:
             shutil.copyfile(self.cfg.get('PATH', 'GMI_MAGNETIZER'), self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model')
             os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model', st.st_mode | stat.S_IEXEC)
+        except:
+            gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_MAGNETIZER') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
 
+        try:
             shutil.copyfile(self.cfg.get('PATH', 'GMI_TESSBZ'), self.cfg.get('PATH', 'GMI_PATH') + '/tessbz')
             os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessbz', st.st_mode | stat.S_IEXEC)
         except:
-            gmi_misc.warning('Could not copy executables to the working folder')
+            gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_TESSBZ') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
+
 
         with open('.config.ini', 'w') as configfile:
             self.cfg.write(configfile)

@@ -14,8 +14,6 @@ import gmi_pathdialog, gmi_hashdialog, gmi_helpwindow
 
 import sys, os
 
-
-
 import gmi_misc
 
 def switch_path(pth):
@@ -32,16 +30,22 @@ def switch_path_back(pth):
 
 
 
-
-
-
-
-
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi("gmi_mainwindow.ui", self)
 
+        #opened path
+        self.working_directory_opened = False
+        self.GMI_PATH = ''
+
+        self.current_folder = self.findChild(QtWidgets.QLabel, 'current_folder')
+        self.current_folder.setText(self.GMI_PATH)
+
+        self.button_changefolder = self.findChild(QtWidgets.QPushButton, 'button_changefolder')
+        self.button_changefolder.clicked.connect(self.open_working_directory)
+
+        #config editor
         self.config_editor = self.findChild(QtWidgets.QTextEdit, 'config_editor')
 
         self.button_save = self.findChild(QtWidgets.QPushButton, 'button_save')
@@ -67,6 +71,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.combobox_plot.currentIndexChanged.connect(self.activate_plot_button)
 
         #stages
+        self.stages_updated = False
         self.tabs = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
         self.tabs.currentChanged.connect(self.update_stages)
 
@@ -84,150 +89,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
 
-
-        # Replace stdout if needed
-        #
-
-
-    def run_stage1(self):
-        import sys
-
-        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-        self.indicator_stage1.setPixmap(pixmap)
-        self.indicator_stage1.show()
-        self.show()
-
-        import gmi_create_tesseroid_model
-        old_cwd = switch_path(self.GMI_PATH)
-
-        '''
-        self.oldstdout = sys.stdout
-
-        from io import StringIO
-        sys.stdout = StringIO()
-        # Do processing stages
-        # And later
-        '''
-
-        print('stage1')
-        gmi_create_tesseroid_model.main(self.GMI_PATH)
-        '''
-        self.console.setText( sys.stdout.getvalue() )
-        sys.stdout = self.oldstdout
-        '''
-        switch_path_back(old_cwd)
-
-        self.update_stages()
+        if not self.working_directory_opened:
+            self.open_working_directory()
 
 
-
-    def run_stage2(self):
-        import sys
-
-        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-        self.indicator_stage2.setPixmap(pixmap)
-        self.indicator_stage2.show()
-        self.show()
-
-        import gmi_calculate_effect_of_each_tesseroid
-        old_cwd = switch_path(self.GMI_PATH)
-
-        '''
-        self.oldstdout = sys.stdout
-        from io import StringIO
-        sys.stdout = StringIO()
-        # Do processing stages
-        # And later
-        '''
-
-        print('stage2')
-        gmi_calculate_effect_of_each_tesseroid.main(self.GMI_PATH)
-        '''
-        self.console.setText( sys.stdout.getvalue() )
-        sys.stdout = self.oldstdout
-        '''
-        switch_path_back(old_cwd)
-
-        self.update_stages()
-        pass
-
-    def run_stage3(self):
-        print('stage3')
-        pass
-
-
-    def set_path(self, wpath):
-        self.GMI_PATH = wpath
-        print(self.GMI_PATH)
-
-    def read_config(self):
-        with open(self.GMI_PATH + '/input.txt', 'r') as config_file:
-            buf = config_file.read()
-            self.config_editor.setText(buf)
-
-        import configparser
-        import gmi_config
-
-        old_cwd = switch_path(self.GMI_PATH)
-        config = gmi_config.read_config()
-
-        print(config)
-        self.combobox_plot.clear()
-        self.combobox_plot.addItem('TOP_SURFACE')
-        self.combobox_plot.addItem('BOT_SURFACE')
-        self.combobox_plot.addItem('OBSERVED_DATA')
-        self.combobox_plot.addItem('SUBTRACT_DATA')
-        self.combobox_plot.addItem('INIT_SOLUTION')
-        #self.combobox_plot.addItem(config[])
-
-        switch_path_back(old_cwd)
-
-    def save_config(self):
-        buf = self.config_editor.toPlainText()
-        with open(self.GMI_PATH + '/input.txt', 'w') as config_file:
-            config_file.write(buf)
-
-        self.read_config()
-        gmi_misc.info('Config file was saved!')
-
-    def check_hashtest(self):
-        HashDialog = gmi_hashdialog.HashDialog()
-        HashDialog.set_path(self.GMI_PATH)
-
-        HashDialog.show()
-        HashDialog.check()
-
-        HashDialog.exec_()
-        #HashDialog.loop()
-
-    def activate_plot_button(self):
-        import gmi_config
-        import gmi_gmt
-        import os
-        old_cwd = switch_path(self.GMI_PATH)
-
-        config = gmi_config.read_config()
-        current_opt = str(self.combobox_plot.currentText())
-
-        for sect in config.sections():
-            if(config.has_option(sect, current_opt)):
-                if(os.path.exists(config.get(sect, current_opt))):
-                    gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
-                    self.button_plot.setEnabled(True)
-                    self.button_plot.show()
-                    break
-
-                else:
-                    gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
-                    self.button_plot.setDisabled(True)
-                    self.button_plot.show()
-                    break
-
-        switch_path_back(old_cwd)
 
     def update_stages(self):
-
-        if self.tabs.currentWidget().objectName() == 'tab_stages':
+        if self.tabs.currentWidget().objectName() == 'tab_stages' and self.stages_updated == False:
             pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
             #self.indicator_stage1.setPixmap(pixmap)
             #self.indicator_stage1.show()
@@ -287,11 +155,184 @@ class MainWindow(QtWidgets.QMainWindow):
                 #self.label_stage3.setText('checksum in dictionary\ndoes not match')
             self.indicator_stage3.show()
 
+            self.stages_updated = True
+
+
+
+    def run_stage1(self):
+        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+        self.indicator_stage1.setPixmap(pixmap)
+        self.indicator_stage1.show()
+        self.show()
+
+        import gmi_create_tesseroid_model
+        old_cwd = switch_path(self.GMI_PATH)
+
+        '''
+        self.oldstdout = sys.stdout
+
+        from io import StringIO
+        sys.stdout = StringIO()
+        # Do processing stages
+        # And later
+        '''
+
+        print('stage1')
+        gmi_create_tesseroid_model.main(self.GMI_PATH)
+        '''
+        self.console.setText( sys.stdout.getvalue() )
+        sys.stdout = self.oldstdout
+        '''
+        switch_path_back(old_cwd)
+
+        self.stages_updated = False
+        self.update_stages()
+
+
+
+    def run_stage2(self):
+        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+        self.indicator_stage2.setPixmap(pixmap)
+        self.indicator_stage2.show()
+        self.show()
+
+        import gmi_calculate_effect_of_each_tesseroid
+        old_cwd = switch_path(self.GMI_PATH)
+
+        '''
+        self.oldstdout = sys.stdout
+        from io import StringIO
+        sys.stdout = StringIO()
+        # Do processing stages
+        # And later
+        '''
+
+        print('stage2')
+        gmi_calculate_effect_of_each_tesseroid.main(self.GMI_PATH)
+        '''
+        self.console.setText( sys.stdout.getvalue() )
+        sys.stdout = self.oldstdout
+        '''
+        switch_path_back(old_cwd)
+
+        self.stages_updated = False
+        self.update_stages()
+
+
+    def run_stage3(self):
+        pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
+        self.indicator_stage2.setPixmap(pixmap)
+        self.indicator_stage2.show()
+        self.show()
+
+        import gmi_invert
+        old_cwd = switch_path(self.GMI_PATH)
+
+        print('stage3')
+        gmi_create_design_matrix.main(self.GMI_PATH)
+
+        switch_path_back(old_cwd)
+
+        self.stages_updated = False
+        self.update_stages()
+
+
+
+    def set_path(self, wpath):
+        self.GMI_PATH = wpath
+        self.current_folder.setText(self.GMI_PATH)
+        gmi_misc.info(self.GMI_PATH + ' is set as a working directory')
+
+    def open_working_directory(self):
+
+        if self.working_directory_opened:
+            self.save_config()
+
+        pathselection = gmi_pathdialog.PathDialog()
+        if not pathselection.exec_(): # 'reject': user pressed 'Cancel', so quit
+            if self.working_directory_opened:
+                return
+            else:
+                exit()
+
+        self.set_path(pathselection.cfg.get('PATH', 'GMI_PATH'))
+
+        self.read_working_directory()
+        self.plot_scene.clear()
+
+        self.working_directory_opened = True
+
+
+    def read_working_directory(self):
+        with open(self.GMI_PATH + '/input.txt', 'r') as config_file:
+            buf = config_file.read()
+            self.config_editor.setText(buf)
+
+        import configparser
+        import gmi_config
+
+        old_cwd = switch_path(self.GMI_PATH)
+        config = gmi_config.read_config()
+
+        self.combobox_plot.clear()
+        self.combobox_plot.addItem('TOP_SURFACE')
+        self.combobox_plot.addItem('BOT_SURFACE')
+        self.combobox_plot.addItem('OBSERVED_DATA')
+        self.combobox_plot.addItem('SUBTRACT_DATA')
+        self.combobox_plot.addItem('INIT_SOLUTION')
+        #self.combobox_plot.addItem(config[])
+
+        switch_path_back(old_cwd)
+
+        self.working_directory_opened = True
+
+    def save_config(self):
+        buf = self.config_editor.toPlainText()
+        with open(self.GMI_PATH + '/input.txt', 'w') as config_file:
+            config_file.write(buf)
+
+
+    def check_hashtest(self):
+        HashDialog = gmi_hashdialog.HashDialog()
+        HashDialog.set_path(self.GMI_PATH)
+
+        HashDialog.show()
+        HashDialog.check()
+
+        HashDialog.exec_()
+        #HashDialog.loop()
+
+    def activate_plot_button(self):
+        import gmi_config
+        import gmi_gmt
+        import os
+        old_cwd = switch_path(self.GMI_PATH)
+
+        config = gmi_config.read_config()
+        current_opt = str(self.combobox_plot.currentText())
+
+        for sect in config.sections():
+            if(config.has_option(sect, current_opt)):
+                if(os.path.exists(config.get(sect, current_opt))):
+                    gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
+                    self.button_plot.setEnabled(True)
+                    self.button_plot.show()
+                    break
+
+                else:
+                    gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
+                    self.button_plot.setDisabled(True)
+                    self.button_plot.show()
+                    break
+
+        switch_path_back(old_cwd)
 
     def plot(self):
         import gmi_config
         import gmi_gmt
         old_cwd = switch_path(self.GMI_PATH)
+
+        self.plot_scene.clear() #new thing
 
         config = gmi_config.read_config()
 
@@ -371,9 +412,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
-        print (fname)
-        print("PLOT!!!")
-
         plot_pixmap =  QtGui.QPixmap('temp.png')
         self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*0.95))
         #self.plot_scene.setSceneRect(self.plot_view.geometry().x(), self.plot_view.geometry().y(), self.plot_view.geometry().width(), self.plot_view.geometry().height())
@@ -406,15 +444,13 @@ class MainWindow(QtWidgets.QMainWindow):
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
-    preselection = gmi_pathdialog.PathDialog()
-    if not preselection.exec_(): # 'reject': user pressed 'Cancel', so quit
+    pathselection = gmi_pathdialog.PathDialog()
+    if not pathselection.exec_(): # 'reject': user pressed 'Cancel', so quit
         sys.exit(-1)
 
     window = MainWindow()
 
-    window.set_path(preselection.cfg.get('PATH', 'GMI_PATH'))
-    window.read_config()
-
+    window.read_working_directory()
     window.show()
 
     sys.exit(app.exec_())

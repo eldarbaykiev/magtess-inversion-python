@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>616</width>
-    <height>417</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,9 @@
   </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
+  </property>
+  <property name="toolTip">
+   <string>Open another working directory</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -24,7 +27,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
+      <y>40</y>
       <width>581</width>
       <height>331</height>
      </rect>
@@ -330,7 +333,7 @@
     <property name="geometry">
      <rect>
       <x>484</x>
-      <y>350</y>
+      <y>380</y>
       <width>111</width>
       <height>32</height>
      </rect>
@@ -339,7 +342,7 @@
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Close</string>
+     <string>Exit</string>
     </property>
     <property name="icon">
      <iconset>
@@ -358,8 +361,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>374</x>
-      <y>350</y>
+      <x>120</x>
+      <y>380</y>
       <width>111</width>
       <height>32</height>
      </rect>
@@ -384,8 +387,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>264</x>
-      <y>350</y>
+      <x>10</x>
+      <y>380</y>
       <width>111</width>
       <height>32</height>
      </rect>
@@ -404,10 +407,86 @@
      </size>
     </property>
    </widget>
+   <widget class="QPushButton" name="button_changefolder">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>380</y>
+      <width>111</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Change</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-opened-folder-40.png</normaloff>icons/icons8-opened-folder-40.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>16</width>
+      <height>16</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>19</x>
+      <y>10</y>
+      <width>581</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="current_folder">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>0</y>
+       <width>551</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>icons/icons8-folder-16.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>2</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>icons/icons8-folder-16.png</pixmap>
+     </property>
+    </widget>
+   </widget>
    <zorder>button_close</zorder>
    <zorder>button_observed</zorder>
    <zorder>button_checksum</zorder>
    <zorder>tabWidget</zorder>
+   <zorder>button_changefolder</zorder>
+   <zorder>frame</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionClose">
