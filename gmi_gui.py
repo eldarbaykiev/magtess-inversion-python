@@ -13,6 +13,7 @@ from PyQt5 import uic
 import gmi_pathdialog, gmi_hashdialog, gmi_helpwindow
 
 import sys, os
+import numpy as np
 
 import gmi_misc
 
@@ -453,41 +454,10 @@ class MainWindow(QtWidgets.QMainWindow):
             min = 0
             max = 0.1
 
-            if ('.vim' in x0_name) or ('.vis' in x0_name):
-                x0 = gmi_misc.read_surf_grid(x0_name)
-
-                try:
-                    grid_top = gmi_misc.read_surf_grid(config.get('Global Tesseroid Model', 'TOP_SURFACE'))
-                    grid_bot = gmi_misc.read_surf_grid(config.get('Global Tesseroid Model', 'BOT_SURFACE'))
-                except:
-                    gmi_misc.error('CAN NOT OPEN TOP OR BOT')
-                thickness = (grid_top - grid_bot)/1000.0
-
-                grid = x0 / thickness
-
-            elif ('.x0' in x0_name):
-                import numpy as np
-                try:
-                    x0 = np.loadtxt(x0_name)
-                except IOError as err:
-                    print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
-                    exit()
-
-                nlon, nlat, X, Y = gmi_misc.create_tess_cpoint_grid()
-
-                with open('temp_surf.xyz', 'w') as surffile:
-                    k = 0
-                    for i in range(nlat-1, -1, -1):
-                        for j in range(nlon):
-                            sus_curr = x0[k]
-
-                            string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus_curr)
-                            surffile.write(string + '\n')
-                            k += 1
-
-                grid = gmi_misc.read_surf_grid('temp_surf.xyz')
-
-
+            grid = gmi_misc.read_sus_grid(x0_name)
+            if float(config.get('Inversion', 'MULTIPLICATOR')) != 1.0:
+                max = max * float(config.get('Inversion', 'MULTIPLICATOR'))
+                #units = 'SI'.format(float(config.get('Inversion', 'MULTIPLICATOR')))
 
 
         else:

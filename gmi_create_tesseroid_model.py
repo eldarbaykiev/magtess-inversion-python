@@ -1,4 +1,7 @@
 def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
+    import numpy as np
+    import os
+
     import gmi_config
     gmi_config.read_config()
 
@@ -23,85 +26,89 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 
 
 def main(dr):
-	#**************** TESTING PARAMS (WOULD BE REMOVED)*******#
-        CREATE_VIM_MODEL = False
-	#**************** ---------------------------------*******#
+    #**************** TESTING PARAMS (WOULD BE REMOVED)*******#
+    CREATE_VIM_MODEL = True
+    #**************** ---------------------------------*******#
 
-	import gmi_misc
-	#**************** PRINT HEADER ***************************#
-	gmi_misc.print_header()
-	print ("Script no. 1: Creation of global tesseroid model")
-	#**************** ------------ ***************************#
+    import gmi_misc
+    #**************** PRINT HEADER ***************************#
+    gmi_misc.print_header()
+    print ("Script no. 1: Creation of global tesseroid model")
+    #**************** ------------ ***************************#
 
-	#**************** GET WORKING DIRECTORY ******************#
-	import os
-	old_cwd = os.getcwd()
-	gmi_misc.info('Current directory: '+ old_cwd)
+    #**************** GET WORKING DIRECTORY ******************#
+    import os
+    old_cwd = os.getcwd()
+    gmi_misc.info('Current directory: '+ old_cwd)
 
-	try:
-            os.chdir(dr)
-	except:
-            gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
+    try:
+        os.chdir(dr)
+    except:
+        gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
 
-	gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
-	#**************** --------------------- ******************#
-
-
-	#**************** read parameters from file **************#
-	import gmi_config
-	gmi_config.read_config()
-	#**************** ------------------------- **************#
+    gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
+    #**************** --------------------- ******************#
 
 
-
-	import numpy as np
-	from scipy.interpolate import griddata
-
-	n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
-
-	Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
-	Z_top = gmi_misc.read_surf_grid(gmi_config.TOP_SURFACE)
-
-	gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
-
-	_create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
+    #**************** read parameters from file **************#
+    import gmi_config
+    gmi_config.read_config()
+    #**************** ------------------------- **************#
 
 
-        #CHECK THIS!!!!
-	if CREATE_VIM_MODEL:
-            vim_distribution = gmi_misc.read_suscept_global_grid_from_file('apriori_VIM/hemant_VIS.vim')
-            sus = np.zeros(len(vim_distribution))
-            _create_tess_model_file('apriori_VIM/hemant_VIS', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
-
-            np.savetxt('apriori_VIM/' + gmi_config.PROJECT_NAME + '.x0', sus*gmi_config.MULTIPLICATOR)
-
-	gmi_misc.ok("Magnetic tesseroid model \"model.magtess\" is created")
+    result_folder = gmi_misc.init_result_folder()
 
 
-	#**************** WRITE MD5 PARAMS **************#
 
-	import hashlib
-	file_name = 'model.magtess'
-	with open(file_name, 'r') as file_to_check:
-	    # read contents of the file
-	    data = file_to_check.read()
-	    # pipe contents of the file through
-	    md5_returned = hashlib.md5(data.encode('utf-8')).hexdigest()
+    import numpy as np
+    from scipy.interpolate import griddata
 
-	#Save
-	dictionary = {'stage1':md5_returned,
-		'stage2':'',
-		'stage3':'',
-		'stage4':'',
-	}
-	np.save('checksums.npy', dictionary)
-	#**************** ---------------- **************#
+    n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
+
+    Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
+    Z_top = gmi_misc.read_surf_grid(gmi_config.TOP_SURFACE)
+
+    gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
+
+    _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
 
 
-	#**************** RETURN BACK TO INITIAL PATH ***#
-	os.chdir(old_cwd)
+    #CHECK THIS!!!!
+    if CREATE_VIM_MODEL:
+        if ('.vim' in gmi_config.INIT_SOLUTION) or ('.vis' in gmi_config.INIT_SOLUTION):
+            sus_grid = gmi_misc.read_sus_grid(gmi_config.INIT_SOLUTION)
+            dm1, dm2, x0 = gmi_misc.convert_surf_grid_to_xyz(sus_grid)
 
-	#**************** --------------------------- ***#
+            _create_tess_model_file(result_folder + '/model_with_x0', x0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
+            np.savetxt(result_folder + '/init_solution.x0', x0*gmi_config.MULTIPLICATOR)
+
+    gmi_misc.ok("Magnetic tesseroid model \"model.magtess\" is created")
+
+
+    #**************** WRITE MD5 PARAMS **************#
+
+    import hashlib
+    file_name = 'model.magtess'
+    with open(file_name, 'r') as file_to_check:
+        # read contents of the file
+        data = file_to_check.read()
+        # pipe contents of the file through
+        md5_returned = hashlib.md5(data.encode('utf-8')).hexdigest()
+
+    #Save
+    dictionary = {'stage1':md5_returned,
+            'stage2':'',
+            'stage3':'',
+            'stage4':'',
+    }
+    np.save('checksums.npy', dictionary)
+    #**************** ---------------- **************#
+
+
+    #**************** RETURN BACK TO INITIAL PATH ***#
+    os.chdir(old_cwd)
+
+    #**************** --------------------------- ***#
 
 
 if __name__ == '__main__':

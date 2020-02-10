@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.interpolate import griddata
+import os
 
 class bcolors:
     HEADER = '\033[95m'
@@ -15,6 +16,27 @@ class bcolors:
 
 def version():
     return "0.1.0"
+
+def init_result_folder():
+
+    import gmi_config
+    gmi_config.read_config()
+
+    if len(gmi_config.PROJECT_NAME) > 0:
+        foldername = gmi_config.PROJECT_NAME
+    else:
+        from datetime import datetime
+        now = datetime.now()
+        foldername = now.strftime("%Y_%m_%d_%H_%M_%S")
+
+    foldername = 'result_' + foldername
+
+    try:
+        os.mkdir(foldername)
+    except:
+        warning('RESULT FOLDER ALREADY EXIST!')
+
+    return foldername
 
 def print_header():
     from datetime import date
@@ -56,6 +78,70 @@ def read_surf_grid(fname):
 
     grid = griddata((grid_surf[:,0], grid_surf[:,1]), grid_surf[:,2], (X,Y), method='nearest')
     return grid
+
+def convert_surf_grid_to_xyz(grid):
+    nlon, nlat, X, Y = create_tess_cpoint_grid()
+
+    import numpy as np
+    grd_X = np.zeros(nlon*nlat)
+    grd_Y = np.zeros(nlon*nlat)
+    grd_VAL = np.zeros(nlon*nlat)
+
+    k = 0
+    for i in range(nlat-1, -1, -1):
+        for j in range(nlon):
+            grd_X[k] = X[i, j]
+            grd_Y[k] = Y[i, j]
+            grd_VAL[k] = grid[i, j]
+            k += 1
+
+    return grd_X, grd_Y, grd_VAL
+
+def read_sus_grid(fname):
+    if ('.vim' in fname) or ('.vis' in fname):
+        info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: VERTICALLY INTEGRATED SUSCEPTIBILITY GRID [lon] [lat] [VIS]')
+        import gmi_config
+        gmi_config.read_config()
+
+        x0 = read_surf_grid(fname)
+
+        try:
+            grid_top = read_surf_grid(gmi_config.TOP_SURFACE)
+            grid_bot = read_surf_grid(gmi_config.BOT_SURFACE)
+        except:
+            gmi_misc.error('CAN NOT OPEN TOP OR BOT')
+        thickness = (grid_top - grid_bot)/1000.0
+
+        grid = x0 / thickness
+
+    elif ('.x0' in fname):
+        info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: x0 COLUMN [sus]')
+        import numpy as np
+        try:
+            x0 = np.loadtxt(fname)
+        except IOError as err:
+            print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
+            exit()
+
+        nlon, nlat, X, Y = create_tess_cpoint_grid()
+
+        with open('temp_surf.xyz', 'w') as surffile:
+            k = 0
+            for i in range(nlat-1, -1, -1):
+                for j in range(nlon):
+                    sus_curr = x0[k]
+
+                    string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus_curr)
+                    surffile.write(string + '\n')
+                    k += 1
+
+        grid = read_surf_grid('temp_surf.xyz')
+
+    else:
+        error('CAN NOT RECOGNIZE SUSCEPTIBILITY FILE (' + fname + ') TYPE, ABORTING')
+
+    return grid
+
 
 def warning(str):
     print (bcolors.WARNING + str + bcolors.ENDC)
@@ -226,7 +312,9 @@ def read_suscept_global_grid_from_file(filename):
             x_0[ind] = sus_grid[i, j]
             ind += 1
 
-    return sus_grid,
+    return sus_grid
+
+
 
 
 def remove_lw_sh_coeff(sh_coff, n_cutoff):
