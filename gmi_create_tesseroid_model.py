@@ -1,6 +1,30 @@
+def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
+    import gmi_config
+    gmi_config.read_config()
+
+    nlat, nlon = x_grid.shape
+
+    with open(fname + '.tess', 'w') as tessfile:
+        k = 0
+        for i in range(nlat-1, -1, -1):
+            for j in range(nlon):
+                if isinstance(suscept, np.ndarray):
+                    sus_curr = suscept[k]
+                elif isinstance(suscept, float):
+                    sus_curr = suscept
+                else:
+                    pass
+
+                string = str(x_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(x_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(z_topg[i, j]) + ' ' +  str(z_botg[i, j]) + ' 1.0 ' + str(sus_curr)
+                tessfile.write(string + '\n')
+                k = k + 1
+
+    os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
+
+
 def main(dr):
 	#**************** TESTING PARAMS (WOULD BE REMOVED)*******#
-	CREATE_VIM_MODEL = True
+        CREATE_VIM_MODEL = False
 	#**************** ---------------------------------*******#
 
 	import gmi_misc
@@ -15,9 +39,9 @@ def main(dr):
 	gmi_misc.info('Current directory: '+ old_cwd)
 
 	try:
-		os.chdir(dr)
+            os.chdir(dr)
 	except:
-		gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
+            gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
 
 	gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
 	#**************** --------------------- ******************#
@@ -33,27 +57,6 @@ def main(dr):
 	import numpy as np
 	from scipy.interpolate import griddata
 
-
-	def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
-		nlat, nlon = x_grid.shape
-
-		with open(fname + '.tess', 'w') as tessfile:
-			k = 0
-			for i in range(nlat-1, -1, -1):
-				for j in range(nlon):
-					if isinstance(suscept, np.ndarray):
-						sus_curr = suscept[k]
-					elif isinstance(suscept, float):
-						sus_curr = suscept
-					else:
-						pass
-
-					string = str(x_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(x_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(z_topg[i, j]) + ' ' +  str(z_botg[i, j]) + ' 1.0 ' + str(sus_curr)
-					tessfile.write(string + '\n')
-					k = k + 1
-
-		os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
-
 	n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
 
 	Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
@@ -63,12 +66,14 @@ def main(dr):
 
 	_create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
 
-	if CREATE_VIM_MODEL:
-		vim_distribution = gmi_misc.read_suscept_global_grid_from_file('apriori_VIM/hemant_VIS.vim')
-		sus = np.zeros(len(vim_distribution))
-		_create_tess_model_file('apriori_VIM/hemant_VIS', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
 
-		np.savetxt('apriori_VIM/' + gmi_config.PROJECT_NAME + '.x0', sus*gmi_config.MULTIPLICATOR)
+        #CHECK THIS!!!!
+	if CREATE_VIM_MODEL:
+            vim_distribution = gmi_misc.read_suscept_global_grid_from_file('apriori_VIM/hemant_VIS.vim')
+            sus = np.zeros(len(vim_distribution))
+            _create_tess_model_file('apriori_VIM/hemant_VIS', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
+
+            np.savetxt('apriori_VIM/' + gmi_config.PROJECT_NAME + '.x0', sus*gmi_config.MULTIPLICATOR)
 
 	gmi_misc.ok("Magnetic tesseroid model \"model.magtess\" is created")
 

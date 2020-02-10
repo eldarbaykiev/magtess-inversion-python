@@ -48,6 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         #config editor
         self.config_editor = self.findChild(QtWidgets.QTextEdit, 'config_editor')
+        self.config_editor.textChanged.connect(self.activate_save)
 
         self.button_save = self.findChild(QtWidgets.QPushButton, 'button_save')
         self.button_save.clicked.connect(self.save_config)
@@ -122,12 +123,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.tabs.currentWidget().objectName() == 'tab_stages' and self.stages_updated == False:
 
             pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-            #self.indicator_stage1.setPixmap(pixmap)
-            #self.indicator_stage1.show()
-            #self.indicator_stage2.setPixmap(pixmap)
-            #self.indicator_stage2.show()
-            #self.indicator_stage3.setPixmap(pixmap)
-            #self.indicator_stage3.show()
+            self.indicator_stage1.setPixmap(pixmap)
+            self.indicator_stage1.repaint()
+            self.indicator_stage2.setPixmap(pixmap)
+            self.indicator_stage2.repaint()
+            self.indicator_stage3.setPixmap(pixmap)
+            self.indicator_stage3.repaint()
 
             import gmi_hash_test
             stages = [0, 0, 0]
@@ -157,7 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.indicator_stage1.setPixmap(pixmap_unchecked)
                 self.button_stage2.setEnabled(False)
                 #self.label_stage1.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage1.show()
+            self.indicator_stage1.repaint()
 
             if stages[1] > 0:
                 if self.checksums:
@@ -174,7 +175,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.indicator_stage2.setPixmap(pixmap_unchecked)
                 self.button_stage3.setEnabled(False)
                 #self.label_stage2.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage2.show()
+            self.indicator_stage2.repaint()
 
             if stages[2] > 0:
                 if self.checksums:
@@ -188,7 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.indicator_stage3.setPixmap(pixmap_unchecked)
                 #self.label_stage3.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage3.show()
+            self.indicator_stage3.repaint()
 
 
             self.stages_updated = True
@@ -198,8 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def run_stage1(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
         self.indicator_stage1.setPixmap(pixmap)
-        self.indicator_stage1.show()
-        self.show()
+        self.indicator_stage1.repaint()
 
         import gmi_create_tesseroid_model
         old_cwd = switch_path(self.GMI_PATH)
@@ -229,8 +229,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def run_stage2(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
         self.indicator_stage2.setPixmap(pixmap)
-        self.indicator_stage2.show()
-        self.show()
+        self.indicator_stage2.repaint()
 
         import gmi_calculate_effect_of_each_tesseroid
         old_cwd = switch_path(self.GMI_PATH)
@@ -258,8 +257,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def run_stage3(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
         self.indicator_stage2.setPixmap(pixmap)
-        self.indicator_stage2.show()
-        self.show()
+        self.indicator_stage2.repaint()
 
         import gmi_create_design_matrix
         old_cwd = switch_path(self.GMI_PATH)
@@ -326,10 +324,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.working_directory_opened = True
 
+    def activate_save(self):
+        self.button_save.setText('Save')
+        self.button_save.setEnabled(True)
+        self.button_save.repaint()
+
     def save_config(self):
         buf = self.config_editor.toPlainText()
         with open(self.GMI_PATH + '/input.txt', 'w') as config_file:
             config_file.write(buf)
+
+        self.button_save.setText('Save')
+        self.button_save.setEnabled(False)
+        self.button_save.repaint()
+        gmi_misc.info('input.txt saved')
 
 
     def check_hashtest(self):
@@ -356,13 +364,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 if(os.path.exists(config.get(sect, current_opt))):
                     gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
                     self.button_plot.setEnabled(True)
-                    self.button_plot.show()
+                    self.button_plot.repaint()
                     break
 
                 else:
                     gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
                     self.button_plot.setDisabled(True)
-                    self.button_plot.show()
+                    self.button_plot.repaint()
                     break
 
         switch_path_back(old_cwd)
@@ -445,7 +453,42 @@ class MainWindow(QtWidgets.QMainWindow):
             min = 0
             max = 0.1
 
-            x0 = np.loadtxt(x0_name)
+            if ('.vim' in x0_name) or ('.vis' in x0_name):
+                x0 = gmi_misc.read_surf_grid(x0_name)
+
+                try:
+                    grid_top = gmi_misc.read_surf_grid(config.get('Global Tesseroid Model', 'TOP_SURFACE'))
+                    grid_bot = gmi_misc.read_surf_grid(config.get('Global Tesseroid Model', 'BOT_SURFACE'))
+                except:
+                    gmi_misc.error('CAN NOT OPEN TOP OR BOT')
+                thickness = (grid_top - grid_bot)/1000.0
+
+                grid = x0 / thickness
+
+            elif ('.x0' in x0_name):
+                import numpy as np
+                try:
+                    x0 = np.loadtxt(x0_name)
+                except IOError as err:
+                    print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
+                    exit()
+
+                nlon, nlat, X, Y = gmi_misc.create_tess_cpoint_grid()
+
+                with open('temp_surf.xyz', 'w') as surffile:
+                    k = 0
+                    for i in range(nlat-1, -1, -1):
+                        for j in range(nlon):
+                            sus_curr = x0[k]
+
+                            string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus_curr)
+                            surffile.write(string + '\n')
+                            k += 1
+
+                grid = gmi_misc.read_surf_grid('temp_surf.xyz')
+
+
+
 
         else:
             pass
