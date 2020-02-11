@@ -68,6 +68,7 @@ def create_tess_cpoint_grid():
 
     return n_lon, n_lat, X, Y
 
+
 def read_surf_grid(fname):
 
     n_lon, n_lat, X, Y = create_tess_cpoint_grid()
@@ -98,7 +99,7 @@ def convert_surf_grid_to_xyz(grid):
     return grd_X, grd_Y, grd_VAL
 
 def read_sus_grid(fname):
-    if ('.vim' in fname) or ('.vis' in fname):
+    if ('.vim' in fname[-5:]) or ('.vis' in fname[-5:]):
         info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: VERTICALLY INTEGRATED SUSCEPTIBILITY GRID [lon] [lat] [VIS]')
         import gmi_config
         gmi_config.read_config()
@@ -114,7 +115,11 @@ def read_sus_grid(fname):
 
         grid = x0 / thickness
 
-    elif ('.x0' in fname):
+
+    elif ('.xyz' in fname[-5:]):
+        grid = read_surf_grid(fname)
+
+    elif ('.x0' in fname[-5:]):
         info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: x0 COLUMN [sus]')
         import numpy as np
         try:
@@ -137,17 +142,23 @@ def read_sus_grid(fname):
 
         grid = read_surf_grid('temp_surf.xyz')
 
+
+
     else:
         error('CAN NOT RECOGNIZE SUSCEPTIBILITY FILE (' + fname + ') TYPE, ABORTING')
 
     return grid
 
 
-def warning(str):
-    print (bcolors.WARNING + str + bcolors.ENDC)
+def warning(msg=None):
+    import sys
+    print (bcolors.WARNING + f"WARNING [{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC)
 
-def error(str):
-    print (bcolors.FAIL + str + bcolors.ENDC)
+def error(msg=None):
+    import sys
+    print(bcolors.FAIL + f"ERROR [{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC )
+
+    #print (bcolors.FAIL + msg + bcolors.ENDC)
     exit(-1)
 
 def debug(str):
@@ -202,9 +213,17 @@ def read_data_grid(filename):
     gmi_config.read_config()
 
     try:
-        data = np.loadtxt(filename, delimiter=" ")
-    except:
-        error("CAN NOT READ " + filename)
+        data = np.loadtxt(filename, delimiter="\t")
+    except ValueError:
+        warning(str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
+
+        try:
+            data = np.loadtxt(filename, delimiter=" ")
+
+        except:
+            error('CAN NOT READ ' + str(filename) + ' with space delimiter, abort!')
+            exit(-1)
+
 
     factor = 1.0
     val_col = 2
@@ -220,7 +239,7 @@ def read_data_grid(filename):
 
     LON = data[:, 0]
     LAT = data[:, 1]
-    VAL = data[:, val_col] * -1.0
+    VAL = data[:, val_col] * factor
 
     step = gmi_config.GRID_STEP#abs(LON[1] - LON[0])
 
@@ -366,3 +385,12 @@ def write_sus_grid_to_file(sus, fname):
     gmi_config.read_config()
 
     n_lon, n_lat, X, Y = create_tess_cpoint_grid()
+
+    ind = 0
+    with open(fname, 'w') as resfile:
+        for i in range(n_lat-1, -1, -1):
+            for j in range(n_lon):
+                string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus[ind])
+
+                resfile.write(string + '\n')
+                ind = ind+1

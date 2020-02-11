@@ -1,403 +1,167 @@
-import gmi_misc
-#**************** PRINT HEADER ***************************#
-gmi_misc.print_header()
-print("Script no. 4: Inversion")
-#**************** ------------ ***************************#
+def main(dr):
+    import gmi_misc
+    #**************** PRINT HEADER ***************************#
+    gmi_misc.print_header()
+    print("Script no. 4: Inversion")
+    #**************** ------------ ***************************#
 
+    #**************** GET WORKING DIRECTORY ******************#
+    import os
+    old_cwd = os.getcwd()
+    gmi_misc.info('Current directory: '+ old_cwd)
 
-#**************** GET WORKING DIRECTORY ******************#
-import os
-old_cwd = os.getcwd()
-gmi_misc.info('Current directory: '+ old_cwd)
+    try:
+        os.chdir(dr)
+    except:
+        gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
 
-WORKING_DIR = ''
-import sys
-if len(sys.argv) == 1:
-	WORKING_DIR = ''
+    gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
+    #**************** --------------------- ******************#
 
-WORKING_DIR = sys.argv[1]
+    #**************** read parameters from file **************#
+    import gmi_config
+    gmi_config.read_config()
+    #**************** ------------------------- **************#
 
-try:
-	os.chdir(WORKING_DIR)
-except:
-	gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ WORKING_DIR + ', ABORTING...')
 
-gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
-#**************** --------------------- ******************#
 
+    #************ check if previous stages were launched *****#
+    '''
+    import gmi_hash
+    stages = [0,0,0]
+    stages, dictionary = gmi_hash.read_dict('checksums.npy')
 
 
+    err = 0
+    if stages[0] == -1:
+            gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+            err += 1
+    elif stages[0] == 0:
+            gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
+            err += 1
+    else:
+            pass
 
-#**************** read parameters from file **************#
-import gmi_config
-gmi_config.read_config()
-#**************** ------------------------- **************#
+    if stages[1] == -1:
+            gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+            err += 1
+    elif stages[1] == 0:
+            gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
+            err += 1
+    else:
+            pass
 
+    if stages[2] == -1:
+            gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
+            err += 1
+    elif stages[2] == 0:
+            gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
+            err += 1
+    else:
+            pass
 
+    if err > 0:
+            gmi_misc.error('CHECKSUM FAILED, ABORTING!')
+    '''
+    #**************** --------------------- ******************#
 
-#************ check if previous stages were launched *****#
-import gmi_hash
-stages = [0,0,0]
-stages, dictionary = gmi_hash.read_dict('checksums.npy')
 
+    import matplotlib.pyplot as plt
+    import pyshtools
 
-err = 0
-if stages[0] == -1:
-	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
-	err += 1
-elif stages[0] == 0:
-	gmi_misc.warning('model.magtess was changed after the run of Script 1, restart Script no. 1 first! ABORTING...')
-	err += 1
-else:
-	pass
+    import numpy as np
+    from scipy.interpolate import griddata
 
-if stages[1] == -1:
-	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
-	err += 1
-elif stages[1] == 0:
-	gmi_misc.warning('Folder model was changed after the run of Script 2, restart Script no. 2 first! ABORTING...')
-	err += 1
-else:
-	pass
 
-if stages[2] == -1:
-	gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
-	err += 1
-elif stages[2] == 0:
-	gmi_misc.warning('Design matrix was changed after the run of Script 3, restart Script no. 3 first! ABORTING...')
-	err += 1
-else:
-	pass
+    gmi_misc.warning("INPUT GRID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
-if err > 0:
-	gmi_misc.error('CHECKSUM FAILED, ABORTING!')
+    ##READ DESIGN MATRIX
 
-#**************** --------------------- ******************#
+    A = np.load('design_matrix_shcoeff.npy')
+    #A_alldeg = np.load('design_matrix_ufilt_shcoeff.npy')
 
+    import scipy.io
+    A = np.transpose(A)
+    #A_alldeg = np.transpose(A_alldeg)
 
-import matplotlib.pyplot as plt
-import pyshtools
+    ##READ INITIAL SOLUTION
+    #read initial solution
+    sus_grid = gmi_misc.read_sus_grid(gmi_config.INIT_SOLUTION)
+    dm1, dm2, x0 = gmi_misc.convert_surf_grid_to_xyz(sus_grid)
 
-import numpy as np
-from scipy.interpolate import griddata
 
+    d_ideal = np.matmul(A, x0)
 
-print("NOTE: INPUT GRID IS MULTIPLIED BY ", str(gmi_config.MULTIPLICATOR))
+    ##READ OBSERVED GRID
+    obs_grid = gmi_misc.read_data_grid(gmi_config.OBSERVED_DATA) #* gmi_config.MULTIPLICATOR
 
-print("NOTE: RESULTS ARE DIVIDED BY ", str(gmi_config.MULTIPLICATOR))
 
-try:
-	A_sh = np.load('design_matrix_shcoeff.npy')
-	A_ufilt_sh = np.load('design_matrix_ufilt_shcoeff.npy')
-except:
-	print("CAN NOT OPEN SH COEFF DESIGN MATRIX")
-	exit(-1)
+    ##READ SUBTRACTABLE FIELD
+    try:
+        sub_grid = gmi_misc.read_data_grid(gmi_config.SUBTRACT_DATA) * gmi_config.MULTIPLICATOR
+    except IOError as err:
+        print("CAN NOT OPEN SUBTRACTEBLE DATAFILE: {0}".format(err))
+        sub_grid = obs_grid*0.0
 
-import scipy.io
-#scipy.io.savemat("design_matrix_shcoeff.mat", {'A_sh_fromfile': A_sh, 'd_sh': d_sh})
-A_sh = np.transpose(A_sh)
-A_ufilt_sh = np.transpose(A_ufilt_sh)
+    ##REMOVE SUBTRACTABLE FIELD
+    obs_grid = obs_grid - sub_grid
 
+    ##CONVERT OBSERVED GRID INTO SHCOEFF
+    obs_sht_grid = pyshtools.SHGrid.from_array(obs_grid)
+    obs_sht_shcoeff = obs_sht_grid.expand(normalization='schmidt')
 
-#########################
-try:
-	x0 = np.loadtxt(gmi_config.INIT_SOLUTION)
-except IOError as err:
-	print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
-	exit()
+    obs_sht_shcoeff_trunc = gmi_misc.remove_lw_sh_coeff(obs_sht_shcoeff, gmi_config.N_MIN_CUTOFF)
+    obs_sht_shcoeff_trunc.to_file("obs_sht_shcoeff_trunc.coeff")
 
-A_sh_mul_x0 = np.matmul(A_sh, x0)
-A_sh_mul_x0_sh_tools = gmi_misc.convert_result_into_shtools_format(A_sh_mul_x0, 'A_sh_mul_x0.coeff')
+    d = gmi_misc.read_coeffs_from_text_file("obs_sht_shcoeff_trunc.coeff", gmi_config.N_MIN_CUTOFF)
+    n_coeff = len(d)
 
+    #SOLVING
+    import gmi_inv_methods
 
-import gmi_gmt
+    print ("d_ideal (np.matmul(A, x0)):" + str(d_ideal))
+    print ("d (from magtess calculated grid):" + str(d))
+    print ("|d_ideal - d| = " + str(np.linalg.norm(d_ideal - d)))
 
-gmi_gmt.plot_global_grid([1, 2], [1, 2], [1, 2], 0, 3, "polar")
-sdgfsdfg
+    h = gmi_inv_methods.Projected_Gradient(A, d, x0)
 
-try:
-	#raw_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.OBSERVED_DATA)
-	raw_grid = gmi_misc.read_data_grid(gmi_config.OBSERVED_DATA)
-	raw_grid = raw_grid * gmi_config.MULTIPLICATOR #CHECK THIS!!!!
-except IOError as err:
-	print("CAN NOT OPEN OBSERVED DATAFILE: {0}".format(err))
-	exit(-1)
+    print ("x0:" + str(x0))
+    print ("h:" + str(h))
+    print ("|x0 - h| = " + str(np.linalg.norm(x0 - h)))
 
-print(raw_grid)
+    d_res = np.matmul(A, h)
 
+    ######################
 
-try:
-	#raw_subtract_grid = gmi_misc.read_tess_output_global_grid_from_file(gmi_config.SUBTRACT_DATA)
-	raw_subtract_grid = gmi_misc.read_data_grid(gmi_config.SUBTRACT_DATA)
-	raw_subtract_grid = raw_subtract_grid * gmi_config.MULTIPLICATOR
-except IOError as err:
-	print("WARNING: CAN NOT OPEN SUBTRACTEBLE DATAFILE: {0}".format(err))
-	raw_subtract_grid = raw_grid*0.0
+    gmi_misc.write_sus_grid_to_file(h, 'res.xyz')
+    gmi_misc.write_sus_grid_to_file(x0 - h, 'x0-res.xyz', )
+    gmi_misc.write_sus_grid_to_file(x0, 'x0.xyz')
 
-raw_grid = raw_grid - raw_subtract_grid
 
-shtools_inp_grid = pyshtools.SHGrid.from_array(raw_grid)
-print(shtools_inp_grid)
-A_sh_mul_x0_sh_tools
-print(A_sh_mul_x0_sh_tools)
+    #save result
+    result_folder = gmi_misc.init_result_folder()
 
-sh_result_coeffs = np.matmul(A_sh, h_sh)
-sh_result_coeffs_shtools = gmi_misc.convert_result_into_shtools_format(sh_result_coeffs, 'result.coeff')
-#sh_result_coeffs_shtools = pyshtools.SHCoeffs.from_file('result.coeff', normalization='schmidt')
-sh_result_grid = sh_result_coeffs_shtools.expand(grid='DH2')
+    import shutil
+    shutil.copyfile('input.txt', './' + result_folder + '/' + 'input.txt')
+    shutil.copyfile('x0-res.xyz', './' + result_folder + '/' + 'x0-res.xyz')
+    shutil.copyfile('x0.xyz', './' + result_folder + '/' + 'x0.xyz')
+    shutil.copyfile('res.xyz', './' + result_folder + '/' + 'res.xyz')
+    shutil.copyfile('nlssubprob.dat', './' + result_folder + '/' + 'nlssubprob.dat')
 
+    #**************** RETURN BACK TO INITIAL PATH ***#
+    os.chdir(old_cwd)
+    #**************** --------------------------- ***#
 
 
+if __name__ == '__main__':
+    #**************** GET WORKING DIRECTORY ******************#
 
+    WORKING_DIR = ''
+    import sys
+    if len(sys.argv) == 1:
+            WORKING_DIR = ''
 
+    WORKING_DIR = sys.argv[1]
 
-#get SH coefficients
-shtools_coeff = shtools_inp_grid.expand(normalization='schmidt')
-shtools_coeff_filt = gmi_misc.remove_lw_sh_coeff(shtools_coeff, gmi_config.N_MIN_CUTOFF)
-shtools_coeff_filt.to_file("observed_filt.coeff")
-
-d_sh = gmi_misc.read_coeffs_from_text_file("observed_filt.coeff", gmi_config.N_MIN_CUTOFF)
-n_coeff = len(d_sh)
-
-
-
-
-
-
-
-
-
-
-shtools_grd_filt  = shtools_coeff_filt.expand(grid='DH2')
-a_grd = shtools_grd_filt.to_array()
-d_grd = a_grd.flatten()
-n_gridvals = len(d_grd)
-
-if USE_GRD:
-	try:
-		A_grd = np.load('design_matrix_grd.npy')
-	except:
-		print("CAN NOT OPEN GRID DESIGN MATRIX")
-		exit(-1)
-	A_grd = np.transpose(A_grd)
-
-
-n_tess = len(A_sh[0, :])
-#print(str(n_tess))
-
-
-#SOLVING
-import gmi_inv_methods
-
-#apriori susceptibility
-try:
-	x0 = np.loadtxt(gmi_config.INIT_SOLUTION)
-except IOError as err:
-	print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
-	exit()
-#	try:
-#		x0 = np.loadtxt('apriori_VIM/' + gmi_config.PROJECT_NAME + '.x0')
-#	except IOError as err:
-#		print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
-#		print("SETTING UP STANDART INITIAL SOLUTION: 0.02 SI for continental crust, 0.05 SI for oceanic crust")
-
-#		land_mask = gmi_misc.read_suscept_global_grid_from_file('land_mask_float.xyz')
-#		x0 = land_mask*0.0
-#		for i in range(len(x0)):
-#			if land_mask[i] < 0.5:
-#				x0[i] = 0.02
-#			else:
-#				x0[i] = 0.05
-
-
-
-print(str(x0))
-print(str(len(x0)))
-np.savetxt('x0_apriori.dat', x0, delimiter=' ')
-
-import gmi_spectral_tools
-approx_lw_spec, deg_observed_lw = gmi_spectral_tools.Estimate_LW_Power_Spectrum_Curve(raw_grid)
-spec_result_lw, deg_result_lw = gmi_spectral_tools.Estimate_LW_Power_Spectrum_of_curr_solution(A_ufilt_sh, x0)
-
-h_sh = gmi_inv_methods.Projected_Gradient(A_sh, d_sh, x0)
-
-sh_result_coeffs = np.matmul(A_sh, h_sh)
-sh_result_coeffs_shtools = gmi_misc.convert_result_into_shtools_format(sh_result_coeffs, 'result.coeff')
-#sh_result_coeffs_shtools = pyshtools.SHCoeffs.from_file('result.coeff', normalization='schmidt')
-sh_result_grid = sh_result_coeffs_shtools.expand(grid='DH2')
-
-
-sh_result_ufilt_coeffs = np.matmul(A_ufilt_sh, h_sh)
-sh_result_ufilt_coeffs_shtools = gmi_misc.convert_result_into_shtools_format(sh_result_ufilt_coeffs, 'result_ufilt.coeff')
-#sh_result_ufilt_coeffs_shtools = pyshtools.SHCoeffs.from_file('result_ufilt.coeff', normalization='schmidt')
-sh_result_ufilt_grid = sh_result_ufilt_coeffs_shtools.expand(grid='DH2')
-
-import convert_shtools_grids
-shtools_grd_filt.to_file('observed_shtools.dat')
-convert_shtools_grids.conv_grid('observed_shtools.dat')
-sh_result_grid.to_file('result_shtools.dat')
-convert_shtools_grids.conv_grid('result_shtools.dat')
-
-sh_result_ufilt_grid.to_file('result_ufilt_shtools.dat')
-convert_shtools_grids.conv_grid('result_ufilt_shtools.dat')
-
-
-shtools_grd = shtools_coeff.expand(grid='DH2')
-shtools_grd.to_file('observed_ufilt_shtools.dat')
-convert_shtools_grids.conv_grid('observed_ufilt_shtools.dat')
-
-
-import os
-os.system('./plot_grid_diff.sh observed_shtools result_shtools diff_shtools 0')
-os.system('./plot_grid_diff.sh observed_ufilt_shtools result_ufilt_shtools diff_ufilt_shtools 1')
-
-#plt.show()
-
-sh_result_grid = sh_result_grid.to_array()
-observed_grd = shtools_grd_filt.to_array()
-sh_misfit = np.linalg.norm(np.subtract(observed_grd, sh_result_grid))**2
-
-
-sh_result_ufilt_grid = sh_result_ufilt_grid.to_array()
-observed_ufilt_grd = shtools_grd.to_array()
-sh_ufilt_misfit = np.linalg.norm(np.subtract(observed_ufilt_grd, sh_result_ufilt_grid ))**2
-
-print("Misfit (grids): " + str(sh_misfit))
-print('\n')
-
-spec_H, deg_H = gmi_spectral_tools.Estimate_LW_Power_Spectrum_of_curr_solution(A_ufilt_sh, h_sh)
-spec_misfit = np.linalg.norm(np.subtract(approx_lw_spec, spec_H))**2
-
-print("Misfit (LW): " + str(spec_misfit))
-print('\n')
-
-
-with open('output.txt', 'w') as foutput:
-	foutput.write('MAX SH DEGREE: ' + str(shtools_coeff.lmax) + '\n')
-	foutput.write('Misfit^2 (grids): ' + str(sh_misfit) + '\n')
-	foutput.write('Misfit ufilt^2 (grids): ' + str(sh_ufilt_misfit) + '\n')
-	foutput.write('Misfit^2 (spec): ' + str(spec_misfit) + '\n')
-
-if USE_GRD:
-	h_grd = L2_minimization(A_grd, d_grd, 0.25)
-
-	grd_result_grid = np.matmul(A_grd, h_grd)
-	grd_misfit = np.linalg.norm(np.subtract(d_grd, grd_result_grid))**2
-	print("Misfit: " + str(grd_misfit))
-	print('\n')
-
-######################
-
-n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
-
-ind = 0
-with open('model_reslt_sh.xyz', 'w') as tessfile:
-	for i in range(n_lat-1, -1, -1):
-		for j in range(n_lon):
-			k = h_sh
-			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(k[ind]/gmi_config.MULTIPLICATOR)
-			#print string
-			tessfile.write(string + '\n')
-			ind = ind+1
-
-os.system('./plot_result.sh ' + 'model_reslt_sh')
-
-ind = 0
-with open('x0_apriori.xyz', 'w') as apriorifile:
-	for i in range(n_lat-1, -1, -1):
-		for j in range(n_lon):
-			k = h_sh
-			string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(x0[ind]/gmi_config.MULTIPLICATOR)
-			#print string
-			apriorifile.write(string + '\n')
-			ind = ind+1
-
-os.system('./plot_result.sh ' + 'x0_apriori')
-os.system('./plot_sus_diff.sh')
-
-
-
-if (os.path.isfile('model_reslt_sh.xyz') == True) and (os.path.isfile('model.magtess') == True):
-	os.system('tail -n +5 model.magtess > dummy')
-	os.system("awk '{print $9,$10,$11}' dummy > magfield")
-	os.system("awk '{print $1,$2,$3,$4,$5,$6,$7}' dummy > tessrd")
-	os.system("awk '{print $3}' model_reslt_sh.xyz > sus")
-	os.system('paste tessrd sus > tessrdsus')
-	os.system('paste tessrdsus magfield > result_model.magtess')
-
-	os.system('rm dummy')
-	os.system('rm magfield')
-	os.system('rm tessrd')
-	os.system('rm sus')
-	os.system('rm tessrdsus')
-
-if USE_GRD:
-	ind = 0
-	with open('model_reslt_grd.xyz', 'w') as tessfile:
-		for i in range(n_lat-1, -1, -1):
-			for j in range(n_lon):
-				k = h_grd
-				string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(k[ind])
-				#print string
-				tessfile.write(string + '\n')
-				ind = ind+1
-
-if len(gmi_config.PROJECT_NAME) > 0:
-	foldername = gmi_config.PROJECT_NAME
-else:
-	from datetime import datetime
-	now = datetime.now()
-	foldername = now.strftime("%Y_%m_%d_%H_%M_%S")
-
-foldername = 'result_' + foldername
-
-
-os.mkdir(foldername)
-import shutil
-shutil.copyfile('input.txt', './' + foldername + '/' + 'input.txt')
-shutil.copyfile('output.txt', './' + foldername + '/' + 'output.txt')
-shutil.copyfile('x0_apriori.dat', './' + foldername + '/' + 'x0_apriori.dat')
-shutil.copyfile('x0_apriori.jpg', './' + foldername + '/' + 'x0_apriori.jpg')
-shutil.copyfile('x0_apriori.xyz', './' + foldername + '/' + 'x0_apriori.xyz')
-shutil.copyfile('model_reslt_sh.xyz', './' + foldername+ '/' + 'model_reslt_sh.xyz')
-shutil.copyfile('model_reslt_sh.jpg', './' + foldername+ '/' + 'model_reslt_sh.jpg')
-shutil.copyfile('result.coeff', './' + foldername+ '/' + 'result.coeff')
-shutil.copyfile('observed_filt.coeff', './' + foldername+ '/' + 'observed_filt.coeff')
-shutil.copyfile('result_shtools.jpg', './' + foldername+ '/' + 'result_shtools.jpg')
-shutil.copyfile('result_shtools.xyz', './' + foldername+ '/' + 'result_shtools.xyz')
-shutil.copyfile('result_ufilt_shtools.jpg', './' + foldername+ '/' + 'result_ufilt_shtools.jpg')
-shutil.copyfile('result_ufilt_shtools.xyz', './' + foldername+ '/' + 'result_ufilt_shtools.xyz')
-shutil.copyfile('observed_shtools.jpg', './' + foldername+ '/' + 'observed_shtools.jpg')
-shutil.copyfile('observed_shtools.xyz', './' + foldername+ '/' + 'observed_shtools.xyz')
-shutil.copyfile('observed_ufilt_shtools.jpg', './' + foldername+ '/' + 'observed_ufilt_shtools.jpg')
-shutil.copyfile('observed_ufilt_shtools.xyz', './' + foldername+ '/' + 'observed_ufilt_shtools.xyz')
-shutil.copyfile('diff_shtools.jpg', './' + foldername+ '/' + 'diff_shtools.jpg')
-shutil.copyfile('diff_ufilt_shtools.jpg', './' + foldername+ '/' + 'diff_ufilt_shtools.jpg')
-shutil.copyfile('sus_difference.jpg', './' + foldername+ '/' + 'sus_difference.jpg')
-shutil.copyfile('result_model.magtess', './' + foldername+ '/' + 'result_model.magtess')
-
-
-
-shutil.copyfile('nlssubprob.dat', './' + foldername+ '/' + 'nlssubprob.dat')
-
-converg = np.loadtxt(foldername+ '/' + 'nlssubprob.dat')
-
-import matplotlib.pyplot as plt
-
-
-
-fig, ax = plt.subplots()
-ax.plot(converg[:, 0], converg[:, 1])
-
-ax.set(xlabel='Iteration', ylabel='Projected Gradient',
-       title='Convergence')
-ax.grid()
-
-fig.savefig(foldername+ '/' + "nlssubprob.png")
-plt.show()
-
-
-
-#**************** RETURN BACK TO INITIAL PATH ***#
-os.chdir(old_cwd)
-#**************** --------------------------- ***#
+    #**************** --------------------- ******************#
+    main(WORKING_DIR)

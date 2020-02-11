@@ -36,6 +36,10 @@
      <number>0</number>
     </property>
     <widget class="QWidget" name="tab_config">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-services-48.png</normaloff>icons/icons8-services-48.png</iconset>
+     </attribute>
      <attribute name="title">
       <string>Config</string>
      </attribute>
@@ -77,6 +81,10 @@
      </widget>
     </widget>
     <widget class="QWidget" name="tab_plots">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-plot-40.png</normaloff>icons/icons8-plot-40.png</iconset>
+     </attribute>
      <attribute name="title">
       <string>Plots</string>
      </attribute>
@@ -107,7 +115,7 @@
       </property>
       <property name="icon">
        <iconset>
-        <normaloff>icons/icons8-world-map-40.png</normaloff>icons/icons8-world-map-40.png</iconset>
+        <normaloff>icons/icons8-globe-48.png</normaloff>icons/icons8-globe-48.png</iconset>
       </property>
      </widget>
      <widget class="QComboBox" name="combobox_plot">
@@ -143,28 +151,12 @@
         <normaloff>icons/icons8-line-chart-64.png</normaloff>icons/icons8-line-chart-64.png</iconset>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_saveplot">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>460</x>
-        <y>270</y>
-        <width>111</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Save</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>icons/icons8-save-48.png</normaloff>icons/icons8-save-48.png</iconset>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_stages">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-checklist-48.png</normaloff>icons/icons8-checklist-48.png</iconset>
+     </attribute>
      <attribute name="title">
       <string>Stages</string>
      </attribute>
@@ -258,8 +250,8 @@
      <widget class="QCheckBox" name="checkbox_checksums">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>190</y>
+        <x>300</x>
+        <y>10</y>
         <width>171</width>
         <height>20</height>
        </rect>
@@ -373,11 +365,106 @@
        </property>
       </widget>
      </widget>
+     <widget class="QPushButton" name="button_allstages">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>190</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string>Run all</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/c0c08cb62956aa05284daf6222b4b509.png</normaloff>icons/c0c08cb62956aa05284daf6222b4b509.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_inversion">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-process-120.png</normaloff>icons/icons8-process-120.png</iconset>
+     </attribute>
      <attribute name="title">
       <string>Inversion</string>
      </attribute>
+     <widget class="QPushButton" name="button_invert">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string>Invert</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-process-120.png</normaloff>icons/icons8-process-120.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>30</y>
+        <width>561</width>
+        <height>261</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QGraphicsView" name="result_view">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>10</y>
+         <width>361</width>
+         <height>241</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QListWidget" name="result_list">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>171</width>
+         <height>241</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="button_close">
@@ -398,58 +485,6 @@
     <property name="icon">
      <iconset>
       <normaloff>icons/icons8-exit-48.png</normaloff>icons/icons8-exit-48.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>16</width>
-      <height>16</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="button_observed">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>380</y>
-      <width>111</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>test</string>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>icons/icons8-satellite-in-orbit-48.png</normaloff>icons/icons8-satellite-in-orbit-48.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>16</width>
-      <height>18</height>
-     </size>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="button_checksum">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>380</y>
-      <width>111</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Check</string>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>icons/icons8-checklist-48.png</normaloff>icons/icons8-checklist-48.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -533,8 +568,6 @@
     </widget>
    </widget>
    <zorder>button_close</zorder>
-   <zorder>button_observed</zorder>
-   <zorder>button_checksum</zorder>
    <zorder>tabWidget</zorder>
    <zorder>button_changefolder</zorder>
    <zorder>frame</zorder>

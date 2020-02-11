@@ -91,6 +91,6 @@ def Projected_Gradient(A, d, x_0):
 	print("  Time spent: " + str(end - start) + " sec")
 
 	h = h.flatten()
-	print(str(h))
+
 	return h
 

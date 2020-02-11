@@ -80,7 +80,8 @@ def main(dr):
             dm1, dm2, x0 = gmi_misc.convert_surf_grid_to_xyz(sus_grid)
 
             _create_tess_model_file(result_folder + '/model_with_x0', x0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
-            np.savetxt(result_folder + '/init_solution.x0', x0*gmi_config.MULTIPLICATOR)
+            np.savetxt(result_folder + '/init_solution.x0', x0)
+            gmi_misc.write_sus_grid_to_file(x0, result_folder + 'init_solution.xyz')
 
     gmi_misc.ok("Magnetic tesseroid model \"model.magtess\" is created")
 
@@ -112,14 +113,14 @@ def main(dr):
 
 
 if __name__ == '__main__':
-	#**************** GET WORKING DIRECTORY ******************#
+    #**************** GET WORKING DIRECTORY ******************#
 
-	WORKING_DIR = ''
-	import sys
-	if len(sys.argv) == 1:
-		WORKING_DIR = ''
+    WORKING_DIR = ''
+    import sys
+    if len(sys.argv) == 1:
+            WORKING_DIR = ''
 
-	WORKING_DIR = sys.argv[1]
+    WORKING_DIR = sys.argv[1]
 
-	#**************** --------------------- ******************#
-	main(WORKING_DIR)
+    #**************** --------------------- ******************#
+    main(WORKING_DIR)

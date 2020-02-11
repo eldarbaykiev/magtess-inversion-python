@@ -54,14 +54,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_save = self.findChild(QtWidgets.QPushButton, 'button_save')
         self.button_save.clicked.connect(self.save_config)
 
-        self.button_check = self.findChild(QtWidgets.QPushButton, 'button_checksum')
-        self.button_check.clicked.connect(self.check_hashtest)
+        #self.button_check = self.findChild(QtWidgets.QPushButton, 'button_checksum')
+        #self.button_check.clicked.connect(self.check_hashtest)
 
         self.button_close = self.findChild(QtWidgets.QPushButton, 'button_close')
         self.button_close.clicked.connect(self.close)
 
-        self.button_observed = self.findChild(QtWidgets.QPushButton, 'button_observed')
-        self.button_observed.clicked.connect(self.plot_observed)
+        #self.button_observed = self.findChild(QtWidgets.QPushButton, 'button_observed')
+        #self.button_observed.clicked.connect(self.plot_observed)
 
         #plots
         self.plot_scene = QtWidgets.QGraphicsScene()
@@ -98,10 +98,98 @@ class MainWindow(QtWidgets.QMainWindow):
         self.button_stage3.clicked.connect(self.run_stage3)
         self.indicator_stage3 = self.findChild(QtWidgets.QLabel, 'indicator_stage3')
 
+        self.button_allstages = self.findChild(QtWidgets.QPushButton, 'button_allstages')
+        self.button_allstages.clicked.connect(self.run_allstages)
+
         #self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
+
+        #inversion
+        self.button_invert = self.findChild(QtWidgets.QPushButton, 'button_invert')
+        self.button_invert.clicked.connect(self.run_stage4)
+
+        #self.button_plotresult = self.findChild(QtWidgets.QPushButton, 'button_plotresult')
+        #self.button_plotresult.clicked.connect(self.plot_result)
+
+        self.result_list = self.findChild(QtWidgets.QListWidget, 'result_list')
+        self.result_list.currentItemChanged.connect(self.activate_plot_result_button)
+
+        self.result_scene = QtWidgets.QGraphicsScene()
+        self.result_view = self.findChild(QtWidgets.QGraphicsView, 'result_view')
 
         if not self.working_directory_opened:
             self.open_working_directory()
+
+    def activate_plot_result_button(self):
+        import gmi_config
+        import gmi_gmt
+        import os
+        old_cwd = switch_path(self.GMI_PATH)
+
+        config = gmi_config.read_config()
+        current_opt = str(self.result_list.currentItem().text())
+
+        self.result_list.repaint()
+
+        print (current_opt)
+
+        if(os.path.exists(current_opt)):
+            gmi_misc.info(str(current_opt) + ' is selected for plotting')
+            #self.button_plotresult.setEnabled(True)
+            self.result_view.setEnabled(True)
+            #self.button_plotresult.repaint()
+        else:
+            #self.button_plotresult.setDisabled(True)
+            self.result_view.setDisabled(True)
+            #self.button_plotresult.repaint()
+
+
+        switch_path_back(old_cwd)
+
+        self.plot_result()
+
+    def plot_result(self):
+        import gmi_config
+        import gmi_gmt
+        old_cwd = switch_path(self.GMI_PATH)
+
+        self.result_scene.clear() #new thing
+
+        config = gmi_config.read_config()
+
+        output_folder = gmi_misc.init_result_folder()
+
+        fname = ''
+        pname = ''
+        uname = ''
+        units = ''
+        colorsch = ''
+        min = 0
+        max = 0
+        surf = False
+        current_plot = output_folder + '/' + str(self.result_list.currentItem().text())
+
+        pname = 'Itest'
+        colorsch = 'haxby'
+        uname = 'test'
+        units = 'test'
+        min = 0
+        max = 0.1
+
+        grid = gmi_misc.read_sus_grid(current_plot)
+
+        gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
+
+        result_pixmap =  QtGui.QPixmap('temp.png')
+        self.result_scene.addPixmap(result_pixmap.scaledToHeight(self.result_view.geometry().height()*0.95))
+
+        self.result_view.setScene(self.result_scene)
+        self.result_view.show()
+
+        import shutil
+        shutil.copyfile('temp.png', './' + output_folder + '/' + self.result_list.currentItem().text()[:-3]+ 'png')
+
+        switch_path_back(old_cwd)
+
 
     def set_checksums(self):
 
@@ -271,6 +359,41 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stages_updated = False
         self.update_stages()
 
+    def run_allstages(self):
+        self.run_stage1()
+        self.run_stage2()
+        self.run_stage3()
+
+
+    #inversion
+    def run_stage4(self):
+        self.result_scene.clear()
+
+        self.result_view.setDisabled(True)
+
+        self.result_list.clear()
+        self.result_list.setDisabled(True)
+
+        import gmi_invert
+        old_cwd = switch_path(self.GMI_PATH)
+
+        print('stage4')
+        gmi_invert.main(self.GMI_PATH)
+
+        import glob
+        output_folder = gmi_misc.init_result_folder()
+
+        os.chdir(output_folder)
+        file_list = glob.glob("*.xyz")
+        os.chdir('..')
+
+        self.result_list.clear()
+
+        self.result_list.setEnabled(True)
+        for filename in file_list:
+            self.result_list.addItem(filename)
+
+        switch_path_back(old_cwd)
 
 
     def set_path(self, wpath):
@@ -365,12 +488,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 if(os.path.exists(config.get(sect, current_opt))):
                     gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
                     self.button_plot.setEnabled(True)
+                    self.plot_view.setEnabled(True)
                     self.button_plot.repaint()
                     break
 
                 else:
                     gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
                     self.button_plot.setDisabled(True)
+                    self.plot_view.setDisabled(True)
                     self.button_plot.repaint()
                     break
 
@@ -431,7 +556,7 @@ class MainWindow(QtWidgets.QMainWindow):
             max = 12
             surf = False
 
-            grid = gmi_misc.read_data_grid(fname)
+            grid = gmi_misc.read_surf_grid(fname)
 
         elif current_plot == 'SUBTRACT_DATA':
             fname = config.get('Inversion', 'SUBTRACT_DATA');
@@ -444,7 +569,7 @@ class MainWindow(QtWidgets.QMainWindow):
             max = 12
             surf = False
 
-            grid = gmi_misc.read_data_grid(fname)
+            grid = gmi_misc.read_surf_grid(fname)
         elif current_plot == 'INIT_SOLUTION':
             x0_name = config.get('Inversion', 'INIT_SOLUTION');
             pname = 'Initial solution'
@@ -455,9 +580,9 @@ class MainWindow(QtWidgets.QMainWindow):
             max = 0.1
 
             grid = gmi_misc.read_sus_grid(x0_name)
-            if float(config.get('Inversion', 'MULTIPLICATOR')) != 1.0:
-                max = max * float(config.get('Inversion', 'MULTIPLICATOR'))
-                #units = 'SI'.format(float(config.get('Inversion', 'MULTIPLICATOR')))
+            #if float(config.get('Inversion', 'MULTIPLICATOR')) != 1.0:
+            #    max = max * float(config.get('Inversion', 'MULTIPLICATOR'))
+             #   #units = 'SI'.format(float(config.get('Inversion', 'MULTIPLICATOR')))
 
 
         else:
@@ -472,7 +597,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_view.setScene(self.plot_scene)
         self.plot_view.show()
 
+        output_folder = gmi_misc.init_result_folder()
+
+        import shutil
+        shutil.copyfile('temp.png', './' + output_folder + '/' + current_plot+ '.png')
+
         switch_path_back(old_cwd)
+
 
     def plot_observed(self):
         old_cwd = switch_path(self.GMI_PATH)
@@ -489,8 +620,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def close(self):
         exit(0)
-
-
 
 
 
