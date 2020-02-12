@@ -158,26 +158,39 @@ class MainWindow(QtWidgets.QMainWindow):
 
         output_folder = gmi_misc.init_result_folder()
 
-        fname = ''
-        pname = ''
-        uname = ''
-        units = ''
-        colorsch = ''
-        min = 0
-        max = 0
-        surf = False
-        current_plot = output_folder + '/' + str(self.result_list.currentItem().text())
+        fname = str(self.result_list.currentItem().text())
 
-        pname = 'Itest'
-        colorsch = 'haxby'
-        uname = 'test'
-        units = 'test'
-        min = 0
-        max = 0.1
+        if '.dat' in fname:
+            current_plot = output_folder + '/' + fname
 
-        grid = gmi_misc.read_sus_grid(current_plot)
+            dat = np.loadtxt(current_plot)
 
-        gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
+            import matplotlib.pyplot as plt
+
+            fig, ax = plt.subplots()
+            ax.plot(dat[:, 0], dat[:, 1])
+
+            ax.set(xlabel='i', ylabel='val',
+                   title='.dat file plot')
+            ax.grid()
+
+            fig.savefig("temp.png")
+            #plt.show()
+
+        else:
+            current_plot = output_folder + '/' + fname
+            surf = False
+
+            pname = '.xyz file plot'
+            colorsch = 'haxby'
+            uname = '___'
+            units = '___'
+            min = 0
+            max = 0.1
+
+            grid = gmi_misc.read_sus_grid(current_plot)
+
+            gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
         result_pixmap =  QtGui.QPixmap('temp.png')
         self.result_scene.addPixmap(result_pixmap.scaledToHeight(self.result_view.geometry().height()*0.95))
@@ -366,11 +379,34 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     #inversion
+
+    def init_result_list(self):
+        self.result_scene.clear()
+        self.result_list.clear()
+
+
+        old_cwd = switch_path(self.GMI_PATH)
+
+        import glob
+        output_folder = gmi_misc.init_result_folder()
+
+        os.chdir(output_folder)
+        file_list = glob.glob("*.xyz")
+        file_list = file_list + glob.glob("*.dat")
+        os.chdir('..')
+
+        self.result_list.clear()
+
+        self.result_list.setEnabled(True)
+        for filename in file_list:
+            self.result_list.addItem(filename)
+
+        switch_path_back(old_cwd)
+
+
+
     def run_stage4(self):
         self.result_scene.clear()
-
-        self.result_view.setDisabled(True)
-
         self.result_list.clear()
         self.result_list.setDisabled(True)
 
@@ -380,18 +416,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print('stage4')
         gmi_invert.main(self.GMI_PATH)
 
-        import glob
-        output_folder = gmi_misc.init_result_folder()
-
-        os.chdir(output_folder)
-        file_list = glob.glob("*.xyz")
-        os.chdir('..')
-
-        self.result_list.clear()
-
-        self.result_list.setEnabled(True)
-        for filename in file_list:
-            self.result_list.addItem(filename)
+        self.init_result_list()
 
         switch_path_back(old_cwd)
 
@@ -447,6 +472,8 @@ class MainWindow(QtWidgets.QMainWindow):
         switch_path_back(old_cwd)
 
         self.working_directory_opened = True
+
+        self.init_result_list()
 
     def activate_save(self):
         self.button_save.setText('Save')

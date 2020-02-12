@@ -215,7 +215,7 @@ def read_data_grid(filename):
     try:
         data = np.loadtxt(filename, delimiter="\t")
     except ValueError:
-        warning(str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
+        #warning(str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
 
         try:
             data = np.loadtxt(filename, delimiter=" ")
