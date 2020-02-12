@@ -577,14 +577,14 @@ class MainWindow(QtWidgets.QMainWindow):
             norm = 'schmidt'
             units = 'nT'
             plot_cutoff = True
-            grid = gmi_misc.read_surf_grid(fname)
+            grid = gmi_misc.read_data_grid(fname)
 
         elif current_plot == 'SUBTRACT_DATA':
             fname = config.get('Inversion', 'SUBTRACT_DATA');
             norm = 'schmidt'
             units = 'nT'
             plot_cutoff = True
-            grid = gmi_misc.read_surf_grid(fname)
+            grid = gmi_misc.read_data_grid(fname)
 
         elif current_plot == 'INIT_SOLUTION':
             x0_name = config.get('Inversion', 'INIT_SOLUTION');
@@ -604,6 +604,7 @@ class MainWindow(QtWidgets.QMainWindow):
         spectrum = shc_sht.spectrum()
 
         deg = shc_sht.degrees()
+        print(deg)
 
         #plotting
 
@@ -612,7 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):
         a_yticks = np.array([1, 0.1, 0.01, 0.001, 0.0001])
         plt.yticks(np.log10(a_yticks), a_yticks.astype(str))
 
-        a_xticks = np.append(np.array([1]), np.arange(20, max(deg), 20))
+        a_xticks = np.append(np.array([1]), np.arange(10, max(deg), 10))
         if plot_cutoff:
             a_xticks = np.append(a_xticks, np.array([int(config.get('Spherical Harmonics', 'N_MIN_CUTOFF'))]))
 
