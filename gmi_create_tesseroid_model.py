@@ -70,7 +70,7 @@ def main(dr):
 
     gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
-    _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
+    _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
 
 
     #CHECK THIS!!!!
@@ -79,7 +79,8 @@ def main(dr):
             sus_grid = gmi_misc.read_sus_grid(gmi_config.INIT_SOLUTION)
             dm1, dm2, x0 = gmi_misc.convert_surf_grid_to_xyz(sus_grid)
 
-            _create_tess_model_file(result_folder + '/model_with_x0', x0*gmi_config.MULTIPLICATOR, X, Y, Z_bot, Z_top)
+            _create_tess_model_file(result_folder + '/model_with_x0', x0, X, Y, Z_top, Z_bot)
+            _create_tess_model_file(result_folder + '/model_with_x0_mult', x0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
             np.savetxt(result_folder + '/init_solution.x0', x0)
             gmi_misc.write_sus_grid_to_file(x0, result_folder + 'init_solution.xyz')
 

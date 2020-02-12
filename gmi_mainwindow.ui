@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_config">
      <attribute name="icon">
@@ -104,7 +104,7 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>280</x>
         <y>270</y>
         <width>111</width>
         <height>32</height>
@@ -123,7 +123,7 @@
        <rect>
         <x>0</x>
         <y>270</y>
-        <width>241</width>
+        <width>281</width>
         <height>32</height>
        </rect>
       </property>
@@ -131,13 +131,13 @@
        <string/>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_spectrum">
+     <widget class="QPushButton" name="button_spec">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>350</x>
+        <x>390</x>
         <y>270</y>
         <width>111</width>
         <height>32</height>
@@ -149,6 +149,58 @@
       <property name="icon">
        <iconset>
         <normaloff>icons/icons8-line-chart-64.png</normaloff>icons/icons8-line-chart-64.png</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button_zoomout">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>270</y>
+        <width>31</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/zoom-out-3-16.png</normaloff>icons/zoom-out-3-16.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button_zoomin">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>270</y>
+        <width>31</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/zoom-in-3-16.png</normaloff>icons/zoom-in-3-16.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
       </property>
      </widget>
     </widget>

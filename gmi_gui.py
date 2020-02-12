@@ -64,11 +64,21 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.button_observed.clicked.connect(self.plot_observed)
 
         #plots
+        self.zoomfactor = 0.95
         self.plot_scene = QtWidgets.QGraphicsScene()
         self.plot_view = self.findChild(QtWidgets.QGraphicsView, 'plot_view')
 
         self.button_plot = self.findChild(QtWidgets.QPushButton, 'button_plot')
         self.button_plot.clicked.connect(self.plot)
+
+        self.button_spec = self.findChild(QtWidgets.QPushButton, 'button_spec')
+        self.button_spec.clicked.connect(self.spec)
+
+        self.button_zoomin = self.findChild(QtWidgets.QPushButton, 'button_zoomin')
+        self.button_zoomin.clicked.connect(self.plot_zoomin)
+
+        self.button_zoomout = self.findChild(QtWidgets.QPushButton, 'button_zoomout')
+        self.button_zoomout.clicked.connect(self.plot_zoomout)
 
         self.combobox_plot = self.findChild(QtWidgets.QComboBox, 'combobox_plot')
         self.combobox_plot.currentIndexChanged.connect(self.activate_plot_button)
@@ -515,18 +525,126 @@ class MainWindow(QtWidgets.QMainWindow):
                 if(os.path.exists(config.get(sect, current_opt))):
                     gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
                     self.button_plot.setEnabled(True)
+                    self.button_spec.setEnabled(True)
+                    self.button_zoomin.setEnabled(True)
+                    self.button_zoomout.setEnabled(True)
                     self.plot_view.setEnabled(True)
                     self.button_plot.repaint()
+                    self.button_spec.repaint()
                     break
 
                 else:
                     gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
                     self.button_plot.setDisabled(True)
+                    self.button_spec.setDisabled(True)
+                    self.button_zoomin.setDisabled(True)
+                    self.button_zoomout.setDisabled(True)
                     self.plot_view.setDisabled(True)
                     self.button_plot.repaint()
+                    self.button_spec.repaint()
                     break
 
         switch_path_back(old_cwd)
+
+    def spec(self):
+        import gmi_config
+        import gmi_gmt
+        old_cwd = switch_path(self.GMI_PATH)
+
+        self.plot_scene.clear() #new thing
+
+        config = gmi_config.read_config()
+
+        plot_cutoff = False
+
+        current_plot = str(self.combobox_plot.currentText())
+        if current_plot == 'TOP_SURFACE':
+            fname = config.get('Global Tesseroid Model', 'TOP_SURFACE');
+            grid = gmi_misc.read_surf_grid(fname)
+            norm = 'unnorm'
+            units = 'kM'
+            grid = grid / 1000.0
+
+        elif current_plot == 'BOT_SURFACE':
+            fname = config.get('Global Tesseroid Model', 'BOT_SURFACE');
+            grid = gmi_misc.read_surf_grid(fname)
+            norm = 'unnorm'
+            units = 'kM'
+            grid = grid / 1000.0
+
+        elif current_plot == 'OBSERVED_DATA':
+            fname = config.get('Inversion', 'OBSERVED_DATA');
+            norm = 'schmidt'
+            units = 'nT'
+            plot_cutoff = True
+            grid = gmi_misc.read_surf_grid(fname)
+
+        elif current_plot == 'SUBTRACT_DATA':
+            fname = config.get('Inversion', 'SUBTRACT_DATA');
+            norm = 'schmidt'
+            units = 'nT'
+            plot_cutoff = True
+            grid = gmi_misc.read_surf_grid(fname)
+
+        elif current_plot == 'INIT_SOLUTION':
+            x0_name = config.get('Inversion', 'INIT_SOLUTION');
+            norm = 'unnorm'
+            units = 'SI'
+            grid = gmi_misc.read_sus_grid(x0_name)
+
+        else:
+            pass
+
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as mpatches
+        import pyshtools
+
+        grid_sht = pyshtools.SHGrid.from_array(grid)
+        shc_sht = grid_sht.expand(normalization=norm)
+        spectrum = shc_sht.spectrum()
+
+        deg = shc_sht.degrees()
+
+        #plotting
+
+        plt.plot(deg[1:], np.log10(spectrum)[1:], '-', lw=0.6)
+
+        a_yticks = np.array([1, 0.1, 0.01, 0.001, 0.0001])
+        plt.yticks(np.log10(a_yticks), a_yticks.astype(str))
+
+        a_xticks = np.append(np.array([1]), np.arange(20, max(deg), 20))
+        if plot_cutoff:
+            a_xticks = np.append(a_xticks, np.array([int(config.get('Spherical Harmonics', 'N_MIN_CUTOFF'))]))
+
+        plt.xticks(a_xticks, a_xticks.astype(str))
+
+        plt.title(current_plot + ' power spectrum')
+        plt.xlabel('SH degree')
+        plt.ylabel('Power [' + units +'^2]')
+        plt.grid()
+
+
+        plt.savefig('temp.png')
+
+        plt.clf()
+        plt.close()
+
+
+        plot_pixmap =  QtGui.QPixmap('temp.png')
+        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*0.95))
+        #self.plot_scene.setSceneRect(self.plot_view.geometry().x(), self.plot_view.geometry().y(), self.plot_view.geometry().width(), self.plot_view.geometry().height())
+
+        self.plot_view.setScene(self.plot_scene)
+        self.plot_view.show()
+
+        output_folder = gmi_misc.init_result_folder()
+
+        import shutil
+        shutil.copyfile('temp.png', './' + output_folder + '/' + current_plot+ '_spec.png')
+
+        switch_path_back(old_cwd)
+
+
 
     def plot(self):
         import gmi_config
@@ -618,7 +736,7 @@ class MainWindow(QtWidgets.QMainWindow):
         gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
-        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*0.95))
+        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
         #self.plot_scene.setSceneRect(self.plot_view.geometry().x(), self.plot_view.geometry().y(), self.plot_view.geometry().width(), self.plot_view.geometry().height())
 
         self.plot_view.setScene(self.plot_scene)
@@ -628,6 +746,34 @@ class MainWindow(QtWidgets.QMainWindow):
 
         import shutil
         shutil.copyfile('temp.png', './' + output_folder + '/' + current_plot+ '.png')
+
+        switch_path_back(old_cwd)
+
+    def plot_zoomin(self):
+        old_cwd = switch_path(self.GMI_PATH)
+
+        self.plot_scene.clear() #new thing
+
+        plot_pixmap =  QtGui.QPixmap('temp.png')
+        self.zoomfactor += 0.1
+        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
+
+        self.plot_view.setScene(self.plot_scene)
+        self.plot_view.show()
+
+        switch_path_back(old_cwd)
+
+    def plot_zoomout(self):
+        old_cwd = switch_path(self.GMI_PATH)
+
+        self.plot_scene.clear() #new thing
+
+        plot_pixmap =  QtGui.QPixmap('temp.png')
+        self.zoomfactor -= 0.1
+        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
+
+        self.plot_view.setScene(self.plot_scene)
+        self.plot_view.show()
 
         switch_path_back(old_cwd)
 

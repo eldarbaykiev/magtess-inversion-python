@@ -229,10 +229,12 @@ def read_data_grid(filename):
     val_col = 2
     n_col = len(data[0, :])
     if n_col == 3:
-        pass
+        info("xyz grid")
+
     elif n_col == 4:
         factor = -1.0
         val_col = 3
+        info("magtess output")
     else:
         error("WRONG NUMBER OF COLUMNS (" + str(n_col) + ") IN " + filename + ", ABORTING")
 
