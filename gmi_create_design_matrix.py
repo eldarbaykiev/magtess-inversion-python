@@ -75,13 +75,13 @@ def main(dr):
     coefflist = glob.glob("*.coeff")
     os.chdir('..')
 
-
     n_tess = len(coefflist)
     if n_tess == 0:
-        print ("NO CALCULATED SH MODELS OF EACH TESSEROID'S MAGNETIC FIELD")
+        gmi_misc.error("NO CALCULATED SH MODELS OF EACH TESSEROID'S MAGNETIC FIELD")
         exit(-1)
 
-    gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
+    if gmi_config.MULTIPLICATOR != 1.0:
+        gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
     import pyshtools
     import numpy as np
@@ -90,13 +90,17 @@ def main(dr):
 
     b = gmi_misc.read_coeffs_from_text_file(coeff_filename, gmi_config.N_MIN_CUTOFF)
     n_vals = len(b)
-    #print (str(n_vals))
 
-    gmi_misc.info('Assemblying design matrices...')
+    gmi_misc.message('Assemblying design matrices...')
     from tqdm import tqdm
     A = np.zeros((n_tess, n_vals))
     A_ufilt = np.zeros((n_tess, n_vals))
 
+
+
+
+
+    #if __name__ == '__main__':
     for i in tqdm(range(n_tess)):
         coeff_filename = 'model/tess_n' + str(i) + '.coeff'
 
@@ -104,7 +108,31 @@ def main(dr):
         b_ufilt = gmi_misc.read_coeffs_from_text_file(coeff_filename, 0)
         A[i, :] = b[:]
         A_ufilt[i, :] = b_ufilt[:]
+    '''
+    else:
+        from PyQt5 import QtWidgets
 
+        app = QtWidgets.QApplication.instance()
+        if app is None:
+            # if it does not exist then a QApplication is created
+            app = QtWidgets.QApplication([])
+
+        from progress_bar import ProgressBar
+        pb = ProgressBar()
+
+        for i in range(n_tess):
+            coeff_filename = 'model/tess_n' + str(i) + '.coeff'
+
+            b = gmi_misc.read_coeffs_from_text_file(coeff_filename, gmi_config.N_MIN_CUTOFF)
+            b_ufilt = gmi_misc.read_coeffs_from_text_file(coeff_filename, 0)
+            A[i, :] = b[:]
+            A_ufilt[i, :] = b_ufilt[:]
+
+            pb.setValue(((i + 1) / n_tess) * 100)
+            app.processEvents()
+
+        pb.close()
+    '''
 
     gmi_misc.ok('...done')
 
@@ -120,20 +148,6 @@ def main(dr):
     #**************** WRITE MD5 PARAMS **************#
     import hashlib
     SHAhash = hashlib.md5()
-
-    '''
-    f1 = open('design_matrix_shcoeff.npy', 'rb')
-    buf = f1.read()
-    md5_1 = hashlib.md5(buf).hexdigest()
-    f1.close()
-    SHAhash.update(md5_1.encode('utf-8'))
-
-    f2 = open('design_matrix_ufilt_shcoeff.npy', 'rb')
-    buf = f2.read()
-    md5_2 = hashlib.md5(buf).hexdigest()
-    f2.close()
-    SHAhash.update(md5_2.encode('utf-8'))
-    '''
 
     f1 = open('design_matrix_shcoeff.npy', 'rb')
     while 1:

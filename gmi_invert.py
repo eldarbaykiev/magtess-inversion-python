@@ -72,17 +72,19 @@ def main(dr):
     import numpy as np
     from scipy.interpolate import griddata
 
+    import convert_shtools_grids
+
 
     gmi_misc.warning("INPUT GRID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
     ##READ DESIGN MATRIX
 
     A = np.load('design_matrix_shcoeff.npy')
-    #A_alldeg = np.load('design_matrix_ufilt_shcoeff.npy')
+    A_alldeg = np.load('design_matrix_ufilt_shcoeff.npy')
 
     import scipy.io
     A = np.transpose(A)
-    #A_alldeg = np.transpose(A_alldeg)
+    A_alldeg = np.transpose(A_alldeg)
 
     ##READ INITIAL SOLUTION
     #read initial solution
@@ -106,14 +108,35 @@ def main(dr):
     ##REMOVE SUBTRACTABLE FIELD
     obs_grid = obs_grid - sub_grid
 
+    def _save_powerspectrum(specname, shc):
+        spectrum = shc.spectrum()
+        deg = shc.degrees()
+        with open(specname, 'w') as f:
+            for i in range(len(deg)):
+                f.write(str(deg[i]) + ' ' + str(spectrum[i]) + '\n')
+
     ##CONVERT OBSERVED GRID INTO SHCOEFF
     obs_sht_grid = pyshtools.SHGrid.from_array(obs_grid)
     obs_sht_shcoeff = obs_sht_grid.expand(normalization='schmidt')
+    obs_sht_shcoeff.to_file("obs_sht_shcoeff.sht_shcoeff")
 
+    ##save unfiltered input grid
+    obs_sht_grid = obs_sht_shcoeff.expand(grid='DH2')
+    glon, glat, gval = convert_shtools_grids.convert_sht_grid_to_xyz(obs_sht_grid.to_array())
+    gmi_misc.write_xyz_grid_to_file(glon, glat, gval, 'obs_grid.xyz')
+    _save_powerspectrum('obs_sht_shcoeff.spec', obs_sht_shcoeff)
+
+    ##FILTER OBSERVED GRID INTO SHCOEFF
     obs_sht_shcoeff_trunc = gmi_misc.remove_lw_sh_coeff(obs_sht_shcoeff, gmi_config.N_MIN_CUTOFF)
-    obs_sht_shcoeff_trunc.to_file("obs_sht_shcoeff_trunc.coeff")
+    obs_sht_shcoeff_trunc.to_file("obs_sht_shcoeff_trunc.sht_shcoeff")
 
-    d = gmi_misc.read_coeffs_from_text_file("obs_sht_shcoeff_trunc.coeff", gmi_config.N_MIN_CUTOFF)
+    ##save filtered input grid
+    obs_sht_grid_filt = obs_sht_shcoeff_trunc.expand(grid='DH2')
+    glon, glat, gval = convert_shtools_grids.convert_sht_grid_to_xyz(obs_sht_grid_filt.to_array())
+    gmi_misc.write_xyz_grid_to_file(glon, glat, gval, 'obs_grid_filt.xyz')
+    _save_powerspectrum('obs_sht_shcoeff_trunc.spec', obs_sht_shcoeff_trunc)
+
+    d = gmi_misc.read_coeffs_from_text_file("obs_sht_shcoeff_trunc.sht_shcoeff", gmi_config.N_MIN_CUTOFF)
     n_coeff = len(d)
 
     #SOLVING
@@ -129,7 +152,22 @@ def main(dr):
     print ("h:" + str(h))
     print ("|x0 - h| = " + str(np.linalg.norm(x0 - h)))
 
-    d_res = np.matmul(A, h)
+    d_res = np.matmul(A_alldeg, h)
+
+    res_sht_shcoeff = gmi_misc.convert_result_into_shtools_format(d_res, 'res_sht_shcoeff.sht_shcoeff')
+
+    res_sht_grid = res_sht_shcoeff.expand(grid='DH2')
+    glon, glat, gval = convert_shtools_grids.convert_sht_grid_to_xyz(res_sht_grid.to_array())
+    gmi_misc.write_xyz_grid_to_file(glon, glat, gval, 'res_grid.xyz')
+    _save_powerspectrum('res_sht_shcoeff.spec', res_sht_shcoeff)
+
+    res_sht_shcoeff_trunc = gmi_misc.remove_lw_sh_coeff(res_sht_shcoeff, gmi_config.N_MIN_CUTOFF)
+    res_sht_shcoeff_trunc.to_file("res_sht_shcoeff_trunc.sht_shcoeff")
+
+    res_sht_grid_filt = res_sht_shcoeff_trunc.expand(grid='DH2')
+    glon, glat, gval = convert_shtools_grids.convert_sht_grid_to_xyz(res_sht_grid_filt.to_array())
+    gmi_misc.write_xyz_grid_to_file(glon, glat, gval, 'res_grid_filt.xyz')
+    _save_powerspectrum('res_sht_shcoeff_trunc.spec', res_sht_shcoeff_trunc)
 
     ######################
 
@@ -143,10 +181,27 @@ def main(dr):
 
     import shutil
     shutil.copyfile('input.txt', './' + result_folder + '/' + 'input.txt')
+
     shutil.copyfile('x0-res.xyz', './' + result_folder + '/' + 'x0-res.xyz')
     shutil.copyfile('x0.xyz', './' + result_folder + '/' + 'x0.xyz')
     shutil.copyfile('res.xyz', './' + result_folder + '/' + 'res.xyz')
-    shutil.copyfile('nlssubprob.dat', './' + result_folder + '/' + 'nlssubprob.dat')
+
+    shutil.copyfile('obs_grid_filt.xyz', './' + result_folder + '/' + 'obs_grid_filt.xyz')
+    shutil.copyfile('obs_sht_shcoeff_trunc.spec', './' + result_folder + '/' + 'obs_sht_shcoeff_trunc.spec')
+    shutil.copyfile('obs_sht_shcoeff_trunc.sht_shcoeff', './' + result_folder + '/' + 'obs_sht_shcoeff_trunc.sht_shcoeff')
+
+    shutil.copyfile('obs_grid.xyz', './' + result_folder + '/' + 'obs_grid.xyz')
+    shutil.copyfile('obs_sht_shcoeff.spec', './' + result_folder + '/' + 'obs_sht_shcoeff.spec')
+    shutil.copyfile('obs_sht_shcoeff.sht_shcoeff', './' + result_folder + '/' + 'obs_sht_shcoeff.sht_shcoeff')
+
+    shutil.copyfile('res_grid_filt.xyz', './' + result_folder + '/' + 'res_grid_filt.xyz')
+    shutil.copyfile('res_sht_shcoeff_trunc.spec', './' + result_folder + '/' + 'res_sht_shcoeff_trunc.spec')
+    shutil.copyfile('res_sht_shcoeff_trunc.sht_shcoeff', './' + result_folder + '/' + 'res_sht_shcoeff_trunc.sht_shcoeff')
+
+    shutil.copyfile('res_grid.xyz', './' + result_folder + '/' + 'res_grid.xyz')
+    shutil.copyfile('res_sht_shcoeff.spec', './' + result_folder + '/' + 'res_sht_shcoeff.spec')
+    shutil.copyfile('res_sht_shcoeff.sht_shcoeff', './' + result_folder + '/' + 'res_sht_shcoeff.sht_shcoeff')
+
 
     #**************** RETURN BACK TO INITIAL PATH ***#
     os.chdir(old_cwd)

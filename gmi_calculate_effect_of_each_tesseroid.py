@@ -87,12 +87,12 @@ def main(dr):
         os.mkdir('model')
 
 
-    gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY " + str(gmi_config.MULTIPLICATOR))
+    if gmi_config.MULTIPLICATOR != 1.0:
+        gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY " + str(gmi_config.MULTIPLICATOR))
 
     n_cpu = os.cpu_count()
-    gmi_misc.info('Number of processors: '+ str(n_cpu))
-
-    gmi_misc.info('Calculating effects of each tesseroid...')
+    gmi_misc.message('Number of processors: '+ str(n_cpu))
+    gmi_misc.message('Calculating effects of each tesseroid...')
 
     bar = tqdm(range(n_tess))
     i = 0
@@ -137,9 +137,9 @@ def main(dr):
 
     gmi_misc.ok('...done')
 
-    gmi_misc.info('Properties of SHCoeffs:')
-    gmi_misc.info(str(coeff_info.info()))
-    gmi_misc.info("Max degree: " + str(coeff_info.lmax))
+    gmi_misc.message('Properties of SHCoeffs:')
+    gmi_misc.message(str(coeff_info.info()))
+    gmi_misc.message("Max degree: " + str(coeff_info.lmax))
 
 
     #**************** WRITE MD5 PARAMS **************#

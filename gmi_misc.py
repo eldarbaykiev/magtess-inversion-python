@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.interpolate import griddata
 import os
+import sys
+
+verbosity_level = 1
 
 class bcolors:
     HEADER = '\033[95m'
@@ -42,15 +45,15 @@ def print_header():
     from datetime import date
     today = date.today()
 
-    print (bcolors.HEADER + "*"*34 + bcolors.ENDC)
-    print (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
-    print (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
-    print (bcolors.HEADER + "*        v" + version() + " "*(22-len(version()))+ "*" + bcolors.ENDC)
-    print (bcolors.HEADER + "*                                *" + bcolors.ENDC)
-    print (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + " "*11 + "*" + bcolors.ENDC)
-    print (bcolors.HEADER + "*"*34 + bcolors.ENDC)
-    print ("")
-    print ("")
+    message (bcolors.HEADER + "*"*34 + bcolors.ENDC)
+    message (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
+    message (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
+    message (bcolors.HEADER + "*        v" + version() + " "*(23-len(version()))+ "*" + bcolors.ENDC)
+    message (bcolors.HEADER + "*                                *" + bcolors.ENDC)
+    message (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + " "*11 + "*" + bcolors.ENDC)
+    message (bcolors.HEADER + "*"*34 + bcolors.ENDC)
+    message ("")
+    message ("")
 
 def create_tess_cpoint_grid():
     import numpy as np
@@ -100,7 +103,7 @@ def convert_surf_grid_to_xyz(grid):
 
 def read_sus_grid(fname):
     if ('.vim' in fname[-5:]) or ('.vis' in fname[-5:]):
-        info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: VERTICALLY INTEGRATED SUSCEPTIBILITY GRID [lon] [lat] [VIS]')
+        debug('SUSCEPTIBILITY FILE (' + fname + ') TYPE: VERTICALLY INTEGRATED SUSCEPTIBILITY GRID [lon] [lat] [VIS]')
         import gmi_config
         gmi_config.read_config()
 
@@ -120,13 +123,12 @@ def read_sus_grid(fname):
         grid = read_surf_grid(fname)
 
     elif ('.x0' in fname[-5:]):
-        info('SUSCEPTIBILITY FILE (' + fname + ') TYPE: x0 COLUMN [sus]')
+        debug('SUSCEPTIBILITY FILE (' + fname + ') TYPE: x0 COLUMN [sus]')
         import numpy as np
         try:
             x0 = np.loadtxt(fname)
         except IOError as err:
-            print("WARNING: CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
-            exit()
+            error("CAN NOT OPEN INITIAL SOLUTION FILE: {0}".format(err))
 
         nlon, nlat, X, Y = create_tess_cpoint_grid()
 
@@ -151,21 +153,26 @@ def read_sus_grid(fname):
 
 
 def warning(msg=None):
-    import sys
-    print (bcolors.WARNING + f"WARNING [{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC)
+    if verbosity_level >= 1:
+        print (bcolors.WARNING + f"WARNING [{sys._getframe().f_back.f_code.co_filename}|{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC)
 
 def error(msg=None):
     import sys
-    print(bcolors.FAIL + f"ERROR [{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC )
+    print(bcolors.FAIL + f"ERROR [{sys._getframe().f_back.f_code.co_filename}|{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC )
 
     #print (bcolors.FAIL + msg + bcolors.ENDC)
     exit(-1)
 
-def debug(str):
-    print (bcolors.CBEIGE + str + bcolors.ENDC)
+def debug(msg=None):
+    if verbosity_level == 3:
+        print (bcolors.CBEIGE + f"DEBUG [{sys._getframe().f_back.f_code.co_filename}|{sys._getframe().f_back.f_code.co_name}|{sys._getframe().f_back.f_lineno}]: {msg if msg is not None else ''}" + bcolors.ENDC)
 
 def info(str):
-    print (bcolors.OKBLUE + str + bcolors.ENDC)
+    if verbosity_level >= 1:
+        print (bcolors.OKBLUE + str + bcolors.ENDC)
+
+def message(msg):
+    print( msg)
 
 def pause():
     programPause = input("Press the <ENTER> key to continue...")
@@ -229,12 +236,12 @@ def read_data_grid(filename):
     val_col = 2
     n_col = len(data[0, :])
     if n_col == 3:
-        info("xyz grid")
+        debug("xyz grid")
 
     elif n_col == 4:
         factor = -1.0
         val_col = 3
-        info("magtess output")
+        debug("magtess output")
     else:
         error("WRONG NUMBER OF COLUMNS (" + str(n_col) + ") IN " + filename + ", ABORTING")
 
@@ -307,7 +314,7 @@ def read_suscept_global_grid_from_file(filename):
     try:
         data = np.loadtxt(filename, delimiter="\t")
     except ValueError:
-        print('WARNING! ' + str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
+        debug('WARNING! ' + str(filename) + ' is suspected not to have a tabular delimiter, trying with a space delimiter')
 
         try:
             data = np.loadtxt(filename, delimiter=" ")
@@ -396,3 +403,9 @@ def write_sus_grid_to_file(sus, fname):
 
                 resfile.write(string + '\n')
                 ind = ind+1
+
+def write_xyz_grid_to_file(x, y, z, fname):
+    with open(fname, 'w') as resfile:
+        for i in range(len(z)):
+            string = str(x[i]) + ' ' + str(y[i]) + ' ' + str(z[i])
+            resfile.write(string + '\n')

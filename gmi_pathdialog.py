@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 
-import gmi_pathdialog, gmi_hashdialog, gmi_helpwindow
+import gmi_pathdialog, gmi_helpwindow
 import gmi_misc
 import configparser
 import os

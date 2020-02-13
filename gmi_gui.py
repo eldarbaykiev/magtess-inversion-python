@@ -10,7 +10,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 
-import gmi_pathdialog, gmi_hashdialog, gmi_helpwindow
+import gmi_pathdialog, gmi_helpwindow
 
 import sys, os
 import numpy as np
@@ -41,134 +41,128 @@ class MainWindow(QtWidgets.QMainWindow):
         self.working_directory_opened = False
         self.GMI_PATH = ''
 
-        self.current_folder = self.findChild(QtWidgets.QLabel, 'current_folder')
-        self.current_folder.setText(self.GMI_PATH)
 
-        self.button_changefolder = self.findChild(QtWidgets.QPushButton, 'button_changefolder')
-        self.button_changefolder.clicked.connect(self.open_working_directory)
+        #main window
 
-        #config editor
-        self.config_editor = self.findChild(QtWidgets.QTextEdit, 'config_editor')
-        self.config_editor.textChanged.connect(self.activate_save)
+        self.label_CurrentFolder = self.findChild(QtWidgets.QLabel, 'label_CurrentFolder')
+        self.label_CurrentFolder.setText(self.GMI_PATH)
 
-        self.button_save = self.findChild(QtWidgets.QPushButton, 'button_save')
-        self.button_save.clicked.connect(self.save_config)
+        self.pushButton_ChangeFolder = self.findChild(QtWidgets.QPushButton, 'pushButton_ChangeFolder')
+        self.pushButton_ChangeFolder.clicked.connect(self.OpenWorkingDirectory)
 
-        #self.button_check = self.findChild(QtWidgets.QPushButton, 'button_checksum')
-        #self.button_check.clicked.connect(self.check_hashtest)
+        self.pushButton_Exit = self.findChild(QtWidgets.QPushButton, 'pushButton_Exit')
+        self.pushButton_Exit.clicked.connect(self.close)
 
-        self.button_close = self.findChild(QtWidgets.QPushButton, 'button_close')
-        self.button_close.clicked.connect(self.close)
 
-        #self.button_observed = self.findChild(QtWidgets.QPushButton, 'button_observed')
-        #self.button_observed.clicked.connect(self.plot_observed)
+        #config editor tab
+        self.textEdit_ConfigEditor = self.findChild(QtWidgets.QTextEdit, 'textEdit_ConfigEditor')
+        self.textEdit_ConfigEditor.textChanged.connect(self.EnableConfigSave)
+
+        self.pushButton_SaveConfig = self.findChild(QtWidgets.QPushButton, 'pushButton_SaveConfig')
+        self.pushButton_SaveConfig.clicked.connect(self.SaveConfig)
+
 
         #plots
         self.zoomfactor = 0.95
-        self.plot_scene = QtWidgets.QGraphicsScene()
-        self.plot_view = self.findChild(QtWidgets.QGraphicsView, 'plot_view')
+        self.graphicsScene_PlotScene = QtWidgets.QGraphicsScene()
+        self.graphicsView_PlotView = self.findChild(QtWidgets.QGraphicsView, 'graphicsView_PlotView')
 
-        self.button_plot = self.findChild(QtWidgets.QPushButton, 'button_plot')
-        self.button_plot.clicked.connect(self.plot)
+        self.pushButton_Plot = self.findChild(QtWidgets.QPushButton, 'pushButton_Plot')
+        self.pushButton_Plot.clicked.connect(self.plot)
 
-        self.button_spec = self.findChild(QtWidgets.QPushButton, 'button_spec')
-        self.button_spec.clicked.connect(self.spec)
+        self.pushButton_Spectrum = self.findChild(QtWidgets.QPushButton, 'pushButton_Spectrum')
+        self.pushButton_Spectrum.clicked.connect(self.spec)
 
-        self.button_zoomin = self.findChild(QtWidgets.QPushButton, 'button_zoomin')
-        self.button_zoomin.clicked.connect(self.plot_zoomin)
+        self.pushButton_ZoomIn = self.findChild(QtWidgets.QPushButton, 'pushButton_ZoomIn')
+        self.pushButton_ZoomIn.clicked.connect(self.plot_zoomin)
 
-        self.button_zoomout = self.findChild(QtWidgets.QPushButton, 'button_zoomout')
-        self.button_zoomout.clicked.connect(self.plot_zoomout)
+        self.pushButton_ZoomOut = self.findChild(QtWidgets.QPushButton, 'pushButton_ZoomOut')
+        self.pushButton_ZoomOut.clicked.connect(self.plot_zoomout)
 
-        self.combobox_plot = self.findChild(QtWidgets.QComboBox, 'combobox_plot')
-        self.combobox_plot.currentIndexChanged.connect(self.activate_plot_button)
+        self.comboBox_GridList = self.findChild(QtWidgets.QComboBox, 'comboBox_GridList')
+        self.comboBox_GridList.currentIndexChanged.connect(self.EnablePlotting)
 
         #stages
         self.checksums = False
-        self.checkbox_checksums = self.findChild(QtWidgets.QCheckBox, 'checkbox_checksums')
+        self.checkBox_InspectChecksums = self.findChild(QtWidgets.QCheckBox, 'checkBox_InspectChecksums')
         if self.checksums:
-            self.checkbox_checksums.setCheckState(QtCore.Qt.Checked)
+            self.checkBox_InspectChecksums.setCheckState(QtCore.Qt.Checked)
         else:
-            self.checkbox_checksums.setCheckState(QtCore.Qt.Unchecked)
-        self.checkbox_checksums.stateChanged.connect(self.set_checksums)
+            self.checkBox_InspectChecksums.setCheckState(QtCore.Qt.Unchecked)
+        self.checkBox_InspectChecksums.stateChanged.connect(self.InspectChecksums)
 
         self.stages_updated = False
-        self.tabs = self.findChild(QtWidgets.QTabWidget, 'tabWidget')
-        self.tabs.currentChanged.connect(self.update_stages)
+        self.tabs = self.findChild(QtWidgets.QTabWidget, 'tabWidget_MainTabs')
+        self.tabs.currentChanged.connect(self.UpdateStages)
 
-        self.button_stage1 = self.findChild(QtWidgets.QPushButton, 'button_stage1')
-        self.button_stage1.clicked.connect(self.run_stage1)
-        self.indicator_stage1 = self.findChild(QtWidgets.QLabel, 'indicator_stage1')
+        self.pushButton_CreateTesseroidModel = self.findChild(QtWidgets.QPushButton, 'pushButton_CreateTesseroidModel')
+        self.pushButton_CreateTesseroidModel.clicked.connect(self.CreateTesseroidModel)
+        self.label_IndicatorCreateTesseroidModel = self.findChild(QtWidgets.QLabel, 'label_IndicatorCreateTesseroidModel')
 
-        self.button_stage2 = self.findChild(QtWidgets.QPushButton, 'button_stage2')
-        self.button_stage2.clicked.connect(self.run_stage2)
-        self.indicator_stage2 = self.findChild(QtWidgets.QLabel, 'indicator_stage2')
+        self.pushButton_CalculateTesseroidsFields = self.findChild(QtWidgets.QPushButton, 'pushButton_CalculateTesseroidsFields')
+        self.pushButton_CalculateTesseroidsFields.clicked.connect(self.CalculateTesseroidsFields)
+        self.label_IndicatorCalculateTesseroidsFields = self.findChild(QtWidgets.QLabel, 'label_IndicatorCalculateTesseroidsFields')
 
-        self.button_stage3 = self.findChild(QtWidgets.QPushButton, 'button_stage3')
-        self.button_stage3.clicked.connect(self.run_stage3)
-        self.indicator_stage3 = self.findChild(QtWidgets.QLabel, 'indicator_stage3')
+        self.pushButton_CreateDesignMatrix = self.findChild(QtWidgets.QPushButton, 'pushButton_CreateDesignMatrix')
+        self.pushButton_CreateDesignMatrix.clicked.connect(self.CreateDesignMatrix)
+        self.label_IndicatorCreateDesignMatrix = self.findChild(QtWidgets.QLabel, 'label_IndicatorCreateDesignMatrix')
 
-        self.button_allstages = self.findChild(QtWidgets.QPushButton, 'button_allstages')
-        self.button_allstages.clicked.connect(self.run_allstages)
-
-        #self.console = self.findChild(QtWidgets.QTextBrowser, 'console')
+        self.pushButton_ExecuteAll = self.findChild(QtWidgets.QPushButton, 'pushButton_ExecuteAll')
+        self.pushButton_ExecuteAll.clicked.connect(self.ExecuteAll)
 
         #inversion
-        self.button_invert = self.findChild(QtWidgets.QPushButton, 'button_invert')
-        self.button_invert.clicked.connect(self.run_stage4)
+        self.pushButton_Invert = self.findChild(QtWidgets.QPushButton, 'pushButton_Invert')
+        self.pushButton_Invert.clicked.connect(self.Invert)
 
-        #self.button_plotresult = self.findChild(QtWidgets.QPushButton, 'button_plotresult')
-        #self.button_plotresult.clicked.connect(self.plot_result)
+        self.listWidget_ResultsList = self.findChild(QtWidgets.QListWidget, 'listWidget_ResultsList')
+        self.listWidget_ResultsList.currentItemChanged.connect(self.EnableResultPlotting)
 
-        self.result_list = self.findChild(QtWidgets.QListWidget, 'result_list')
-        self.result_list.currentItemChanged.connect(self.activate_plot_result_button)
-
-        self.result_scene = QtWidgets.QGraphicsScene()
-        self.result_view = self.findChild(QtWidgets.QGraphicsView, 'result_view')
+        self.graphicsScene_ResultPlotScene = QtWidgets.QGraphicsScene()
+        self.graphicsView_ResultPlotView = self.findChild(QtWidgets.QGraphicsView, 'graphicsView_ResultPlotView')
 
         if not self.working_directory_opened:
-            self.open_working_directory()
+            self.OpenWorkingDirectory()
 
-    def activate_plot_result_button(self):
+    def EnableResultPlotting(self):
         import gmi_config
         import gmi_gmt
         import os
         old_cwd = switch_path(self.GMI_PATH)
 
         config = gmi_config.read_config()
-        current_opt = str(self.result_list.currentItem().text())
+        current_opt = str(self.listWidget_ResultsList.currentItem().text())
 
-        self.result_list.repaint()
+        self.listWidget_ResultsList.repaint()
 
         print (current_opt)
 
         if(os.path.exists(current_opt)):
             gmi_misc.info(str(current_opt) + ' is selected for plotting')
-            #self.button_plotresult.setEnabled(True)
-            self.result_view.setEnabled(True)
-            #self.button_plotresult.repaint()
+            #self.pushButton_Plotresult.setEnabled(True)
+            self.graphicsView_ResultPlotView.setEnabled(True)
+            #self.pushButton_Plotresult.repaint()
         else:
-            #self.button_plotresult.setDisabled(True)
-            self.result_view.setDisabled(True)
-            #self.button_plotresult.repaint()
+            #self.pushButton_Plotresult.setDisabled(True)
+            self.graphicsView_ResultPlotView.setDisabled(True)
+            #self.pushButton_Plotresult.repaint()
 
 
         switch_path_back(old_cwd)
 
-        self.plot_result()
+        self.PlotResult()
 
-    def plot_result(self):
+    def PlotResult(self):
         import gmi_config
         import gmi_gmt
         old_cwd = switch_path(self.GMI_PATH)
 
-        self.result_scene.clear() #new thing
+        self.graphicsScene_ResultPlotScene.clear() #new thing
 
         config = gmi_config.read_config()
 
         output_folder = gmi_misc.init_result_folder()
 
-        fname = str(self.result_list.currentItem().text())
+        fname = str(self.listWidget_ResultsList.currentItem().text())
 
         if '.dat' in fname:
             current_plot = output_folder + '/' + fname
@@ -187,60 +181,115 @@ class MainWindow(QtWidgets.QMainWindow):
             fig.savefig("temp.png")
             #plt.show()
 
+
+
+        elif '.spec' in fname:
+            current_plot = output_folder + '/' + fname
+
+            dat = np.loadtxt(current_plot)
+
+            import matplotlib.pyplot as plt
+
+            plt.plot(dat[1:, 0], np.log10(dat[:, 1])[1:], '-', lw=0.6)
+
+            a_yticks = np.array([1, 0.1, 0.01, 0.001, 0.0001])
+            plt.yticks(np.log10(a_yticks), a_yticks.astype(str))
+
+            a_xticks = np.append(np.array([1]),  np.arange(10, np.ndarray.max(dat[:, 0]), 10))
+            a_xticks = np.append(a_xticks, np.array([int(config.get('Spherical Harmonics', 'N_MIN_CUTOFF'))]))
+            plt.xticks(a_xticks, a_xticks.astype(str))
+
+            plt.title(current_plot + ' power spectrum')
+            plt.xlabel('SH degree')
+            plt.ylabel('Power [SI^2]')
+            plt.grid()
+
+
+            plt.savefig('temp.png')
+
+            plt.clf()
+            plt.close()
+
+        elif '.sht_shcoeff' in fname:
+            import pyshtools
+            import matplotlib.pyplot as plt
+            urrent_plot = output_folder + '/' + fname
+
+            sht_shcoeff = pyshtools.SHCoeffs.from_file(fname)
+            sht_shcoeff.plot_spectrum2d()
+
+            plt.savefig('temp.png')
+
+            plt.clf()
+            plt.close()
+
+
         else:
             current_plot = output_folder + '/' + fname
             surf = False
 
-            pname = '.xyz file plot'
-            colorsch = 'haxby'
-            uname = '___'
-            units = '___'
-            min = 0
-            max = 0.1
+            if 'grid' in fname:
 
-            grid = gmi_misc.read_sus_grid(current_plot)
+
+                pname = fname
+                colorsch = 'polar'
+                uname = 'Magnetic Field'
+                units = 'nT'
+                min = -12
+                max = 12
+
+                grid = gmi_misc.read_surf_grid(current_plot)
+            else:
+
+                pname = fname
+                colorsch = 'haxby'
+                uname = 'Susceptibility'
+                units = 'SI'
+                min = 0
+                max = 0.1
+
+                grid = gmi_misc.read_sus_grid(current_plot)
+
+
+
+
 
             gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
         result_pixmap =  QtGui.QPixmap('temp.png')
-        self.result_scene.addPixmap(result_pixmap.scaledToHeight(self.result_view.geometry().height()*0.95))
+        self.graphicsScene_ResultPlotScene.addPixmap(result_pixmap.scaledToHeight(self.graphicsView_ResultPlotView.geometry().height()*0.95))
 
-        self.result_view.setScene(self.result_scene)
-        self.result_view.show()
+        self.graphicsView_ResultPlotView.setScene(self.graphicsScene_ResultPlotScene)
+        self.graphicsView_ResultPlotView.show()
 
         import shutil
-        shutil.copyfile('temp.png', './' + output_folder + '/' + self.result_list.currentItem().text()[:-3]+ 'png')
+        shutil.copyfile('temp.png', './' + output_folder + '/' + self.listWidget_ResultsList.currentItem().text()[:-3]+ 'png')
 
         switch_path_back(old_cwd)
 
 
-    def set_checksums(self):
-
-        if self.checkbox_checksums.isChecked():
+    def InspectChecksums(self):
+        if self.checkBox_InspectChecksums.isChecked():
             self.checksums = True
 
             self.stages_updated = False
-            self.update_stages()
-            print('checksums True')
+            self.UpdateStages()
         else:
             self.checksums = False
 
             self.stages_updated = False
-            self.update_stages()
-            print('checksums False')
+            self.UpdateStages()
 
-
-    def update_stages(self):
-
+    def UpdateStages(self):
         if self.tabs.currentWidget().objectName() == 'tab_stages' and self.stages_updated == False:
 
             pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-            self.indicator_stage1.setPixmap(pixmap)
-            self.indicator_stage1.repaint()
-            self.indicator_stage2.setPixmap(pixmap)
-            self.indicator_stage2.repaint()
-            self.indicator_stage3.setPixmap(pixmap)
-            self.indicator_stage3.repaint()
+            self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap)
+            self.label_IndicatorCreateTesseroidModel.repaint()
+            self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap)
+            self.label_IndicatorCalculateTesseroidsFields.repaint()
+            self.label_IndicatorCreateDesignMatrix.setPixmap(pixmap)
+            self.label_IndicatorCreateDesignMatrix.repaint()
 
             import gmi_hash_test
             stages = [0, 0, 0]
@@ -250,68 +299,68 @@ class MainWindow(QtWidgets.QMainWindow):
             pixmap_doublechecked =  QtGui.QPixmap('icons/icons8-double-tick-48.png')
             pixmap_unchecked =  QtGui.QPixmap('icons/icons8-delete-48.png')
 
-            self.button_stage1.setEnabled(True)
-            self.button_stage2.setEnabled(False)
-            self.button_stage3.setEnabled(False)
+            self.pushButton_CreateTesseroidModel.setEnabled(True)
+            self.pushButton_CalculateTesseroidsFields.setEnabled(False)
+            self.pushButton_CreateDesignMatrix.setEnabled(False)
 
             if stages[0] > 0:
                 if self.checksums:
-                    self.indicator_stage1.setPixmap(pixmap_doublechecked)
+                    self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap_doublechecked)
                 else:
-                    self.indicator_stage1.setPixmap(pixmap_checked)
-                self.button_stage2.setEnabled(True)
-                #self.button_stage3.setEnabled(False)
+                    self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap_checked)
+                self.pushButton_CalculateTesseroidsFields.setEnabled(True)
+                #self.pushButton_CreateDesignMatrix.setEnabled(False)
                 #self.label_stage1.setText('correct checksum')
             elif stages[0] == 0:
-                self.indicator_stage1.setPixmap(pixmap_unchecked)
-                self.button_stage2.setEnabled(False)
+                self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap_unchecked)
+                self.pushButton_CalculateTesseroidsFields.setEnabled(False)
                 #self.label_stage1.setText('no checksum')
             else:
-                self.indicator_stage1.setPixmap(pixmap_unchecked)
-                self.button_stage2.setEnabled(False)
+                self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap_unchecked)
+                self.pushButton_CalculateTesseroidsFields.setEnabled(False)
                 #self.label_stage1.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage1.repaint()
+            self.label_IndicatorCreateTesseroidModel.repaint()
 
             if stages[1] > 0:
                 if self.checksums:
-                    self.indicator_stage2.setPixmap(pixmap_doublechecked)
+                    self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap_doublechecked)
                 else:
-                    self.indicator_stage2.setPixmap(pixmap_checked)
-                self.button_stage3.setEnabled(True)
+                    self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap_checked)
+                self.pushButton_CreateDesignMatrix.setEnabled(True)
                 #self.label_stage2.setText('correct checksum')
             elif stages[0] == 0:
-                self.indicator_stage2.setPixmap(pixmap_unchecked)
-                self.button_stage3.setEnabled(False)
+                self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap_unchecked)
+                self.pushButton_CreateDesignMatrix.setEnabled(False)
                 #self.label_stage2.setText('no checksum')
             else:
-                self.indicator_stage2.setPixmap(pixmap_unchecked)
-                self.button_stage3.setEnabled(False)
+                self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap_unchecked)
+                self.pushButton_CreateDesignMatrix.setEnabled(False)
                 #self.label_stage2.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage2.repaint()
+            self.label_IndicatorCalculateTesseroidsFields.repaint()
 
             if stages[2] > 0:
                 if self.checksums:
-                    self.indicator_stage3.setPixmap(pixmap_doublechecked)
+                    self.label_IndicatorCreateDesignMatrix.setPixmap(pixmap_doublechecked)
                 else:
-                    self.indicator_stage3.setPixmap(pixmap_checked)
+                    self.label_IndicatorCreateDesignMatrix.setPixmap(pixmap_checked)
                 #self.label_stage3.setText('correct checksum')
             elif stages[0] == 0:
-                self.indicator_stage3.setPixmap(pixmap_unchecked)
+                self.label_IndicatorCreateDesignMatrix.setPixmap(pixmap_unchecked)
                 #self.label_stage3.setText('no checksum')
             else:
-                self.indicator_stage3.setPixmap(pixmap_unchecked)
+                self.label_IndicatorCreateDesignMatrix.setPixmap(pixmap_unchecked)
                 #self.label_stage3.setText('checksum in dictionary\ndoes not match')
-            self.indicator_stage3.repaint()
+            self.label_IndicatorCreateDesignMatrix.repaint()
 
 
             self.stages_updated = True
 
 
 
-    def run_stage1(self):
+    def CreateTesseroidModel(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-        self.indicator_stage1.setPixmap(pixmap)
-        self.indicator_stage1.repaint()
+        self.label_IndicatorCreateTesseroidModel.setPixmap(pixmap)
+        self.label_IndicatorCreateTesseroidModel.repaint()
 
         import gmi_create_tesseroid_model
         old_cwd = switch_path(self.GMI_PATH)
@@ -334,14 +383,16 @@ class MainWindow(QtWidgets.QMainWindow):
         switch_path_back(old_cwd)
 
         self.stages_updated = False
-        self.update_stages()
+        self.UpdateStages()
+
+        QtWidgets.QMessageBox.information(self, "Message", "Tesseroid model created!")
 
 
 
-    def run_stage2(self):
+    def CalculateTesseroidsFields(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-        self.indicator_stage2.setPixmap(pixmap)
-        self.indicator_stage2.repaint()
+        self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap)
+        self.label_IndicatorCalculateTesseroidsFields.repaint()
 
         import gmi_calculate_effect_of_each_tesseroid
         old_cwd = switch_path(self.GMI_PATH)
@@ -363,13 +414,15 @@ class MainWindow(QtWidgets.QMainWindow):
         switch_path_back(old_cwd)
 
         self.stages_updated = False
-        self.update_stages()
+        self.UpdateStages()
+
+        QtWidgets.QMessageBox.information(self, "Message", "Tesseroids' fields calculated!")
 
 
-    def run_stage3(self):
+    def CreateDesignMatrix(self):
         pixmap = QtGui.QPixmap('icons/icons8-process-120.png')
-        self.indicator_stage2.setPixmap(pixmap)
-        self.indicator_stage2.repaint()
+        self.label_IndicatorCalculateTesseroidsFields.setPixmap(pixmap)
+        self.label_IndicatorCalculateTesseroidsFields.repaint()
 
         import gmi_create_design_matrix
         old_cwd = switch_path(self.GMI_PATH)
@@ -380,19 +433,21 @@ class MainWindow(QtWidgets.QMainWindow):
         switch_path_back(old_cwd)
 
         self.stages_updated = False
-        self.update_stages()
+        self.UpdateStages()
 
-    def run_allstages(self):
-        self.run_stage1()
-        self.run_stage2()
-        self.run_stage3()
+        QtWidgets.QMessageBox.information(self, "Message", "Design matrices created")
+
+    def ExecuteAll(self):
+        self.CreateTesseroidModel()
+        self.CalculateTesseroidsFields()
+        self.CreateDesignMatrix()
 
 
     #inversion
 
-    def init_result_list(self):
-        self.result_scene.clear()
-        self.result_list.clear()
+    def InitResultsList(self):
+        self.graphicsScene_ResultPlotScene.clear()
+        self.listWidget_ResultsList.clear()
 
 
         old_cwd = switch_path(self.GMI_PATH)
@@ -402,23 +457,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         os.chdir(output_folder)
         file_list = glob.glob("*.xyz")
-        file_list = file_list + glob.glob("*.dat")
+        file_list = file_list + glob.glob("*.dat") + glob.glob('*.spec') + glob.glob('*.sht_shcoeff')
         os.chdir('..')
 
-        self.result_list.clear()
+        self.listWidget_ResultsList.clear()
 
-        self.result_list.setEnabled(True)
+        self.listWidget_ResultsList.setEnabled(True)
         for filename in file_list:
-            self.result_list.addItem(filename)
+            self.listWidget_ResultsList.addItem(filename)
 
         switch_path_back(old_cwd)
 
 
 
-    def run_stage4(self):
-        self.result_scene.clear()
-        self.result_list.clear()
-        self.result_list.setDisabled(True)
+    def Invert(self):
+        self.graphicsScene_ResultPlotScene.clear()
+        self.listWidget_ResultsList.clear()
+        self.listWidget_ResultsList.setDisabled(True)
 
         import gmi_invert
         old_cwd = switch_path(self.GMI_PATH)
@@ -426,20 +481,19 @@ class MainWindow(QtWidgets.QMainWindow):
         print('stage4')
         gmi_invert.main(self.GMI_PATH)
 
-        self.init_result_list()
+        self.InitResultsList()
 
         switch_path_back(old_cwd)
 
 
-    def set_path(self, wpath):
+    def SetPath(self, wpath):
         self.GMI_PATH = wpath
-        self.current_folder.setText(self.GMI_PATH)
+        self.label_CurrentFolder.setText(self.GMI_PATH)
         gmi_misc.info(self.GMI_PATH + ' is set as a working directory')
 
-    def open_working_directory(self):
-
+    def OpenWorkingDirectory(self):
         if self.working_directory_opened:
-            self.save_config()
+            self.SaveConfig()
 
         pathselection = gmi_pathdialog.PathDialog()
         if not pathselection.exec_(): # 'reject': user pressed 'Cancel', so quit
@@ -448,22 +502,22 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 exit()
 
-        self.set_path(pathselection.cfg.get('PATH', 'GMI_PATH'))
+        self.SetPath(pathselection.cfg.get('PATH', 'GMI_PATH'))
 
-        self.read_working_directory()
-        self.plot_scene.clear()
+        self.ReadWorkingDirectory()
+        self.graphicsScene_PlotScene.clear()
 
         self.stages_updated = False
-        self.update_stages()
+        self.UpdateStages()
 
 
         self.working_directory_opened = True
 
 
-    def read_working_directory(self):
+    def ReadWorkingDirectory(self):
         with open(self.GMI_PATH + '/input.txt', 'r') as config_file:
             buf = config_file.read()
-            self.config_editor.setText(buf)
+            self.textEdit_ConfigEditor.setText(buf)
 
         import configparser
         import gmi_config
@@ -471,77 +525,68 @@ class MainWindow(QtWidgets.QMainWindow):
         old_cwd = switch_path(self.GMI_PATH)
         config = gmi_config.read_config()
 
-        self.combobox_plot.clear()
-        self.combobox_plot.addItem('TOP_SURFACE')
-        self.combobox_plot.addItem('BOT_SURFACE')
-        self.combobox_plot.addItem('OBSERVED_DATA')
-        self.combobox_plot.addItem('SUBTRACT_DATA')
-        self.combobox_plot.addItem('INIT_SOLUTION')
-        #self.combobox_plot.addItem(config[])
+        self.comboBox_GridList.clear()
+        self.comboBox_GridList.addItem('TOP_SURFACE')
+        self.comboBox_GridList.addItem('BOT_SURFACE')
+        self.comboBox_GridList.addItem('OBSERVED_DATA')
+        self.comboBox_GridList.addItem('SUBTRACT_DATA')
+        self.comboBox_GridList.addItem('INIT_SOLUTION')
+        #self.comboBox_GridList.addItem(config[])
 
         switch_path_back(old_cwd)
 
         self.working_directory_opened = True
 
-        self.init_result_list()
+        self.InitResultsList()
 
-    def activate_save(self):
-        self.button_save.setText('Save')
-        self.button_save.setEnabled(True)
-        self.button_save.repaint()
+    def EnableConfigSave(self):
+        self.pushButton_SaveConfig.setText('Save')
+        self.pushButton_SaveConfig.setEnabled(True)
+        self.pushButton_SaveConfig.repaint()
 
-    def save_config(self):
-        buf = self.config_editor.toPlainText()
+    def SaveConfig(self):
+        buf = self.textEdit_ConfigEditor.toPlainText()
         with open(self.GMI_PATH + '/input.txt', 'w') as config_file:
             config_file.write(buf)
 
-        self.button_save.setText('Save')
-        self.button_save.setEnabled(False)
-        self.button_save.repaint()
+        self.pushButton_SaveConfig.setText('Save')
+        self.pushButton_SaveConfig.setEnabled(False)
+        self.pushButton_SaveConfig.repaint()
         gmi_misc.info('input.txt saved')
 
 
-    def check_hashtest(self):
-        HashDialog = gmi_hashdialog.HashDialog()
-        HashDialog.set_path(self.GMI_PATH)
 
-        HashDialog.show()
-        HashDialog.check()
-
-        HashDialog.exec_()
-        #HashDialog.loop()
-
-    def activate_plot_button(self):
+    def EnablePlotting(self):
         import gmi_config
         import gmi_gmt
         import os
         old_cwd = switch_path(self.GMI_PATH)
 
         config = gmi_config.read_config()
-        current_opt = str(self.combobox_plot.currentText())
+        current_opt = str(self.comboBox_GridList.currentText())
 
         for sect in config.sections():
             if(config.has_option(sect, current_opt)):
                 if(os.path.exists(config.get(sect, current_opt))):
                     gmi_misc.info(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') is selected for plotting')
-                    self.button_plot.setEnabled(True)
-                    self.button_spec.setEnabled(True)
-                    self.button_zoomin.setEnabled(True)
-                    self.button_zoomout.setEnabled(True)
-                    self.plot_view.setEnabled(True)
-                    self.button_plot.repaint()
-                    self.button_spec.repaint()
+                    self.pushButton_Plot.setEnabled(True)
+                    self.pushButton_Spectrum.setEnabled(True)
+                    self.pushButton_ZoomIn.setEnabled(True)
+                    self.pushButton_ZoomOut.setEnabled(True)
+                    self.graphicsView_PlotView.setEnabled(True)
+                    self.pushButton_Plot.repaint()
+                    self.pushButton_Spectrum.repaint()
                     break
 
                 else:
                     gmi_misc.warning(str(sect) + '.'+ str(current_opt) +' (' + config.get(sect, current_opt) + ') IS EMPTY/DOES NOT EXIST!')
-                    self.button_plot.setDisabled(True)
-                    self.button_spec.setDisabled(True)
-                    self.button_zoomin.setDisabled(True)
-                    self.button_zoomout.setDisabled(True)
-                    self.plot_view.setDisabled(True)
-                    self.button_plot.repaint()
-                    self.button_spec.repaint()
+                    self.pushButton_Plot.setDisabled(True)
+                    self.pushButton_Spectrum.setDisabled(True)
+                    self.pushButton_ZoomIn.setDisabled(True)
+                    self.pushButton_ZoomOut.setDisabled(True)
+                    self.graphicsView_PlotView.setDisabled(True)
+                    self.pushButton_Plot.repaint()
+                    self.pushButton_Spectrum.repaint()
                     break
 
         switch_path_back(old_cwd)
@@ -551,13 +596,13 @@ class MainWindow(QtWidgets.QMainWindow):
         import gmi_gmt
         old_cwd = switch_path(self.GMI_PATH)
 
-        self.plot_scene.clear() #new thing
+        self.graphicsScene_PlotScene.clear() #new thing
 
         config = gmi_config.read_config()
 
         plot_cutoff = False
 
-        current_plot = str(self.combobox_plot.currentText())
+        current_plot = str(self.comboBox_GridList.currentText())
         if current_plot == 'TOP_SURFACE':
             fname = config.get('Global Tesseroid Model', 'TOP_SURFACE');
             grid = gmi_misc.read_surf_grid(fname)
@@ -632,11 +677,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
-        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*0.95))
-        #self.plot_scene.setSceneRect(self.plot_view.geometry().x(), self.plot_view.geometry().y(), self.plot_view.geometry().width(), self.plot_view.geometry().height())
+        self.graphicsScene_PlotScene.addPixmap(plot_pixmap.scaledToHeight(self.graphicsView_PlotView.geometry().height()*0.95))
+        #self.graphicsScene_PlotScene.setSceneRect(self.graphicsView_PlotView.geometry().x(), self.graphicsView_PlotView.geometry().y(), self.graphicsView_PlotView.geometry().width(), self.graphicsView_PlotView.geometry().height())
 
-        self.plot_view.setScene(self.plot_scene)
-        self.plot_view.show()
+        self.graphicsView_PlotView.setScene(self.graphicsScene_PlotScene)
+        self.graphicsView_PlotView.show()
 
         output_folder = gmi_misc.init_result_folder()
 
@@ -652,7 +697,7 @@ class MainWindow(QtWidgets.QMainWindow):
         import gmi_gmt
         old_cwd = switch_path(self.GMI_PATH)
 
-        self.plot_scene.clear() #new thing
+        self.graphicsScene_PlotScene.clear() #new thing
 
         config = gmi_config.read_config()
 
@@ -664,7 +709,7 @@ class MainWindow(QtWidgets.QMainWindow):
         min = 0
         max = 0
         surf = False
-        current_plot = str(self.combobox_plot.currentText())
+        current_plot = str(self.comboBox_GridList.currentText())
         if current_plot == 'TOP_SURFACE':
             fname = config.get('Global Tesseroid Model', 'TOP_SURFACE');
             pname = 'Top Surface'
@@ -737,11 +782,11 @@ class MainWindow(QtWidgets.QMainWindow):
         gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
-        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
-        #self.plot_scene.setSceneRect(self.plot_view.geometry().x(), self.plot_view.geometry().y(), self.plot_view.geometry().width(), self.plot_view.geometry().height())
+        self.graphicsScene_PlotScene.addPixmap(plot_pixmap.scaledToHeight(self.graphicsView_PlotView.geometry().height()*self.zoomfactor))
+        #self.graphicsScene_PlotScene.setSceneRect(self.graphicsView_PlotView.geometry().x(), self.graphicsView_PlotView.geometry().y(), self.graphicsView_PlotView.geometry().width(), self.graphicsView_PlotView.geometry().height())
 
-        self.plot_view.setScene(self.plot_scene)
-        self.plot_view.show()
+        self.graphicsView_PlotView.setScene(self.graphicsScene_PlotScene)
+        self.graphicsView_PlotView.show()
 
         output_folder = gmi_misc.init_result_folder()
 
@@ -753,42 +798,28 @@ class MainWindow(QtWidgets.QMainWindow):
     def plot_zoomin(self):
         old_cwd = switch_path(self.GMI_PATH)
 
-        self.plot_scene.clear() #new thing
+        self.graphicsScene_PlotScene.clear() #new thing
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
         self.zoomfactor += 0.1
-        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
+        self.graphicsScene_PlotScene.addPixmap(plot_pixmap.scaledToHeight(self.graphicsView_PlotView.geometry().height()*self.zoomfactor))
 
-        self.plot_view.setScene(self.plot_scene)
-        self.plot_view.show()
+        self.graphicsView_PlotView.setScene(self.graphicsScene_PlotScene)
+        self.graphicsView_PlotView.show()
 
         switch_path_back(old_cwd)
 
     def plot_zoomout(self):
         old_cwd = switch_path(self.GMI_PATH)
 
-        self.plot_scene.clear() #new thing
+        self.graphicsScene_PlotScene.clear() #new thing
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
         self.zoomfactor -= 0.1
-        self.plot_scene.addPixmap(plot_pixmap.scaledToHeight(self.plot_view.geometry().height()*self.zoomfactor))
+        self.graphicsScene_PlotScene.addPixmap(plot_pixmap.scaledToHeight(self.graphicsView_PlotView.geometry().height()*self.zoomfactor))
 
-        self.plot_view.setScene(self.plot_scene)
-        self.plot_view.show()
-
-        switch_path_back(old_cwd)
-
-
-    def plot_observed(self):
-        old_cwd = switch_path(self.GMI_PATH)
-
-        import gmi_gmt
-
-        import matplotlib.pyplot as plt
-
-        import gmi_config
-        gmi_config.read_config()
-
+        self.graphicsView_PlotView.setScene(self.graphicsScene_PlotScene)
+        self.graphicsView_PlotView.show()
 
         switch_path_back(old_cwd)
 
@@ -806,7 +837,7 @@ def main():
 
     window = MainWindow()
 
-    window.read_working_directory()
+    window.ReadWorkingDirectory()
     window.show()
 
     sys.exit(app.exec_())

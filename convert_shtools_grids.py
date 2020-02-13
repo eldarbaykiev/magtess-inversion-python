@@ -1,49 +1,37 @@
 import numpy as np
 
 import sys
+import gmi_misc
 
-def conv_grid(fname):
-    try:
-        grid = np.loadtxt(fname)
-    except:
-        print('CAN NOT OPEN/WRONG FORMAT')
-        exit()
-
-    #print grid
-    #print len(grid[:, 0])
-    #print len(grid[0, :])
+def convert_sht_grid_to_xyz(inp):
+    if isinstance(inp, str):
+        try:
+            grid = np.loadtxt(inp)
+        except:
+            gmi_misc.error('CAN NOT OPEN/WRONG FORMAT')
+            exit()
+    else:
+        grid = inp
 
     lat_N = len(grid[:, 0])
     lon_N = len(grid[0, :])
 
-    with open(fname[0:len(fname)-4] + '.xyz', 'w') as outputf:
-        for i in range(0, lon_N):
-            for j in range(0, lat_N):
-                outputf.write(str(0.0+i*360.0/float(lon_N)) + ' ' +  str(90.0-j*180.0/float(lat_N)) + ' ' + str(grid[j, i]) + '\n')
+    X = np.zeros(lat_N*lon_N)
+    Y = np.zeros(lat_N*lon_N)
+    Z = np.zeros(lat_N*lon_N)
+    k = 0
+    for i in range(0, lon_N):
+        for j in range(0, lat_N):
+            if (0.0+float(i)*360.0/float(lon_N) <180.0):
 
-    import os
+                X[k] = 0.0+float(i)*360.0/float(lon_N)
+            else:
+                X[k] = -360.0 + 0.0+float(i)*360.0/float(lon_N)
 
-    os.system('./plot_grid.sh ' + fname[0:len(fname)-4] + '\n')
-
-
-if __name__ == '__main__':
-
-    if len(sys.argv) == 1:
-        print('ERROR: enter SHTools grid name (*.dat)')
-        exit()
-
-    elif len(sys.argv) == 2:
-        if sys.argv[1] == '-h':
-            print('SHTOOLS GRID CONVERTER. Usage: python conver_shtools_grids.py grid_filename.dat')
-            exit()
-
-        else:
-            print('FILENAME: ' + sys.argv[1])
-            print('FILENAME: ' + sys.argv[1][0:len(sys.argv[1])-4])
-
-            conv_grid(sys.argv[1])
+            Y[k] = 90.0-float(j)*180.0/float(lat_N)
+            Z[k] = grid[j, i]
+            k += 1
 
 
-    else:
-        print('ERROR: wrong argument, use -h for help')
-        exit()
+    return X, Y, Z
+

@@ -20,7 +20,7 @@
    <string>Open another working directory</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabWidget_MainTabs">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_config">
      <attribute name="icon">
@@ -43,7 +43,7 @@
      <attribute name="title">
       <string>Config</string>
      </attribute>
-     <widget class="QPushButton" name="button_save">
+     <widget class="QPushButton" name="pushButton_SaveConfig">
       <property name="geometry">
        <rect>
         <x>460</x>
@@ -66,7 +66,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QTextEdit" name="config_editor">
+     <widget class="QTextEdit" name="textEdit_ConfigEditor">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -88,7 +88,7 @@
      <attribute name="title">
       <string>Plots</string>
      </attribute>
-     <widget class="QGraphicsView" name="plot_view">
+     <widget class="QGraphicsView" name="graphicsView_PlotView">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -98,7 +98,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_plot">
+     <widget class="QPushButton" name="pushButton_Plot">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -118,7 +118,7 @@
         <normaloff>icons/icons8-globe-48.png</normaloff>icons/icons8-globe-48.png</iconset>
       </property>
      </widget>
-     <widget class="QComboBox" name="combobox_plot">
+     <widget class="QComboBox" name="comboBox_GridList">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -131,7 +131,7 @@
        <string/>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_spec">
+     <widget class="QPushButton" name="pushButton_Spectrum">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -151,7 +151,7 @@
         <normaloff>icons/icons8-line-chart-64.png</normaloff>icons/icons8-line-chart-64.png</iconset>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_zoomout">
+     <widget class="QPushButton" name="pushButton_ZoomOut">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -177,7 +177,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_zoomin">
+     <widget class="QPushButton" name="pushButton_ZoomIn">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -212,7 +212,7 @@
      <attribute name="title">
       <string>Stages</string>
      </attribute>
-     <widget class="QPushButton" name="button_stage2">
+     <widget class="QPushButton" name="pushButton_CalculateTesseroidsFields">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -241,7 +241,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_stage3">
+     <widget class="QPushButton" name="pushButton_CreateDesignMatrix">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -270,7 +270,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QPushButton" name="button_stage1">
+     <widget class="QPushButton" name="pushButton_CreateTesseroidModel">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -299,7 +299,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QCheckBox" name="checkbox_checksums">
+     <widget class="QCheckBox" name="checkBox_InspectChecksums">
       <property name="geometry">
        <rect>
         <x>300</x>
@@ -327,7 +327,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="indicator_stage1">
+      <widget class="QLabel" name="label_IndicatorCreateTesseroidModel">
        <property name="geometry">
         <rect>
          <x>5</x>
@@ -362,7 +362,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="indicator_stage2">
+      <widget class="QLabel" name="label_IndicatorCalculateTesseroidsFields">
        <property name="geometry">
         <rect>
          <x>5</x>
@@ -397,7 +397,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="indicator_stage3">
+      <widget class="QLabel" name="label_IndicatorCreateDesignMatrix">
        <property name="geometry">
         <rect>
          <x>5</x>
@@ -417,7 +417,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="button_allstages">
+     <widget class="QPushButton" name="pushButton_ExecuteAll">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -452,7 +452,7 @@
      <attribute name="title">
       <string>Inversion</string>
      </attribute>
-     <widget class="QPushButton" name="button_invert">
+     <widget class="QPushButton" name="pushButton_Invert">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -493,7 +493,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QGraphicsView" name="result_view">
+      <widget class="QGraphicsView" name="graphicsView_ResultPlotView">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -506,7 +506,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QListWidget" name="result_list">
+      <widget class="QListWidget" name="listWidget_ResultsList">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -519,7 +519,7 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QPushButton" name="button_close">
+   <widget class="QPushButton" name="pushButton_Exit">
     <property name="geometry">
      <rect>
       <x>484</x>
@@ -545,7 +545,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="button_changefolder">
+   <widget class="QPushButton" name="pushButton_ChangeFolder">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -586,7 +586,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLabel" name="current_folder">
+    <widget class="QLabel" name="label_CurrentFolder">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -619,9 +619,9 @@
      </property>
     </widget>
    </widget>
-   <zorder>button_close</zorder>
-   <zorder>tabWidget</zorder>
-   <zorder>button_changefolder</zorder>
+   <zorder>pushButton_Exit</zorder>
+   <zorder>tabWidget_MainTabs</zorder>
+   <zorder>pushButton_ChangeFolder</zorder>
    <zorder>frame</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

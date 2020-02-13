@@ -5,6 +5,8 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
     import gmi_config
     gmi_config.read_config()
 
+    import gmi_misc
+
     nlat, nlon = x_grid.shape
 
     with open(fname + '.tess', 'w') as tessfile:
@@ -24,6 +26,10 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 
     os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
 
+    if os.path.isfile(fname + '.tess'):
+        gmi_misc.ok("Magnetic tesseroid model " + '\033[1m' + fname + '.tess' + '\033[0m' + " is created")
+    else
+        gmi_misc.error("model.magtess WAS NOT CREATED, CHECK IF " + '\033[1m' + gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + '\033[0m' + " IS WORKING PROPERLY")
 
 def main(dr):
     #**************** TESTING PARAMS (WOULD BE REMOVED)*******#
@@ -46,7 +52,7 @@ def main(dr):
     except:
         gmi_misc.error('CAN NOT OPEN WORKING DIRECTORY '+ dr + ', ABORTING...')
 
-    gmi_misc.info('WORKING DIRECTORY: '+ os.getcwd())
+    gmi_misc.message('Working directory: '+ os.getcwd())
     #**************** --------------------- ******************#
 
 
@@ -58,22 +64,18 @@ def main(dr):
 
     result_folder = gmi_misc.init_result_folder()
 
-
-
     import numpy as np
-    from scipy.interpolate import griddata
 
     n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
 
     Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
     Z_top = gmi_misc.read_surf_grid(gmi_config.TOP_SURFACE)
 
-    gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
+    if gmi_config.MULTIPLICATOR != 1.0:
+        gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
     _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
 
-
-    #CHECK THIS!!!!
     if CREATE_VIM_MODEL:
         if ('.vim' in gmi_config.INIT_SOLUTION) or ('.vis' in gmi_config.INIT_SOLUTION):
             sus_grid = gmi_misc.read_sus_grid(gmi_config.INIT_SOLUTION)
@@ -83,8 +85,6 @@ def main(dr):
             _create_tess_model_file(result_folder + '/model_with_x0_mult', x0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
             np.savetxt(result_folder + '/init_solution.x0', x0)
             gmi_misc.write_sus_grid_to_file(x0, result_folder + 'init_solution.xyz')
-
-    gmi_misc.ok("Magnetic tesseroid model \"model.magtess\" is created")
 
 
     #**************** WRITE MD5 PARAMS **************#
