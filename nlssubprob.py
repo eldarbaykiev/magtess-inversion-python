@@ -140,7 +140,7 @@ def nlssubprob_plt(V, W, Hinit, tol, maxiter):
 
         plt.draw()
 
-        fig.canvas.start_event_loop(0.0001)
+        fig.canvas.start_event_loop(0.001)
 
 
         grad = np.dot(WtW,H) - WtV
