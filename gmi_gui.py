@@ -130,7 +130,11 @@ class MainWindow(QtWidgets.QMainWindow):
         old_cwd = switch_path(self.GMI_PATH)
 
         config = gmi_config.read_config()
-        current_opt = str(self.listWidget_ResultsList.currentItem().text())
+        try:
+            current_opt = str(self.listWidget_ResultsList.currentItem().text())
+        except:
+            current_opt = '_none_'
+            gmi_misc.debug('bug to fix with restarting inversion win new paramters')
 
         self.listWidget_ResultsList.repaint()
 

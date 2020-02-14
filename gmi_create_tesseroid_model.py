@@ -1,14 +1,14 @@
 def _download_igrf():
-	import wget
-	import gmi_config
+    import wget
+    import gmi_config
 
-	url = "https://www.ngdc.noaa.gov/IAGA/vmod/geomag70_linux.tar.gz"
+    url = "https://www.ngdc.noaa.gov/IAGA/vmod/geomag70_linux.tar.gz"
 
-	wget.download(url, 'geomag70_linux.tar.gz')
-	
-	import tarfile
-	
-	tar = tarfile.open('geomag70_linux.tar.gz', "r:gz")
+    wget.download(url, 'geomag70_linux.tar.gz')
+
+    import tarfile
+
+    tar = tarfile.open('geomag70_linux.tar.gz', "r:gz")
     tar.extractfile()
     tar.close()
 	
