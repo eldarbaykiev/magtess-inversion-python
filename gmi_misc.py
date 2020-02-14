@@ -394,15 +394,20 @@ def write_sus_grid_to_file(sus, fname):
     gmi_config.read_config()
 
     n_lon, n_lat, X, Y = create_tess_cpoint_grid()
+    grid = X*0.0
 
     ind = 0
     with open(fname, 'w') as resfile:
         for i in range(n_lat-1, -1, -1):
             for j in range(n_lon):
                 string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus[ind])
+                grid[i, j] = sus[ind]
 
                 resfile.write(string + '\n')
                 ind = ind+1
+
+    return X, Y, grid
+
 
 def write_xyz_grid_to_file(x, y, z, fname):
     with open(fname, 'w') as resfile:
