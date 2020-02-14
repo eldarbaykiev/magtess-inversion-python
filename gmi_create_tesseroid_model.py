@@ -49,7 +49,7 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 
     if os.path.isfile(fname + '.tess'):
         gmi_misc.ok("Magnetic tesseroid model " + '\033[1m' + fname + '.tess' + '\033[0m' + " is created")
-    else
+    else:
         gmi_misc.error("model.magtess WAS NOT CREATED, CHECK IF " + '\033[1m' + gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + '\033[0m' + " IS WORKING PROPERLY")
 		
 
