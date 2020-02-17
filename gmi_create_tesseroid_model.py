@@ -40,10 +40,10 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
                 tessfile.write(string + '\n')
                 k = k + 1
 
-	if not os.path.isfile(gmi_config.IGRF_COEFF_FILENAME):
-            gmi_misc.warning('main field SH model ' + gmi_config.IGRF_COEFF_FILENAME + ' is missing, downloading IGRF13 from https://www.ngdc.noaa.gov/IAGA/vmod/geomag70_linux.tar.gz as a substitute! Check your config file')
-            _download_igrf()
-            gmi_config.IGRF_COEFF_FILENAME = 'geomag70_linux/IGRF13.COF'
+    if not os.path.isfile(gmi_config.IGRF_COEFF_FILENAME):
+        gmi_misc.warning('main field SH model ' + gmi_config.IGRF_COEFF_FILENAME + ' is missing, downloading IGRF13 from https://www.ngdc.noaa.gov/IAGA/vmod/geomag70_linux.tar.gz as a substitute! Check your config file')
+        _download_igrf()
+        gmi_config.IGRF_COEFF_FILENAME = 'geomag70_linux/IGRF13.COF'
 
     os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
 
