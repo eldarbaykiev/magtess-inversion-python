@@ -44,3 +44,47 @@ sudo python3 -m pip install [packagename]
 cd magtess-inversion-python
 python3 gmi_gui.py
 ```
+
+### macOS
+1. In **macOS**, first install [iTerm2](https://iterm2.com). Within **iTerm2** terminal install [brew](https://brew.sh) with command:
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew update && brew upgrade
+```
+
+Than install **zsh** with command :
+```
+brew install zsh
+```
+
+Make **zsh** a default shell in **iTerm2** by clicking iTerm2 -> Profiles -> Command: /bin/zsh.
+
+Restart **iTerm2** and install [Oh My Zsh](https://ohmyz.sh) with command:
+```
+sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```
+
+2. Install **Python 3** and other packages and programs:
+```
+brew install python3
+pip3 install --upgrade pip
+
+python3 -m pip install --upgrade pip
+
+python3 -m pip install scipy
+python3 -m pip install matplotlib
+python3 -m pip install tqdm
+
+python3 -m pip install pyqt5
+
+brew install gmt
+brew install libvpx
+brew install ffmpeg
+```
+
+3. Run code
+```
+cd magtess-inversion-python
+python3 gmi_gui.py
+```
