@@ -9,28 +9,28 @@ Download the distibution archive (https://github.com/eldarbaykiev/magtess-invers
 
 1. Install all necessary packages (**Python 3** with packages, **GMT**, **ffmpeg**):
 ```
-sudo apt install python3
-sudo apt install python3-pip
+apt install python3
+apt install python3-pip
 python3 -m pip install --upgrade pip
 
 python3 -m pip install scipy
 python3 -m pip install matplotlib
 python3 -m pip install tqdm
 
-sudo apt-get install ffmpeg
-sudo apt install gmt
+apt install ffmpeg
+apt install gmt
 ```
 
 If you have older **Ubuntu** (<=18.04), just install **PyQT5**:
 ```
-sudo python3 -m pip install pyqt5
+python3 -m pip install pyqt5
 ```
 If you have latest **Ubuntu** 19.10, there is a bug in **PyQT5** isntallation. Try to execute this:
 ```
-sudo apt install python3-widgetsnbextension
-sudo apt install python3-testresources
+apt install python3-widgetsnbextension
+apt install python3-testresources
 python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install pyqt5==5.14
+python3 -m pip install pyqt5==5.14
 ```
 or look up for solutions on the internet to install **PyQT5** without errors.
 
