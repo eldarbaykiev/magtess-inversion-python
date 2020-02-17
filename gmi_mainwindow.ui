@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>456</height>
+    <width>778</width>
+    <height>609</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,8 +28,8 @@
      <rect>
       <x>20</x>
       <y>40</y>
-      <width>581</width>
-      <height>331</height>
+      <width>751</width>
+      <height>491</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -43,11 +43,24 @@
      <attribute name="title">
       <string>Config</string>
      </attribute>
+     <widget class="QTextEdit" name="textEdit_ConfigEditor">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>741</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+     </widget>
      <widget class="QPushButton" name="pushButton_SaveConfig">
       <property name="geometry">
        <rect>
-        <x>460</x>
-        <y>270</y>
+        <x>635</x>
+        <y>430</y>
         <width>111</width>
         <height>32</height>
        </rect>
@@ -66,19 +79,6 @@
        </size>
       </property>
      </widget>
-     <widget class="QTextEdit" name="textEdit_ConfigEditor">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>10</y>
-        <width>571</width>
-        <height>251</height>
-       </rect>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_plots">
      <attribute name="icon">
@@ -93,8 +93,8 @@
        <rect>
         <x>0</x>
         <y>10</y>
-        <width>571</width>
-        <height>251</height>
+        <width>741</width>
+        <height>411</height>
        </rect>
       </property>
      </widget>
@@ -104,8 +104,8 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>270</y>
+        <x>470</x>
+        <y>430</y>
         <width>111</width>
         <height>32</height>
        </rect>
@@ -122,8 +122,8 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>270</y>
-        <width>281</width>
+        <y>430</y>
+        <width>461</width>
         <height>32</height>
        </rect>
       </property>
@@ -137,8 +137,8 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>390</x>
-        <y>270</y>
+        <x>580</x>
+        <y>430</y>
         <width>111</width>
         <height>32</height>
        </rect>
@@ -157,8 +157,8 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>510</x>
-        <y>270</y>
+        <x>690</x>
+        <y>430</y>
         <width>31</width>
         <height>32</height>
        </rect>
@@ -183,8 +183,8 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>540</x>
-        <y>270</y>
+        <x>715</x>
+        <y>430</y>
         <width>31</width>
         <height>32</height>
        </rect>
@@ -302,8 +302,8 @@
      <widget class="QCheckBox" name="checkBox_InspectChecksums">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>10</y>
+        <x>20</x>
+        <y>250</y>
         <width>171</width>
         <height>20</height>
        </rect>
@@ -423,7 +423,7 @@
         <x>0</x>
         <y>190</y>
         <width>211</width>
-        <height>51</height>
+        <height>50</height>
        </rect>
       </property>
       <property name="layoutDirection">
@@ -455,8 +455,8 @@
      <widget class="QPushButton" name="pushButton_Invert">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
+        <x>615</x>
+        <y>430</y>
         <width>131</width>
         <height>31</height>
        </rect>
@@ -483,8 +483,8 @@
        <rect>
         <x>0</x>
         <y>30</y>
-        <width>561</width>
-        <height>261</height>
+        <width>741</width>
+        <height>391</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -501,8 +501,8 @@
         <rect>
          <x>190</x>
          <y>10</y>
-         <width>361</width>
-         <height>241</height>
+         <width>541</width>
+         <height>371</height>
         </rect>
        </property>
       </widget>
@@ -512,7 +512,7 @@
          <x>10</x>
          <y>10</y>
          <width>171</width>
-         <height>241</height>
+         <height>371</height>
         </rect>
        </property>
       </widget>
@@ -522,8 +522,8 @@
    <widget class="QPushButton" name="pushButton_Exit">
     <property name="geometry">
      <rect>
-      <x>484</x>
-      <y>380</y>
+      <x>660</x>
+      <y>540</y>
       <width>111</width>
       <height>32</height>
      </rect>
@@ -551,8 +551,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>380</y>
+      <x>550</x>
+      <y>540</y>
       <width>111</width>
       <height>32</height>
      </rect>
@@ -576,7 +576,7 @@
      <rect>
       <x>19</x>
       <y>10</y>
-      <width>581</width>
+      <width>741</width>
       <height>21</height>
      </rect>
     </property>
@@ -591,7 +591,7 @@
       <rect>
        <x>30</x>
        <y>0</y>
-       <width>551</width>
+       <width>701</width>
        <height>20</height>
       </rect>
      </property>

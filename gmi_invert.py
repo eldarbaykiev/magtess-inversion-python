@@ -142,14 +142,14 @@ def main(dr):
     #SOLVING
     import gmi_inv_methods
 
-    print ("d_ideal (np.matmul(A, x0)):" + str(d_ideal))
-    print ("d (from magtess calculated grid):" + str(d))
+    print ("d_ideal (np.matmul(A, x0)) = " + str(d_ideal))
+    print ("d = " + str(d))
     print ("|d_ideal - d| = " + str(np.linalg.norm(d_ideal - d)))
 
     h = gmi_inv_methods.Projected_Gradient(A, d, x0)
 
-    print ("x0:" + str(x0))
-    print ("h:" + str(h))
+    print ("x0 = " + str(x0))
+    print ("h = " + str(h))
     print ("|x0 - h| = " + str(np.linalg.norm(x0 - h)))
 
     d_res = np.matmul(A_alldeg, h)

@@ -27,6 +27,8 @@ class PathDialog(QtWidgets.QDialog):
                 self.cfg.write(configfile)
 
 
+        self.setFixedSize(QtCore.QSize(self.width(), self.height()))
+
         self.cfg = configparser.ConfigParser()
         #with open('.config.ini', 'r') as configfile:
         self.cfg.read('.config.ini')

@@ -840,6 +840,7 @@ def main():
         sys.exit(-1)
 
     window = MainWindow()
+    window.setFixedSize(QtCore.QSize(window.width(), window.height()) )
 
     window.ReadWorkingDirectory()
     window.show()
