@@ -18,7 +18,7 @@ python3 -m pip install matplotlib
 python3 -m pip install tqdm
 
 apt install ffmpeg
-apt install gmt
+apt install gmt gmt-dcw gmt-gshhg
 ```
 
 If you have older **Ubuntu** (<=18.04), just install **PyQT5**:
