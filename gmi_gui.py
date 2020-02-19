@@ -519,15 +519,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def ReadWorkingDirectory(self):
-        with open(self.GMI_PATH + '/input.txt', 'r') as config_file:
-            buf = config_file.read()
-            self.textEdit_ConfigEditor.setText(buf)
-
         import configparser
         import gmi_config
 
         old_cwd = switch_path(self.GMI_PATH)
         config = gmi_config.read_config()
+
+        with open(self.GMI_PATH + '/input.txt', 'r') as config_file:
+            buf = config_file.read()
+            self.textEdit_ConfigEditor.setText(buf)
+
+
 
         self.comboBox_GridList.clear()
         self.comboBox_GridList.addItem('TOP_SURFACE')

@@ -67,7 +67,7 @@ def create_empty_config():
 										'IGRF_DAY' : 1,
 										'IGRF_MONTH' : 1,
 										'IGRF_YEAR' : 2014,
-										'IGRF_COEFF_FILENAME' : IGRF12.COF}
+                                                                                'IGRF_COEFF_FILENAME' : 'IGRF12.COF'}
 										
 	config['Global Grid'] = {'GRID_LON_MIN' : -180,
 							 'GRID_LON_MAX' : 180,
@@ -80,10 +80,10 @@ def create_empty_config():
 	config['Spherical Harmonics'] = {'N_MIN_CUTOFF' : 16}	
 	
 	config['Inversion'] = {'OBSERVED_DATA' : '',
-						   'SUBTRACT_DATA' : '',
-						   'INIT_SOLUTION' : '',
-						   'MAX_ITER' : 100,
-						   'MULTIPLICATOR' : 1.0}
+                               'SUBTRACT_DATA' : '',
+                               'INIT_SOLUTION' : '',
+                               'MAX_ITER' : 100,
+                               'MULTIPLICATOR' : 1.0}
 						   
 	config['Tiles'] = {'T_TESSWIDTH': '0',
 					   'T_LON_SIZE': '0',

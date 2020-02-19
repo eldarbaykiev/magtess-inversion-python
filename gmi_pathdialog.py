@@ -122,18 +122,40 @@ class PathDialog(QtWidgets.QDialog):
             gmi_misc.warning('Select new path to tessbz')
             return
 
+        HARDMODE = True
 
-        try:
-            shutil.copyfile(self.cfg.get('PATH', 'GMI_MAGNETIZER'), self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model')
-            os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model', st.st_mode | stat.S_IEXEC)
-        except:
-            gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_MAGNETIZER') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
+        if not HARDMODE:
+            try:
+                shutil.copyfile(self.cfg.get('PATH', 'GMI_MAGNETIZER'), self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model')
+                os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessutil_magnetize_model', st.st_mode | stat.S_IEXEC)
+            except:
+                gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_MAGNETIZER') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
 
-        try:
-            shutil.copyfile(self.cfg.get('PATH', 'GMI_TESSBZ'), self.cfg.get('PATH', 'GMI_PATH') + '/tessbz')
-            os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessbz', st.st_mode | stat.S_IEXEC)
-        except:
-            gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_TESSBZ') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
+            try:
+                shutil.copyfile(self.cfg.get('PATH', 'GMI_TESSBZ'), self.cfg.get('PATH', 'GMI_PATH') + '/tessbz')
+                os.chmod(self.cfg.get('PATH', 'GMI_PATH') + '/tessbz', st.st_mode | stat.S_IEXEC)
+            except:
+                gmi_misc.warning('Could not copy executable ' + self.cfg.get('PATH', 'GMI_TESSBZ') + ' to the working folder ' + self.cfg.get('PATH', 'GMI_PATH'))
+        else:
+            os.system('cp ' + self.cfg.get('PATH', 'GMI_MAGNETIZER').replace(' ', '\ ') + ' ' + self.cfg.get('PATH', 'GMI_PATH').replace(' ', '\ ') + '/tessutil_magnetize_model')
+            os.system('cp ' + self.cfg.get('PATH', 'GMI_TESSBZ').replace(' ', '\ ') + ' ' + self.cfg.get('PATH', 'GMI_PATH').replace(' ', '\ ') + '/tessbz')
+
+            CHMOD = ''
+
+            import sys
+
+            if sys.platform == 'linux':
+                CHMOD = 'chmod +x'
+
+            elif sys.platform == 'darwin':
+                CHMOD = 'chmod 755'
+            else:
+                gmi_misc.error('Unsupported operating system')
+
+            os.system(CHMOD + ' ' + (self.cfg.get('PATH', 'GMI_PATH')).replace(' ', '\ ') + '/tessutil_magnetize_model')
+            os.system(CHMOD + ' ' + (self.cfg.get('PATH', 'GMI_PATH')).replace(' ', '\ ') + '/tessbz')
+
+        if
 
 
         with open('.config.ini', 'w') as configfile:
