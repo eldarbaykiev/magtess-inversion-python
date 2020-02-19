@@ -202,6 +202,9 @@ def main(dr):
     shutil.copyfile('res_sht_shcoeff.spec', './' + result_folder + '/' + 'res_sht_shcoeff.spec')
     shutil.copyfile('res_sht_shcoeff.sht_shcoeff', './' + result_folder + '/' + 'res_sht_shcoeff.sht_shcoeff')
 
+
+    shutil.copyfile('nlssubprob.dat', './' + result_folder + '/' + 'nlssubprob.dat')
+
     try:
         shutil.copyfile('video_log.mp4', './' + result_folder + '/' + 'video_log.mp4')
     except:

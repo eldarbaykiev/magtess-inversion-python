@@ -168,6 +168,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         fname = str(self.listWidget_ResultsList.currentItem().text())
 
+        indrem = 3
+
         if '.dat' in fname:
             current_plot = output_folder + '/' + fname
 
@@ -184,6 +186,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             fig.savefig("temp.png")
             #plt.show()
+
+            indrem = 3
 
 
 
@@ -214,6 +218,8 @@ class MainWindow(QtWidgets.QMainWindow):
             plt.clf()
             plt.close()
 
+            indrem = 4
+
         elif '.sht_shcoeff' in fname:
             import pyshtools
             import matplotlib.pyplot as plt
@@ -226,6 +232,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             plt.clf()
             plt.close()
+
+            indrem = 11
 
 
         else:
@@ -254,9 +262,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 grid = gmi_misc.read_sus_grid(current_plot)
 
-
-
-
+            indrem = 3
 
             gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
 
@@ -267,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.graphicsView_ResultPlotView.show()
 
         import shutil
-        shutil.copyfile('temp.png', './' + output_folder + '/' + self.listWidget_ResultsList.currentItem().text()[:-3]+ 'png')
+        shutil.copyfile('temp.png', './' + output_folder + '/' + self.listWidget_ResultsList.currentItem().text()[:-indrem]+ 'png')
 
         switch_path_back(old_cwd)
 

@@ -155,7 +155,7 @@ class PathDialog(QtWidgets.QDialog):
             os.system(CHMOD + ' ' + (self.cfg.get('PATH', 'GMI_PATH')).replace(' ', '\ ') + '/tessutil_magnetize_model')
             os.system(CHMOD + ' ' + (self.cfg.get('PATH', 'GMI_PATH')).replace(' ', '\ ') + '/tessbz')
 
-        if
+
 
 
         with open('.config.ini', 'w') as configfile:
