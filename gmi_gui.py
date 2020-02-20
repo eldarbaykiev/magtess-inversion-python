@@ -187,6 +187,9 @@ class MainWindow(QtWidgets.QMainWindow):
             fig.savefig("temp.png")
             #plt.show()
 
+            plt.clf()
+            plt.close()
+
             indrem = 3
 
 
