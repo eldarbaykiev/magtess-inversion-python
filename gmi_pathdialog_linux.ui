@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>482</width>
+    <height>218</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Path</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icons/icons8-opened-folder-40.png</normaloff>icons/icons8-opened-folder-40.png</iconset>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>461</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="gmi_path_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>15</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Working directory</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="gmi_path">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>15</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="gmi_tessutil_filename_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>55</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>tessutilmagnetizemodel</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="gmi_tessbz_filename_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>95</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>tessbz</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="gmi_tessutil_filename">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>55</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="gmi_tessbz_filename">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>95</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="tessutil_browse">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>50</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Browse for tessutil_magnetize_model executable</string>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-gear-48.png</normaloff>icons/icons8-gear-48.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>22</width>
+      <height>22</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="path_browse">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>10</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Browse for working directory</string>
+    </property>
+    <property name="statusTip">
+     <string/>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-folder-40.png</normaloff>icons/icons8-folder-40.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>22</width>
+      <height>22</height>
+     </size>
+    </property>
+    <property name="shortcut">
+     <string>B</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="tessbz_browse">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>90</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Browse for tessbz executable</string>
+    </property>
+    <property name="text">
+     <string>Browse</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-gear-48.png</normaloff>icons/icons8-gear-48.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>22</width>
+      <height>22</height>
+     </size>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="mainlabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>-10</y>
+     <width>421</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Magtess inversion with tesseroids () Eldar Baykiev, year</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>190</y>
+     <width>161</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="help1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>41</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Help</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/icons8-help-16.png</normaloff>icons/icons8-help-16.png</iconset>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

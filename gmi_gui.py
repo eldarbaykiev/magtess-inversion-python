@@ -34,7 +34,14 @@ def switch_path_back(pth):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi("gmi_mainwindow.ui", self)
+
+        if sys.platform == 'darwin':
+            uic.loadUi("gmi_mainwindow.ui", self)
+        elif sys.platform == 'linux':
+            uic.loadUi("gmi_mainwindow_linux.ui", self)
+        else:
+            uic.loadUi("gmi_mainwindow.ui", self)
+
 
         #opened path
 

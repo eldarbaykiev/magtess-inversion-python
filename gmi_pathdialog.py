@@ -7,12 +7,19 @@ import configparser
 import os
 import shutil
 import stat
+import sys
 
 
 class PathDialog(QtWidgets.QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi("gmi_pathdialog.ui", self)
+
+        if sys.platform == 'darwin':
+            uic.loadUi("gmi_pathdialog.ui", self)
+        elif sys.platform == 'linux':
+            uic.loadUi("gmi_pathdialog_linux.ui", self)
+        else:
+            uic.loadUi("gmi_pathdialog.ui", self)
 
         self.setModal(True)
 

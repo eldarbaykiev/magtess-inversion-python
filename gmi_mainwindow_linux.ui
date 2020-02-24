@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>778</width>
+    <height>593</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="toolTip">
+   <string>Open another working directory</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget_MainTabs">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>751</width>
+      <height>491</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab_config">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-services-48.png</normaloff>icons/icons8-services-48.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Config</string>
+     </attribute>
+     <widget class="QTextEdit" name="textEdit_ConfigEditor">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>741</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_SaveConfig">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>430</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-save-48.png</normaloff>icons/icons8-save-48.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_plots">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-world-map-40.png</normaloff>icons/icons8-world-map-40.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Plots</string>
+     </attribute>
+     <widget class="QGraphicsView" name="graphicsView_PlotView">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>741</width>
+        <height>411</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_Plot">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>430</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Plot</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-globe-48.png</normaloff>icons/icons8-globe-48.png</iconset>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox_GridList">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>430</y>
+        <width>461</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="currentText">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_Spectrum">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>430</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Spectrum</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/icons8-line-chart-64.png</normaloff>icons/icons8-line-chart-64.png</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_ZoomOut">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>690</x>
+        <y>430</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/zoom-out-3-16.png</normaloff>icons/zoom-out-3-16.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_ZoomIn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>430</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/zoom-in-3-16.png</normaloff>icons/zoom-in-3-16.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>12</width>
+        <height>12</height>
+       </size>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_stages">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/icons8-checklist-48.png</normaloff>icons/icons8-checklist-48.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Stages</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_CalculateTesseroidsFields">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>70</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>Calculate the effect of each tesseroid in the model</string>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Calculate individual fields</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/magnetic-field-2.png</normaloff>icons/magnetic-field-2.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_CreateDesignMatrix">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>130</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>Create design matrix for inversion</string>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Create design matrix</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/matrix.png</normaloff>icons/matrix.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_CreateTesseroidModel">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>Create tesseroid model</string>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Create tesseroid model</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/topographic-vector-terrain-3-original.png</normaloff>icons/topographic-vector-terrain-3-original.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_InspectChecksums">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>250</y>
+        <width>171</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Monitor checksums</string>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_IndicatorCreateTesseroidModel">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_3">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>70</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_IndicatorCalculateTesseroidsFields">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_4">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>130</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_IndicatorCreateDesignMatrix">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>5</y>
+         <width>41</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>icons/icons8-delete-48.png</pixmap>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="pushButton_ExecuteAll">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>190</y>
+        <width>211</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Run all stages</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/c0c08cb62956aa05284daf6222b4b509.png</normaloff>icons/c0c08cb62956aa05284daf6222b4b509.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_inversion">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>icons/Layers.png</normaloff>icons/Layers.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Inversion</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_Invert">
+      <property name="geometry">
+       <rect>
+        <x>615</x>
+        <y>430</y>
+        <width>121</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Invert</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/Start.png</normaloff>icons/Start.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>30</y>
+        <width>741</width>
+        <height>391</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QGraphicsView" name="graphicsView_ResultPlotView">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>10</y>
+         <width>541</width>
+         <height>371</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QListWidget" name="listWidget_ResultsList">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>171</width>
+         <height>371</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Exit">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>540</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>Exit</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-exit-48.png</normaloff>icons/icons8-exit-48.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>16</width>
+      <height>16</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_ChangeFolder">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>540</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Change</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>icons/icons8-opened-folder-40.png</normaloff>icons/icons8-opened-folder-40.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>16</width>
+      <height>16</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>19</x>
+      <y>10</y>
+      <width>741</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_CurrentFolder">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>0</y>
+       <width>701</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>icons/icons8-folder-16.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>2</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>icons/icons8-folder-16.png</pixmap>
+     </property>
+    </widget>
+   </widget>
+   <zorder>pushButton_Exit</zorder>
+   <zorder>tabWidget_MainTabs</zorder>
+   <zorder>pushButton_ChangeFolder</zorder>
+   <zorder>frame</zorder>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
