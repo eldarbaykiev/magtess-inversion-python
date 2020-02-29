@@ -25,6 +25,21 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
 
     nlat, nlon = x_grid.shape
 
+    if gmi_config.T_DO_TILES:
+        width = gmi_config.T_WIDTH
+        minlon = gmi_config.T_LON_MIN-gmi_config.T_EDGE_EXT
+        maxlon = gmi_config.T_LON_MAX+gmi_config.T_EDGE_EXT
+
+        minlat = gmi_config.T_LAT_MIN-gmi_config.T_EDGE_EXT
+        maxlat = gmi_config.T_LAT_MAX+gmi_config.T_EDGE_EXT
+    else:
+        width = gmi_config.WIDTH
+        minlon = gmi_config.LON_MIN
+        maxlon = gmi_config.LON_MAX
+
+        minlat = gmi_config.LAT_MIN
+        maxlat = gmi_config.LAT_MAX
+
     with open(fname + '.tess', 'w') as tessfile:
         k = 0
         for i in range(nlat-1, -1, -1):
@@ -36,8 +51,10 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
                 else:
                     pass
 
-                string = str(x_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(x_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]-gmi_config.WIDTH/2.0) + ' ' + str(y_grid[i, j]+gmi_config.WIDTH/2.0) + ' ' + str(z_topg[i, j]) + ' ' +  str(z_botg[i, j]) + ' 1.0 ' + str(sus_curr)
-                tessfile.write(string + '\n')
+                if gmi_misc.check_if_in_boundary(x_grid[i, j], y_grid[i, j], minlon, maxlon, minlat, maxlat):
+                    string = str(x_grid[i, j]-width/2.0) + ' ' + str(x_grid[i, j]+width/2.0) + ' ' + str(y_grid[i, j]-width/2.0) + ' ' + str(y_grid[i, j]+width/2.0) + ' ' + str(z_topg[i, j]) + ' ' +  str(z_botg[i, j]) + ' 1.0 ' + str(sus_curr)
+                    tessfile.write(string + '\n')
+
                 k = k + 1
 
     if not os.path.isfile(gmi_config.IGRF_COEFF_FILENAME):
@@ -109,6 +126,7 @@ def main(dr):
             _create_tess_model_file(result_folder + '/model_with_x0', x0, X, Y, Z_top, Z_bot)
             _create_tess_model_file(result_folder + '/model_with_x0_mult', x0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
             np.savetxt(result_folder + '/init_solution.x0', x0)
+
             gmi_misc.write_sus_grid_to_file(x0, result_folder + 'init_solution.xyz')
 
 

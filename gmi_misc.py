@@ -55,17 +55,29 @@ def print_header():
     message ("")
     message ("")
 
+def check_if_in_boundary(x, y, x1, x2, y1, y2):
+    if ( (x > x1) and (x < x2) and (y > y1) and (y < y2) ):
+        return True
+    else:
+        return False
+
+
 def create_tess_cpoint_grid():
     import numpy as np
 
     import gmi_config
     gmi_config.read_config()
 
-    n_lon = int(abs(gmi_config.LON_MAX - gmi_config.WIDTH/2.0 - (gmi_config.LON_MIN + gmi_config.WIDTH/2.0)) / gmi_config.WIDTH + 1)
-    n_lat = int(abs(gmi_config.LAT_MAX - gmi_config.WIDTH/2.0 - (gmi_config.LAT_MIN + gmi_config.WIDTH/2.0)) / gmi_config.WIDTH + 1)
+    if gmi_config.T_DO_TILES:
+        width = gmi_config.T_WIDTH
+    else:
+        width = gmi_config.WIDTH
 
-    lons = np.linspace(gmi_config.LON_MIN+ gmi_config.WIDTH/2.0, gmi_config.LON_MAX-gmi_config.WIDTH/2.0, n_lon)
-    lats = np.linspace(gmi_config.LAT_MIN+ gmi_config.WIDTH/2.0, gmi_config.LAT_MAX-gmi_config.WIDTH/2.0, n_lat)
+    n_lon = int(abs(gmi_config.LON_MAX - width/2.0 - (gmi_config.LON_MIN + width/2.0)) / width + 1)
+    n_lat = int(abs(gmi_config.LAT_MAX - width/2.0 - (gmi_config.LAT_MIN + width/2.0)) / width + 1)
+
+    lons = np.linspace(gmi_config.LON_MIN+ width/2.0, gmi_config.LON_MAX-width/2.0, n_lon)
+    lats = np.linspace(gmi_config.LAT_MIN+ width/2.0, gmi_config.LAT_MAX-width/2.0, n_lat)
 
     X,Y = np.meshgrid(lons, lats)
 
@@ -86,18 +98,41 @@ def read_surf_grid(fname):
 def convert_surf_grid_to_xyz(grid):
     nlon, nlat, X, Y = create_tess_cpoint_grid()
 
+
+
     import numpy as np
-    grd_X = np.zeros(nlon*nlat)
-    grd_Y = np.zeros(nlon*nlat)
-    grd_VAL = np.zeros(nlon*nlat)
+
+    grd_X = np.array([])
+    grd_Y = np.array([])
+    grd_VAL = np.array([])
+
+    import gmi_config
+    gmi_config.read_config()
+
+    if gmi_config.T_DO_TILES:
+        width = gmi_config.T_WIDTH
+        minlon = gmi_config.T_LON_MIN-gmi_config.T_EDGE_EXT
+        maxlon = gmi_config.T_LON_MAX+gmi_config.T_EDGE_EXT
+
+        minlat = gmi_config.T_LAT_MIN-gmi_config.T_EDGE_EXT
+        maxlat = gmi_config.T_LAT_MAX+gmi_config.T_EDGE_EXT
+    else:
+        width = gmi_config.WIDTH
+        minlon = gmi_config.LON_MIN
+        maxlon = gmi_config.LON_MAX
+
+        minlat = gmi_config.LAT_MIN
+        maxlat = gmi_config.LAT_MAX
 
     k = 0
     for i in range(nlat-1, -1, -1):
         for j in range(nlon):
-            grd_X[k] = X[i, j]
-            grd_Y[k] = Y[i, j]
-            grd_VAL[k] = grid[i, j]
-            k += 1
+            if check_if_in_boundary(X[i, j], Y[i, j], minlon, maxlon, minlat, maxlat):
+
+                grd_X = np.append(grd_X, X[i, j])
+                grd_Y = np.append(grd_Y, Y[i, j])
+                grd_VAL = np.append(grd_VAL, grid[i, j])
+                k += 1
 
     return grd_X, grd_Y, grd_VAL
 
@@ -194,8 +229,13 @@ def create_calc_grid(filename):
     from scipy.interpolate import griddata
     import numpy as np
 
-    grid_n_lon = int(abs(gmi_config.GRID_LON_MAX - (gmi_config.GRID_LON_MIN)) / gmi_config.GRID_STEP + 1)
-    grid_n_lat = int(abs(gmi_config.GRID_LAT_MAX - (gmi_config.GRID_LAT_MIN)) / gmi_config.GRID_STEP + 1)
+    if gmi_config.T_DO_TILES:
+        grid_step = gmi_config.T_GRID_STEP
+    else:
+        grid_step = gmi_config.GRID_STEP
+
+    grid_n_lon = int(abs(gmi_config.GRID_LON_MAX - (gmi_config.GRID_LON_MIN)) / grid_step + 1)
+    grid_n_lat = int(abs(gmi_config.GRID_LAT_MAX - (gmi_config.GRID_LAT_MIN)) / grid_step + 1)
 
     grid_lons = np.linspace(gmi_config.GRID_LON_MIN, gmi_config.GRID_LON_MAX, grid_n_lon)
     grid_lats = np.linspace(gmi_config.GRID_LAT_MIN, gmi_config.GRID_LAT_MAX, grid_n_lat)
@@ -393,18 +433,36 @@ def write_sus_grid_to_file(sus, fname):
     import gmi_config
     gmi_config.read_config()
 
+    if gmi_config.T_DO_TILES:
+        width = gmi_config.T_WIDTH
+        minlon = gmi_config.T_LON_MIN-gmi_config.T_EDGE_EXT
+        maxlon = gmi_config.T_LON_MAX+gmi_config.T_EDGE_EXT
+
+        minlat = gmi_config.T_LAT_MIN-gmi_config.T_EDGE_EXT
+        maxlat = gmi_config.T_LAT_MAX+gmi_config.T_EDGE_EXT
+    else:
+        width = gmi_config.WIDTH
+        minlon = gmi_config.LON_MIN
+        maxlon = gmi_config.LON_MAX
+
+        minlat = gmi_config.LAT_MIN
+        maxlat = gmi_config.LAT_MAX
+
     n_lon, n_lat, X, Y = create_tess_cpoint_grid()
     grid = X*0.0
+
+
 
     ind = 0
     with open(fname, 'w') as resfile:
         for i in range(n_lat-1, -1, -1):
             for j in range(n_lon):
-                string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus[ind])
-                grid[i, j] = sus[ind]
+                if check_if_in_boundary(X[i, j], Y[i, j], minlon, maxlon, minlat, maxlat):
+                    string = str(X[i, j]) + ' ' + str(Y[i, j]) + ' ' + str(sus[ind])
+                    grid[i, j] = sus[ind]
 
-                resfile.write(string + '\n')
-                ind = ind+1
+                    resfile.write(string + '\n')
+                    ind = ind+1
 
     return X, Y, grid
 
