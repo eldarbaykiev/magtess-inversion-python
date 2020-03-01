@@ -274,7 +274,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
             indrem = 3
 
-            gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
+            if gmi_config.T_DO_TILES:
+                type_p = 2
+            else:
+                type_p = 1
+
+            gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units, type_p)
+
 
         result_pixmap =  QtGui.QPixmap('temp.png')
         self.graphicsScene_ResultPlotScene.addPixmap(result_pixmap.scaledToHeight(self.graphicsView_ResultPlotView.geometry().height()*0.95))
@@ -801,7 +807,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             pass
 
-        gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units)
+        gmi_gmt.plot_global_grid(grid, surf, pname, min, max, colorsch, uname, units, 1)
 
         plot_pixmap =  QtGui.QPixmap('temp.png')
         self.graphicsScene_PlotScene.addPixmap(plot_pixmap.scaledToHeight(self.graphicsView_PlotView.geometry().height()*self.zoomfactor))
