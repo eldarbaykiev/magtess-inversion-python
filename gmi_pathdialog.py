@@ -43,8 +43,10 @@ class PathDialog(QtWidgets.QDialog):
         self.mainlabel = self.findChild(QtWidgets.QLabel, 'mainlabel')
         import datetime
         now = datetime.datetime.now()
+        
+        import platform
 
-        self.mainlabel.setText("Magtess inversion with tesseroids v" + str(gmi_misc.version()) + "\nEldar Baykiev, " + str(now.year))
+        self.mainlabel.setText("Magtess inversion with tesseroids v" + str(gmi_misc.version()) + ". Eldar Baykiev, " + str(now.year) + "\n" + str(sys.executable) + " (" + str(platform.python_version()) + ')')
 
         self.gmi_path = self.findChild(QtWidgets.QLineEdit, 'gmi_path')
         self.gmi_path.setText(self.cfg.get('PATH', 'GMI_PATH'))

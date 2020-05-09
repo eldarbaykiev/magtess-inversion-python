@@ -59,8 +59,9 @@ def plot_global_grid(grid_array, surf, name, minv, maxv, cs, text_val, text_unit
     if platform.system() == "Linux":
         gmt_command = 'gmt'
     elif platform.system() == "Darwin":
-        gmt_command = '/Applications/GMT-5.3.3.app/Contents/Resources/bin/gmt'
-        gmt_command = '/usr/local/Cellar/gmt/6.0.0_4/bin/gmt'
+        #gmt_command = '/Applications/GMT-5.3.3.app/Contents/Resources/bin/gmt'
+        gmt_command = '/usr/local/Cellar/gmt/6.0.0_5/bin/gmt'
+        #gmt_command = 'gmt'
     else:
         pass
 

@@ -10,12 +10,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 
-import gmi_pathdialog, gmi_helpwindow
+import gmi_pathdialog
 
 import sys, os
 import numpy as np
 
 import gmi_misc
+
 
 def switch_path(pth):
     old_cwd = os.getcwd()
