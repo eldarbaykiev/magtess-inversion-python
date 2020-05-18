@@ -18,7 +18,7 @@ class bcolors:
     CEND = '\033[0m'
 
 def version():
-    return "0.1.0"
+    return "0.2.0"
 
 def init_result_folder():
 
@@ -41,6 +41,10 @@ def init_result_folder():
 
     return foldername
 
+def print_python():
+    print("Python " + str(sys.version))
+    print(sys.executable)
+
 def print_header():
     from datetime import date
     today = date.today()
@@ -54,6 +58,8 @@ def print_header():
     message (bcolors.HEADER + "*"*34 + bcolors.ENDC)
     message ("")
     message ("")
+    
+    print_python()
 
 def check_if_in_boundary(x, y, x1, x2, y1, y2):
     if ( (x > x1) and (x < x2) and (y > y1) and (y < y2) ):
