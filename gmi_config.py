@@ -13,6 +13,9 @@ WIDTH = 0
 TOP_SURFACE = ""
 BOT_SURFACE = ""
 
+MULTILAYER = False
+PATH_SURFACES = ""
+
 IGRF_DAY = 0
 IGRF_MONTH = 0
 IGRF_YEAR = 0
@@ -66,6 +69,7 @@ def create_empty_config():
 
                                         'TOP_SURFACE' : '',
                                         'BOT_SURFACE' : '',
+                                        'PATH_SURFACES' : '',
 
                                         'IGRF_DAY' : 1,
                                         'IGRF_MONTH' : 1,
@@ -109,10 +113,32 @@ def read_config():
         gmi_misc.warning('no input.txt file in the directory, creating an empty one...')
         create_empty_config()
         config.readfp(open(r'input.txt'))
-
+        
+    #get project name
     try:
         this.PROJECT_NAME = str(config.get('Name', 'PROJECT_NAME'))
+    except:
+        gmi_misc.error('Necessary parameters in input.txt are missing! ABORTING') 
 
+
+    try:
+        this.MULTILAYER = True
+        this.PATH_SURFACES = config.get('Global Tesseroid Model', 'PATH_SURFACES')
+    except:
+        gmi_misc.debug('Path to the list of surfaces in input.txt is missing! ABORTING')
+        this.MULTILAYER = False
+       
+
+    if (this.MULTILAYER == False):
+        try:
+            this.TOP_SURFACE = config.get('Global Tesseroid Model', 'TOP_SURFACE')
+            this.BOT_SURFACE = config.get('Global Tesseroid Model', 'BOT_SURFACE')
+                
+        except:
+            gmi_misc.error('Necessary parameters in input.txt are missing! ABORTING')    
+        
+
+    try:
         #Global Tesseroid Model
         this.LON_MIN = float(config.get('Global Tesseroid Model', 'LON_MIN'))
         this.LON_MAX = float(config.get('Global Tesseroid Model', 'LON_MAX'))
@@ -120,8 +146,7 @@ def read_config():
         this.LAT_MAX = float(config.get('Global Tesseroid Model', 'LAT_MAX'))
         this.WIDTH = float(config.get('Global Tesseroid Model', 'WIDTH'))
 
-        this.TOP_SURFACE = config.get('Global Tesseroid Model', 'TOP_SURFACE')
-        this.BOT_SURFACE = config.get('Global Tesseroid Model', 'BOT_SURFACE')
+        
 
         this.IGRF_DAY = int(config.get('Global Tesseroid Model', 'IGRF_DAY'))
         this.IGRF_MONTH = int(config.get('Global Tesseroid Model', 'IGRF_MONTH'))
@@ -148,6 +173,7 @@ def read_config():
         this.MULTIPLICATOR = float(config.get('Inversion', 'MULTIPLICATOR'))
     except:
         gmi_misc.error('Necessary parameters in input.txt are missing! ABORTING')
+        
 
     try:
         #Tiles
@@ -162,7 +188,7 @@ def read_config():
         this.T_GRID_STEP = float(config.get('Tiles', 'T_GRID_STEP'))
 
     except:
-        gmi_misc.debug('tile inversion parameters are missing in input.txt')
+        gmi_misc.debug('Tile inversion parameters are missing in input.txt')
         this.T_DO_TILES = False
 
 
