@@ -1,3 +1,5 @@
+
+
 def _download_igrf():
     import wget
     import gmi_config
@@ -65,7 +67,7 @@ def _create_tess_model_file(fname, suscept, x_grid, y_grid, z_topg, z_botg):
     os.system(gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + ' ' + gmi_config.IGRF_COEFF_FILENAME + ' ' + fname + '.tess ' + str(gmi_config.IGRF_DAY) + ' ' + str(gmi_config.IGRF_MONTH) + ' ' + str(gmi_config.IGRF_YEAR) + ' ' + fname + '.magtess')
 
     if os.path.isfile(fname + '.tess'):
-        gmi_misc.ok("Magnetic tesseroid model " + '\033[1m' + fname + '.tess' + '\033[0m' + " is created")
+        gmi_misc.ok("Magnetic tesseroid model " + fname + '.tess' + " is created")
     else:
         gmi_misc.error("model.magtess WAS NOT CREATED, CHECK IF " + '\033[1m' + gmi_config.TESSUTIL_MAGNETIZE_MODEL_FILENAME + '\033[0m' + " IS WORKING PROPERLY")
 		
@@ -81,7 +83,7 @@ def main(dr):
     import gmi_misc
     #**************** PRINT HEADER ***************************#
     gmi_misc.print_header()
-    print ("Creation of a tesseroid model")
+    gmi_misc.message("Creation of a tesseroid model")
     #**************** ------------ ***************************#
 
     #**************** GET WORKING DIRECTORY ******************#
@@ -112,33 +114,35 @@ def main(dr):
     
     #*********************************************************#
     
+    gmi_misc.message('Path to surfaces: '+ gmi_config.PATH_SURFACES)
     
+    import glob, re
+    surfaces_filenames = glob.glob(gmi_config.PATH_SURFACES + '/*')
+    try:
+        surfaces_filenames.sort(key=lambda f: int(re.sub('\D', '', f))) #good initial sort but doesnt sort numerically very well
+        sorted(surfaces_filenames) #sort numerically in ascending order
+    except:
+        gmi_misc.error('CHECK FILENAMES IN LAYERS FOLDER - THERE SHOULD BE INTEGER NUMBERS IN FILENAMES TO INDICATE THE ORDER OF SURFACES')
+        
     
+    gmi_misc.message('All surfaces: ' + str(surfaces_filenames))
     
-    
+    for li,this_surf,next_surf in zip(range(len(surfaces_filenames)-1), surfaces_filenames[0:-1], surfaces_filenames[1:]):
+        gmi_misc.message('Layer '+ str(li)+': upper surface ' + this_surf + ', lower surface: ' + next_surf)
+        
+        Z_bot = gmi_misc.read_surf_grid(next_surf)
+        Z_top = gmi_misc.read_surf_grid(this_surf)
+        
+        if gmi_config.MULTIPLICATOR != 1.0:
+            gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
 
-    Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
-    Z_top = gmi_misc.read_surf_grid(gmi_config.TOP_SURFACE)
-
-    if gmi_config.MULTIPLICATOR != 1.0:
-        gmi_misc.warning("NOTE: SUSCEPTIBILITY OF EACH TESSEROID IS MULTIPLIED BY "+ str(gmi_config.MULTIPLICATOR))
-
-    _create_tess_model_file('model', 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
-
-    if CREATE_VIM_MODEL:
-        if ('.vim' in gmi_config.INIT_SOLUTION) or ('.vis' in gmi_config.INIT_SOLUTION):
-            sus_grid = gmi_misc.read_sus_grid(gmi_config.INIT_SOLUTION)
-            dm1, dm2, x0 = gmi_misc.convert_surf_grid_to_xyz(sus_grid)
-
-            _create_tess_model_file(result_folder + '/model_with_x0', x0, X, Y, Z_top, Z_bot)
-            _create_tess_model_file(result_folder + '/model_with_x0_mult', x0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
-            np.savetxt(result_folder + '/init_solution.x0', x0)
-
-            gmi_misc.write_sus_grid_to_file(x0, result_folder + 'init_solution.xyz')
+        _create_tess_model_file('layer' + str(li), 1.0*gmi_config.MULTIPLICATOR, X, Y, Z_top, Z_bot)
 
 
     #**************** WRITE MD5 PARAMS **************#
 
+    #/fix it
+    '''
     import hashlib
     file_name = 'model.magtess'
     with open(file_name, 'r') as file_to_check:
@@ -155,7 +159,7 @@ def main(dr):
     }
     np.save('checksums.npy', dictionary)
     #**************** ---------------- **************#
-
+    '''
 
     #**************** RETURN BACK TO INITIAL PATH ***#
     os.chdir(old_cwd)

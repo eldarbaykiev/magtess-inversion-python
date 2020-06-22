@@ -18,7 +18,7 @@ class bcolors:
     CEND = '\033[0m'
 
 def version():
-    return "0.2.0"
+    return "0.3.0"
 
 def init_result_folder():
 
@@ -51,10 +51,10 @@ def print_header():
 
     message (bcolors.HEADER + "*"*34 + bcolors.ENDC)
     message (bcolors.HEADER + "*   GLOBAL MAGNETIC INVERSION    *" + bcolors.ENDC)
-    message (bcolors.HEADER + "*      Eldar Baykiev, 2019       *" + bcolors.ENDC)
-    message (bcolors.HEADER + "*        v" + version() + " "*(23-len(version()))+ "*" + bcolors.ENDC)
+    message (bcolors.HEADER + "*      Eldar Baykiev, 2020       *" + bcolors.ENDC)
+    message (bcolors.HEADER + "*            v" + version() + " "*(19-len(version()))+ "*" + bcolors.ENDC)
     message (bcolors.HEADER + "*                                *" + bcolors.ENDC)
-    message (bcolors.HEADER + "*           " + today.strftime("%d/%m/%Y") + " "*11 + "*" + bcolors.ENDC)
+    message (bcolors.HEADER + "*          " + today.strftime("%d/%m/%Y") + " "*12 + "*" + bcolors.ENDC)
     message (bcolors.HEADER + "*"*34 + bcolors.ENDC)
     message ("")
     message ("")
