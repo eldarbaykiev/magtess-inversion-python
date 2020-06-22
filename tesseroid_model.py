@@ -81,7 +81,7 @@ def main(dr):
     import gmi_misc
     #**************** PRINT HEADER ***************************#
     gmi_misc.print_header()
-    print ("Script no. 1: Creation of a tesseroid model")
+    print ("Creation of a tesseroid model")
     #**************** ------------ ***************************#
 
     #**************** GET WORKING DIRECTORY ******************#
@@ -111,6 +111,11 @@ def main(dr):
     n_lon, n_lat, X, Y = gmi_misc.create_tess_cpoint_grid()
     
     #*********************************************************#
+    
+    
+    
+    
+    
 
     Z_bot = gmi_misc.read_surf_grid(gmi_config.BOT_SURFACE)
     Z_top = gmi_misc.read_surf_grid(gmi_config.TOP_SURFACE)
