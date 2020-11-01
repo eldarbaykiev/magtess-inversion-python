@@ -84,7 +84,7 @@ def Projected_Gradient(A, d, x_0):
     x_0col = x_0[:, np.newaxis]
 
     import nlssubprob
-    h = nlssubprob.nlssubprob_plt(d_col,A,x_0col,1e-6,gmi_config.MAX_ITER)
+    h = nlssubprob.nlssubprob(d_col,A,x_0col,1e-6,gmi_config.MAX_ITER)
 
     end = time.time()
     print("  Time spent: " + str(end - start) + " sec")

@@ -413,10 +413,21 @@ def read_coeffs_from_text_file(shc_filename, n_cutoff):
 
 def convert_result_into_shtools_format(vect, fname):
     import numpy as np
+    
+    import glob, re
+    models_filenames = glob.glob('layer*.magtess')
+    try:
+        models_filenames.sort(key=lambda f: int(re.sub('\D', '', f))) #good initial sort but doesnt sort numerically very well
+        sorted(models_filenames) #sort numerically in ascending order
+    except:
+        gmi_misc.error('CHECK FILENAMES IN LAYERS FOLDER - THERE SHOULD BE INTEGER NUMBERS IN FILENAMES TO INDICATE THE ORDER OF SURFACES')
+        
+    this_model_noext = models_filenames[0].split('.')[0]
 
     try:
-        shdata = np.loadtxt('model/tess_n0.coeff', delimiter=",")
+        shdata = np.loadtxt(this_model_noext + '/tess_n0.coeff', delimiter=",")
     except:
+        
         print ("CAN NOT OPEN model/tess_n0.coeff")
         exit(-1)
 
