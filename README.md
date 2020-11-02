@@ -108,6 +108,7 @@ Main window contain the editor for the main parameter file - `input.txt`.
 Parameter file `input.txt` contains of several sections and parameters:
 
 | Section | Parameter | Description | 
+|---|---|---|
 | Name | | |
 | | PROJECT_NAME | Project name |
 | Global Tesseroid Model | | Global model's edges |
