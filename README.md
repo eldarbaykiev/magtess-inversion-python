@@ -107,42 +107,42 @@ In the opened window you should provide paths to a Working directory (a folder w
 Main window contain the editor for the main parameter file - `input.txt`.
 Parameter file `input.txt` contains of several sections and parameters:
 
-| Section | Parameter | Description | 
-|---|---|---|
-| Name | | |
-| | PROJECT_NAME | Project name |
-| Global Tesseroid Model | | Global model's edges |
-| | LON_MIN | Minimal longitude (should be -180) |
-| | LON_MAX | Maximal longitude (should be 180) |
-| | LAT_MIN | Minimal latitude (should be -90) |
-| | LAT_MAX | Maximal latitude (should be 90) |
-| | WIDTH | Tesseroid width  in the model |
-| | TOP_SURFACE | Path to the file (LON LAT HEIGHT [m] format) with the geometry of the top model's surface
-| |  BOT_SURFACE | Path to the file (LON LAT HEIGHT [m] format) with the geometry of the bottom model's surface
-| | IGRF_DAY | Datum for magnetizing main field - day |
-| | IGRF_MONTH | Month |
-| | IGRF_YEAR | Year |
-| | IGRF_COEFF_FILENAME | Path to the SH of the main field (IGRF) |
-| Global Grid | | Calculation grid's parameters |
-| | GRID_LON_MIN | Minimal grid longitude/western edge |
-| | GRID_LON_MAX | Maximal grid longitude/eastern edge |
-| | GRID_LAT_MIN | Minimal grid latitude/southern edge |
-| | GRID_LAT_MAX | Maximal grid latitude/northern edge |
-| | GRID_ALT | Grid altitude |
-| | GRID_STEP | Grid spacing in degrees |
+| Section | Parameter | Description | Example |
+|---|---|---|---|
+| Name | | | |
+| | PROJECT_NAME | Project name | inv_test_tile_1_nov_2020 |
+| Global Tesseroid Model | | Global model's edges | |
+| | LON_MIN | Minimal longitude (should be -180) | -180 |
+| | LON_MAX | Maximal longitude (should be 180) | 180 |
+| | LAT_MIN | Minimal latitude (should be -90) | -90 |
+| | LAT_MAX | Maximal latitude (should be 90) | 90 |
+| | WIDTH | Tesseroid width  in the model | 2.0 |
+| | TOP_SURFACE | Path to the file (LON LAT HEIGHT [m] format) with the geometry of the top model's surface | data/crust1_top.csv |
+| |  BOT_SURFACE | Path to the file (LON LAT HEIGHT [m] format) with the geometry of the bottom model's surface | global_moho/moho.csv |
+| | IGRF_DAY | Datum for magnetizing main field - day | 1 |
+| | IGRF_MONTH | Month | 1 |
+| | IGRF_YEAR | Year | 2012 |
+| | IGRF_COEFF_FILENAME | Path to the SH of the main field (IGRF) | IGRF12.COF |
+| Global Grid | | Calculation grid's parameters | |
+| | GRID_LON_MIN | Minimal grid longitude/western edge | -180 |
+| | GRID_LON_MAX | Maximal grid longitude/eastern edge | 180 |
+| | GRID_LAT_MIN | Minimal grid latitude/southern edge | -90 |
+| | GRID_LAT_MAX | Maximal grid latitude/northern edge | 90 |
+| | GRID_ALT | Grid altitude | 400000 |
+| | GRID_STEP | Grid spacing in degrees | 0.5 |
 | Spherical Harmonics | | |
-| | N_MIN_CUTOFF | Cutoff degree |
+| | N_MIN_CUTOFF | Cutoff degree (all SH degrees below are removed) | 16
 | Inversion | | Inversion parameters |
-| | OBSERVED_DATA | Path to the grid with observed data (LON LAT Bz [nT] format) |
-| | SUBTRACT_DATA | Path to the grid that should be subtracted from the observed data (LON LAT Bz [nT] format) | 
-| | INIT_SOLUTION | Path to the grid with the initial solution (LON LAT SUSCEPTIBILITY format) |
-| | MAX_ITER | Maximal number of iterations |
-| | MULTIPLICATOR | Multiplicator (for cases of very small values) |
-| Tiles | | Tile inversion parameters |
-| | T_LON_MIN | Western edge of the tile (and the calculation grid) | 
-| | T_LON_MAX | Eastern edge of the tile | 
-| | T_LAT_MIN | Southern edge of the tile | 
-| | T_LAT_MAX | Northern edge of the tile | 
-| |  T_WIDTH = 0.5 | Tesseroid width |
-| |  T_EDGE_EXT = 15 | Tile extension in degrees |
-| | T_GRID_STEP = 0.5 | Tile calculation grid spacing |
+| | OBSERVED_DATA | Path to the grid with observed data (LON LAT Bz [nT] format) | bangui_test_area_5km/LCS1_paper_inv_res.magtess_grid_sat_glob.txt_Bz.xyz | 
+| | SUBTRACT_DATA | Path to the grid that should be subtracted from the observed data (LON LAT Bz [nT] format) | bangui_test_area_5km/LCS1_paper_inv_res.magtess_grid_sat_glob.txt_Bz.xyz_minus_piece_LCS1_paper_inv_res.magtess_grid_sat_glob.txt_Bz.xyz |
+| | INIT_SOLUTION | Path to the grid with the initial solution (LON LAT SUSCEPTIBILITY format) | result_LCS1_hemant_iter10000/res.xyz |
+| | MAX_ITER | Maximal number of iterations | 10000 |
+| | MULTIPLICATOR | Multiplicator (for cases of very small values) | 1.0 |
+| Tiles | | Tile inversion parameters | |
+| | T_LON_MIN | Western edge of the tile (and the calculation grid) | -5 |
+| | T_LON_MAX | Eastern edge of the tile | 30 |
+| | T_LAT_MIN | Southern edge of the tile | -5 |
+| | T_LAT_MAX | Northern edge of the tile | 30 |
+| |  T_WIDTH = 0.5 | Tesseroid width | 0.5 |
+| |  T_EDGE_EXT = 15 | Tile extension in degrees | 15 |
+| | T_GRID_STEP = 0.5 | Tile calculation grid spacing | 0.5 |
